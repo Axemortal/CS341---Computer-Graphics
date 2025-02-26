@@ -1,11 +1,11 @@
-import {createREGL} from "../lib/regljs_2.1.0/regl.module.js"
-import {setMatrixArrayType} from "../lib/gl-matrix_3.3.0/esm/common.js"
-import {DOM_loaded_promise, register_button_with_hotkey} from "./icg_web.js"
+import { createREGL } from "../lib/regljs_2.1.0/regl.module.js"
+import { setMatrixArrayType } from "../lib/gl-matrix_3.3.0/esm/common.js"
+import { DOM_loaded_promise, register_button_with_hotkey } from "./icg_web.js"
 
-import {Raytracer} from "./raytracer_pipeline.js"
-import {load_scenes} from "./scenes.js"
+import { Raytracer } from "./raytracer_pipeline.js"
+import { load_scenes } from "./scenes.js"
 
-import {init_menu} from "./menu.js"
+import { init_menu } from "./menu.js"
 
 setMatrixArrayType(Array);
 
@@ -18,7 +18,7 @@ function init_dom_elems(elem_canvas, on_resize_func) {
 		elem_canvas.width = s
 		elem_canvas.height = s
 
-		if(window.innerHeight < window.innerWidth) {
+		if (window.innerHeight < window.innerWidth) {
 			elem_body.style['flex-flow'] = 'row'
 		} else {
 			elem_body.style['flex-flow'] = 'column'
@@ -26,7 +26,7 @@ function init_dom_elems(elem_canvas, on_resize_func) {
 	}
 	window.addEventListener('resize', () => {
 		resize_canvas()
-		if(on_resize_func) {
+		if (on_resize_func) {
 			on_resize_func()
 		}
 	})
@@ -42,11 +42,11 @@ async function main() {
 		profile: true, // if we want to measure the size of buffers/textures in memory
 		extensions: [
 			'OES_texture_float',
-		], 
+		],
 	})
 	console.log('MAX_VERTEX_UNIFORM_VECTORS', regl._gl.MAX_VERTEX_UNIFORM_VECTORS)
 
-	const {SCENES} = await load_scenes()
+	const { SCENES } = await load_scenes()
 
 	// Init ray-tracing
 	const rt = new Raytracer({
@@ -54,7 +54,7 @@ async function main() {
 		scenes: SCENES,
 	})
 	await rt.init(regl)
-	
+
 	init_dom_elems(elem_canvas, () => rt.regenerate_view())
 
 	// Saving the image
@@ -64,8 +64,8 @@ async function main() {
 
 
 	rt.draw_scene({
-		scene_name: 'creature', 
-		shading_mode: 'Normals', 
+		scene_name: 'creature',
+		shading_mode: 'Normals',
 		num_reflections: 0,
 	})
 
