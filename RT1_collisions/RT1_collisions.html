@@ -1,0 +1,774 @@
+<!DOCTYPE html><html lang="en"><head>
+	<meta charset="utf-8">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title> RT1 - Planes and Cylinders </title>
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    padding: 0;
+    padding-bottom: 10rem;
+    margin: 0;
+    border: 0;
+
+    max-width: 55rem;
+    margin-left: auto;
+    margin-right: auto;
+
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 1.2rem;
+    line-height: 1.6;
+
+    text-align: justify;
+    background-color: hsla(0, 0%, 100%, 0.8); 
+}
+
+h1, h2, h3, h4, h5, h6, a {
+    margin-top: 4rem;
+    color: hsl(204, 80%, 28%);
+}
+
+h6 {
+    font-weight: normal;
+}
+
+p, ul {
+    margin-left: 1.5em;
+    margin-right: 1.5em;
+}
+
+h3, h4, h5, h6 {
+    margin-left: 1em;
+}
+
+ul {
+    padding-left: 1.5em;
+}
+
+h2 {
+    margin-top: 5em;
+    padding: 1em;
+
+    width: 100%;
+
+    background: hsla(0, 0%, 97%, 0.2); 
+    border: solid 2px hsla(236, 18%, 81%, 0.5);
+    border-radius: 0.3rem;
+}
+
+h1 { font-size: 2em; }
+h2 { font-size: 1.75em; }
+h3 { font-size: 1.4em; }
+h4 { font-size: 1.05em; }
+h5 { 
+    font-size: 1.05em; 
+    font-style: italic;
+}
+
+body > img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+code {
+    color: hsl(210, 10%, 35%);
+}
+
+figure {
+    margin-bottom: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+    
+    width: 100%;
+    max-width: 100%;
+
+    display: flex;
+    flex-flow: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+figure.captioned {
+    flex-flow: column;
+}
+
+figcaption {
+    margin: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+
+    max-height: 30rem;
+
+    text-align: center;
+
+    font-style: italic;
+}
+
+figure img, video {
+    object-fit: contain;
+    max-width: inherit;
+    max-height: inherit;
+}
+
+figure.col2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 1rem;
+}
+
+figure.col3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-column-gap: 1rem;
+}
+
+.box {
+    margin-left: 1rem;
+    border: 0.1rem solid;
+    border-top: 0.3rem solid;
+    border-radius: 0.3rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.box.practice {
+    border-color: hsl(204, 100%, 40%, 0.5);
+    background: hsla(204, 100%, 90%, 0.2); 
+}
+
+.box.task {
+    border-color: hsla(29, 100%, 50%, 0.5);
+    background: hsla(32, 100%, 90%, 0.2); 
+}
+
+.box.hint {
+    border-color: hsla(21, 100%, 50%, 0.702);
+    background: hsla(26, 100%, 90%, 0.248); 
+}
+
+.box.project {
+    border-color: hsla(294, 79%, 26%, 0.702);
+    background: hsla(294, 46%, 92%, 0.588); 
+}
+
+.box.grade {
+    border-color: hsla(29, 93%, 57%, 0.5);
+    background: hsla(12, 100%, 90%, 0.2); 
+}
+
+.box h2,
+.box h3,
+.box h4,
+.box h5 {
+    color: black;
+    margin-top: 1rem;
+}
+
+pre {
+    background: hsla(0, 0%, 0%, 0.05);
+    border-radius: 0.5rem;
+}
+
+pre {
+    font-size: 0.9rem;
+    margin-left: 2rem;
+}
+
+.sourceCode a {
+    color: black;
+    pointer-events: none;
+    text-decoration: none;
+}
+
+
+</style>
+
+<!-- <link rel="stylesheet" href="3rdparty/pseudocode.min.css">
+<script src="3rdparty/pseudocode.min.js"></script>
+<script src="3rdparty/katex/katex.min.js"></script> -->
+<style type="text/css">
+                            .mjpage .MJX-monospace {
+                            font-family: monospace
+                            }
+
+                            .mjpage .MJX-sans-serif {
+                            font-family: sans-serif
+                            }
+
+                            .mjpage {
+                            display: inline;
+                            font-style: normal;
+                            font-weight: normal;
+                            line-height: normal;
+                            font-size: 100%;
+                            font-size-adjust: none;
+                            text-indent: 0;
+                            text-align: left;
+                            text-transform: none;
+                            letter-spacing: normal;
+                            word-spacing: normal;
+                            word-wrap: normal;
+                            white-space: nowrap;
+                            float: none;
+                            direction: ltr;
+                            max-width: none;
+                            max-height: none;
+                            min-width: 0;
+                            min-height: 0;
+                            border: 0;
+                            padding: 0;
+                            margin: 0
+                            }
+
+                            .mjpage * {
+                            transition: none;
+                            -webkit-transition: none;
+                            -moz-transition: none;
+                            -ms-transition: none;
+                            -o-transition: none
+                            }
+
+                            .mjx-svg-href {
+                            fill: blue;
+                            stroke: blue
+                            }
+
+                            .MathJax_SVG_LineBox {
+                            display: table!important
+                            }
+
+                            .MathJax_SVG_LineBox span {
+                            display: table-cell!important;
+                            width: 10000em!important;
+                            min-width: 0;
+                            max-width: none;
+                            padding: 0;
+                            border: 0;
+                            margin: 0
+                            }
+
+                            .mjpage__block {
+                            text-align: center;
+                            margin: 1em 0em;
+                            position: relative;
+                            display: block!important;
+                            text-indent: 0;
+                            max-width: none;
+                            max-height: none;
+                            min-width: 0;
+                            min-height: 0;
+                            width: 100%
+                            }</style></head>
+
+<body>
+
+<h1>RT1 - Planes and Cylinders</h1>
+
+<ul>
+<li><a href="#tasks" id="toc-tasks">Tasks</a>
+<ul>
+<li><a href="#ray-plane-intersection" id="toc-ray-plane-intersection">Ray-Plane Intersection</a></li>
+<li><a href="#ray-cylinder-intersection" id="toc-ray-cylinder-intersection">Ray-Cylinder Intersection</a></li>
+</ul></li>
+<li><a href="#grading" id="toc-grading">Grading</a></li>
+<li><a href="#custom-scenes" id="toc-custom-scenes">Custom
+scenes</a></li>
+<li><a href="#what-to-hand-in" id="toc-what-to-hand-in">What to Hand
+in</a></li>
+</ul>
+
+<figure id="exp-primitives">
+<img src="doc/expected_primitives.jpg">
+</figure>
+<p>In this assignment, you will implement ray intersections with planes
+and cylinders and compute surface normals at the intersection points.
+The framework code provided this week is identical to last week’s,
+except we added methods for ray/planes and ray/cylinder intersections in
+<code>src/tracer.frag.glsl</code>.</p>
+<p>The above picture shows what we expect you to produce after
+successfully completing all the tasks. The framework is configured to
+visualize the surface normals in false color (the normal XYZ components
+in [-1, 1] are mapped linearly to RGB values in [0, 1]).</p>
+<p>Regarding the orientation (sign) of surface normals, the raytracer
+expects your implementation to always return a normal pointing
+<strong>towards</strong> the viewer! For “non-closed” objects like the
+plane and open cylinder, where the ray may hit the surface from either
+side, you must choose the sign appropriately based on the ray direction.
+Specifically, the normal and view ray should always point in opposite
+directions.</p>
+<p>After successful implementation of all the tasks in this homework,
+you should get an image that looks like the one above: use it as
+reference to check your results.</p>
+<h2 id="tasks">Tasks</h2>
+<p>We first want to compute the intersection point between a ray and a
+plane, as well the normal at that point. We then want to extend the
+computations to the case of a ray and a cylinder.</p>
+<h3 id="ray-plane-intersection">Ray-Plane Intersection</h3>
+<p>First, you are asked to implement the intersection of a ray with a
+plane defined by its normal <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.544ex" height="2.343ex" style="vertical-align: -1.005ex;" viewBox="0 -576.1 1095.5 1008.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">\mathbf{n}_p</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-70" x="904" y="-213"></use>
+</g>
+</svg></span></span> (normalized) and offset
+along its normal <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="0.998ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 429.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-2-Title">
+<title id="MathJax-SVG-2-Title">b</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-62" x="0" y="0"></use>
+</g>
+</svg></span></span>. Points <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.411ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 607.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-3-Title">
+<title id="MathJax-SVG-3-Title">\mathbf{x}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-78" x="0" y="0"></use>
+</g>
+</svg></span></span> on this plane therefore verify
+<span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="9.731ex" height="2.843ex" style="vertical-align: -1.005ex;" viewBox="0 -791.3 4189.5 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-4-Title">
+<title id="MathJax-SVG-4-Title">\mathbf{x} \cdot \mathbf{n}_p =
+b</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-78" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-22C5" x="829" y="0"></use>
+<g transform="translate(1330,0)">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-70" x="904" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-3D" x="2703" y="0"></use>
+ <use xlink:href="#MJMATHI-62" x="3760" y="0"></use>
+</g>
+</svg></span></span>.</p>
+<section id="task-rt1.1-implement-ray-plane-intersections" class="box task">
+<h4>Task RT1.1: Implement Ray-Plane Intersections</h4>
+<ul>
+<li>Fill in the method <code>ray_plane_intersection</code> in
+<code>tracer.frag.glsl</code>.
+<ul>
+<li>Compute the intersection between the ray and the plane.
+<ul>
+<li>If the ray and the plane are parallel there is no intersection.</li>
+<li>Otherwise, compute intersection data and store it in
+<code>normal</code>, and <code>t</code> (distance along ray until
+intersection).</li>
+</ul></li>
+<li>Return whether there is an intersection in front of the viewer
+(<code>t &gt; 0</code>).</li>
+</ul></li>
+<li>The plane is two-sided, so the normal you return depends on the side
+from which we view it. The normal rendered in the image should not
+change if the plane normal is flipped. Test this by negating (setting to
+minus the same vector) a plane normal in <code>src/scenes.js</code> and
+checking that the resulting image is unchanged.</li>
+</ul>
+<section id="hint" class="box hint">
+<h5>Hint</h5>
+<p>To test the intersection expression you derived on paper is correct,
+we provide you with an example of what you should obtain with the
+following parameters (<span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.544ex" height="2.343ex" style="vertical-align: -1.005ex;" viewBox="0 -576.1 1095.5 1008.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-5-Title">
+<title id="MathJax-SVG-5-Title">\mathbf{n}_p</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-70" x="904" y="-213"></use>
+</g>
+</svg></span></span>
+is the plane normal, <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="0.998ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 429.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-6-Title">
+<title id="MathJax-SVG-6-Title">b</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-62" x="0" y="0"></use>
+</g>
+</svg></span></span> is the plane
+offset):</p>
+<ul>
+<li><span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.337ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 575.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-7-Title">
+<title id="MathJax-SVG-7-Title">\mathbf{o}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6F" x="0" y="0"></use>
+</g>
+</svg></span></span> = [0.05, 0.0, 0.0],
+<span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.485ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 639.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-8-Title">
+<title id="MathJax-SVG-8-Title">\mathbf{d}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-64" x="0" y="0"></use>
+</g>
+</svg></span></span> =
+<code>normalize</code>([0.1, 0.1, 1.0])</li>
+<li><span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.544ex" height="2.343ex" style="vertical-align: -1.005ex;" viewBox="0 -576.1 1095.5 1008.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-9-Title">
+<title id="MathJax-SVG-9-Title">\mathbf{n}_p</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-70" x="904" y="-213"></use>
+</g>
+</svg></span></span> =
+<code>normalize</code>([1.0, 1.0, 1.0]), <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="0.998ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 429.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-10-Title">
+<title id="MathJax-SVG-10-Title">b</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-62" x="0" y="0"></use>
+</g>
+</svg></span></span> = 0.5</li>
+</ul>
+<p>You should obtain the following ray parameter <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="0.84ex" height="2.009ex" style="vertical-align: -0.338ex;" viewBox="0 -719.6 361.5 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-11-Title">
+<title id="MathJax-SVG-11-Title">t</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-74" x="0" y="0"></use>
+</g>
+</svg></span></span>, intersection point <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="0.742ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 319.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-12-Title">
+<title id="MathJax-SVG-12-Title">\mathbf{i}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-69" x="0" y="0"></use>
+</g>
+</svg></span></span>, and normal <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.485ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 639.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-13-Title">
+<title id="MathJax-SVG-13-Title">\mathbf{n}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+</g>
+</svg></span></span>:</p>
+<ul>
+<li><span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="0.84ex" height="2.009ex" style="vertical-align: -0.338ex;" viewBox="0 -719.6 361.5 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-14-Title">
+<title id="MathJax-SVG-14-Title">t</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-74" x="0" y="0"></use>
+</g>
+</svg></span></span> = 0.6868, <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="0.742ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 319.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-15-Title">
+<title id="MathJax-SVG-15-Title">\mathbf{i}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-69" x="0" y="0"></use>
+</g>
+</svg></span></span> = [0.1180, 0.06800, 0.6800],
+<span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.485ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 639.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-16-Title">
+<title id="MathJax-SVG-16-Title">\mathbf{n}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+</g>
+</svg></span></span> = [-0.5773, -0.5773,
+-0.5773]</li>
+</ul>
+<p>We encourage you to solve the intersection equation with pen and
+paper and check that the result matches the reference above.</p>
+</section>
+<ul>
+<li>Check the image generated in <em>Normals</em> mode for the scene
+named <code>primitives</code>. Compare it with the <a href="#exp-primitives">reference image</a> at the beginning of this
+handout. You should see the planes appearing in the background. Check
+that the colors (i.e.&nbsp;the normals) match the reference. Note that you
+have not yet implemented the ray-cylinder intersection routine, so the
+cylinder will still be missing.</li>
+<li>Check the images generated in <em>Normals</em> mode for scenes
+<code>corner1</code> and <code>corner2</code>.</li>
+</ul>
+</section>
+<p><br></p>
+<section id="project-preparation" class="box project">
+<h4>Project Preparation</h4>
+<p>As it is often the case in real life scenarios, you do not have
+access to the ground truth for <code>corner1</code> and
+<code>corner2</code>. Validating your implementation is a crucial part
+of code development. In this course, this is an essential skill to
+succeed in your final project. Understanding how to test your code is
+part of the learning goals of this series of assignments.</p>
+<p>One way to validate your implementation is to design test scenes
+where you know the geometry and the expected results. You can start by
+analysing the definition of the scene corresponding to
+<code>corner1</code> and <code>corner2</code> in
+<code>src/scenes.js</code>, understand how the camera is oriented, and
+make sure the results you see rendered in the browser are consistent
+with the geometry specified in the file.</p>
+<p>We encourage you to design your own test scenes and to add them to
+the <code>src/scenes.js</code> file. Convince yourself that the results
+you obtain are consistent with the geometry you defined before moving
+forward.</p>
+</section>
+<h3 id="ray-cylinder-intersection">Ray-Cylinder Intersection</h3>
+<p>You are asked to derive an expression for the intersection with an
+<em>open</em> cylinder (i.e.&nbsp;without end caps). You will then implement
+the ray-cylinder intersection and verify that the resulting image
+matches the <a href="#exp-primitives">reference image</a> we
+provide.</p>
+<figure id="fig-cylinders">
+<img src="doc/cyl_diagram.png">
+</figure>
+<section id="task-rt1.2.1-derive-the-expression-for-a-ray-cylinder-intersection" class="box task">
+<h4>Task RT1.2.1: Derive the Expression for a Ray-Cylinder
+Intersection</h4>
+<ul>
+<li>Derive the intersection between a ray and a cylinder. Discuss how to
+compute the parameter <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="0.84ex" height="2.009ex" style="vertical-align: -0.338ex;" viewBox="0 -719.6 361.5 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-17-Title">
+<title id="MathJax-SVG-17-Title">t</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-74" x="0" y="0"></use>
+</g>
+</svg></span></span>, which
+solution to pick in case multiple exist, and how to define the cylinder
+normal.</li>
+<li>Please use the following notation: the ray has origin <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.337ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 575.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-18-Title">
+<title id="MathJax-SVG-18-Title">\mathbf{o}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6F" x="0" y="0"></use>
+</g>
+</svg></span></span> and direction <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.485ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 639.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-19-Title">
+<title id="MathJax-SVG-19-Title">\mathbf{d}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-64" x="0" y="0"></use>
+</g>
+</svg></span></span>. The cylinder has center <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.188ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 511.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-20-Title">
+<title id="MathJax-SVG-20-Title">\mathbf{c}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+</g>
+</svg></span></span>, radius <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.049ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 451.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-21-Title">
+<title id="MathJax-SVG-21-Title">r</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-72" x="0" y="0"></use>
+</g>
+</svg></span></span>, axis <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.299ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 559.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-22-Title">
+<title id="MathJax-SVG-22-Title">\mathbf{a}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-61" x="0" y="0"></use>
+</g>
+</svg></span></span> (normalized) and height <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.339ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 576.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-23-Title">
+<title id="MathJax-SVG-23-Title">h</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-68" x="0" y="0"></use>
+</g>
+</svg></span></span> (see <a href="#fig-cylinders">diagram</a>).</li>
+</ul>
+</section>
+<p>We ask you to typeset your solution in LaTeX. If you are not familiar
+with LaTeX, we suggest you have a look at <a href="https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes">Overleaf’s
+quick tutorial</a>. You will need to write your solution in the provided
+template file <code>theory.md</code>, located in the
+<code>theory/</code> directory. The file is written in Markdown, which
+is a simple and easy-to-use markup language you can use to format any
+document. There is no need for you to learn advanced Markdown syntax:
+the template we provide is already set up for you to write your
+solution. In case you want more information on how to use Markdown,
+please check the <a href="https://www.markdownguide.org/getting-started/">Markdown
+Guide</a>.</p>
+<p>You can compile the Markdown file to <code>html</code> using <a href="https://pandoc.org/installing.html"><code>pandoc</code></a>, which
+you can download it from the linked website. To compile
+<code>theory.md</code> into <code>html</code> simply run
+<code>make</code> from the <code>theory/</code> directory:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> theory</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span></span></code></pre></div>
+<p>This will generate the <code>theory.html</code> file, which you can
+open in your browser.</p>
+<section id="project-preparation-1" class="box project">
+<h4>Project Preparation</h4>
+<p>We will use the same typesetting and compilation framework for the
+final project. This exercise is a good opportunity to familiarize
+yourself with the system, as well as with LaTeX, in case you have not
+used it before.</p>
+</section>
+<p>The next step is then to implement your solution. The approach we
+recommend for implementing the intersection is to first determine where
+the ray intersects a version of the cylinder that extends infinitely in
+each direction (as if <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="9.085ex" height="2.343ex" style="vertical-align: -0.505ex;" viewBox="0 -791.3 3911.6 1008.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-24-Title">
+<title id="MathJax-SVG-24-Title">h\rightarrow
++\infty</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-68" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-2192" x="854" y="0"></use>
+ <use xlink:href="#MJMAIN-2B" x="2132" y="0"></use>
+ <use xlink:href="#MJMAIN-221E" x="2911" y="0"></use>
+</g>
+</svg></span></span>). Then, from this list of intersection candidates,
+discard those that fall outside the cylinder’s actual extent. Finally,
+choose the intersection closest to the viewer, if multiple exist.</p>
+<section id="task-rt1.2.2-implement-ray-cylinder-intersections" class="box task">
+<h4>Task RT1.2.2: Implement Ray-Cylinder Intersections</h4>
+<ul>
+<li>Fill in the method <code>ray_cylinder_intersection</code> in
+<code>tracer.frag.glsl</code>.
+<ul>
+<li>Compute the first valid intersection between the ray and the
+cylinder (valid means in front of the viewer:
+<code>t &gt; 0</code>).</li>
+<li>Store the intersection point in
+<code>intersection_point</code>.</li>
+<li>Store the ray parameter in <code>t</code>.</li>
+<li>Store the normal at intersection_point in <code>normal</code>.</li>
+<li>Return whether there is an intersection with
+<code>t &gt; 0</code>.</li>
+</ul></li>
+</ul>
+<section id="hint-1" class="box hint">
+<h5>Hint</h5>
+<p>You can use the <code>solve_quadratic</code> function provided in
+<code>tracer.frag.glsl</code>.</p>
+</section>
+<ul>
+<li>Check the images generated in <em>Normals</em> mode for scenes
+<code>cylinders</code>, <code>barrel</code>, and
+<code>creature</code>.</li>
+</ul>
+<section id="hint-2" class="box hint">
+<h5>Hint</h5>
+<p>To test the intersection expression you derived on paper is correct,
+we provide you with an example of what you should obtain with the
+following parameters:</p>
+<ul>
+<li><span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.337ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 575.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-25-Title">
+<title id="MathJax-SVG-25-Title">\mathbf{o}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6F" x="0" y="0"></use>
+</g>
+</svg></span></span> = [0.05, 0.0, 0.0],
+<span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.485ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 639.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-26-Title">
+<title id="MathJax-SVG-26-Title">\mathbf{d}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-64" x="0" y="0"></use>
+</g>
+</svg></span></span> =
+<code>normalize</code>([0.5, 0.3, 1.0])</li>
+<li><span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.188ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 511.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-27-Title">
+<title id="MathJax-SVG-27-Title">\mathbf{c}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+</g>
+</svg></span></span> = [0.0, 0.0, 0.1],
+<span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.299ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 559.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-28-Title">
+<title id="MathJax-SVG-28-Title">\mathbf{a}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-61" x="0" y="0"></use>
+</g>
+</svg></span></span> = [0.0, 0.0, 1.0], <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.049ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 451.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-29-Title">
+<title id="MathJax-SVG-29-Title">r</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-72" x="0" y="0"></use>
+</g>
+</svg></span></span> = 0.1, <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.339ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 576.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-30-Title">
+<title id="MathJax-SVG-30-Title">h</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-68" x="0" y="0"></use>
+</g>
+</svg></span></span> = 0.5</li>
+</ul>
+<p>You should obtain the following ray parameter <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="0.84ex" height="2.009ex" style="vertical-align: -0.338ex;" viewBox="0 -719.6 361.5 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-31-Title">
+<title id="MathJax-SVG-31-Title">t</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-74" x="0" y="0"></use>
+</g>
+</svg></span></span>, intersection point <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="0.742ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 319.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-32-Title">
+<title id="MathJax-SVG-32-Title">\mathbf{i}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-69" x="0" y="0"></use>
+</g>
+</svg></span></span>, and normal <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.485ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 639.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-33-Title">
+<title id="MathJax-SVG-33-Title">\mathbf{n}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+</g>
+</svg></span></span>:</p>
+<ul>
+<li><span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="0.84ex" height="2.009ex" style="vertical-align: -0.338ex;" viewBox="0 -719.6 361.5 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-34-Title">
+<title id="MathJax-SVG-34-Title">t</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-74" x="0" y="0"></use>
+</g>
+</svg></span></span> = 0.1067, <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="0.742ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 319.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-35-Title">
+<title id="MathJax-SVG-35-Title">\mathbf{i}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-69" x="0" y="0"></use>
+</g>
+</svg></span></span> = [0.09610, 0.02766, 0.09220],
+<span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.485ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 639.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-36-Title">
+<title id="MathJax-SVG-36-Title">\mathbf{n}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+</g>
+</svg></span></span> = [-0.9610, -0.2766,
+0.0]</li>
+</ul>
+<p>We encourage you to solve the intersection equation with pen and
+paper and check that the result matches the reference above.</p>
+</section>
+</section>
+<h2 id="grading">Grading</h2>
+<p>Each task of this assignment are graded as follow:</p>
+<ul>
+<li>Ray-plane intersection: 20%</li>
+<li>Ray-cylinder intersection + normal derivation (theory exercise):
+25%</li>
+<li>Ray-cylinder intersection implementation: 40%</li>
+<li>Cylinder normal implementation: 15%</li>
+</ul>
+<h2 id="custom-scenes">Custom scenes</h2>
+<p>Composing a scene out of planes, spheres and cylinders can be a
+creative puzzle. We invite you to try making your own scenes and share
+them. This task is not graded, but it will help you in getting familiar
+with the design workflow needed for the final project.</p>
+<section id="project-preparation-2" class="box project">
+<h4>Project Preparation</h4>
+<p>To create your own scene, you can use the provided template file
+<code>RT_scenes.blend</code>.</p>
+<p>We suggest starting with the following simple edits:</p>
+<ul>
+<li>Copy and paste the primitives (<code>Cylinder</code>,
+<code>Sphere</code>, <code>Plane-Floor</code>, <code>Plane-Wall</code>)
+to make more of them.
+<ul>
+<li>Note 1: As you paste or create a new primitive, make sure it is
+added to the <code>scene_custom</code> collection by either clicking on
+the box icon next to the collection name beforehand, or by dragging the
+new object into the collection. The export script will only export
+objects in this collection.</li>
+<li>Note 2: The export script detects the object type based on the
+object name. Make sure to name your new objects <code>Cylinder</code>,
+<code>Sphere</code>, and <code>Plane</code> accordingly.</li>
+</ul></li>
+<li>Move [G], rotate [R] and scale [S] them to arrange your scene.</li>
+<li>You can also move the camera object in the scene. View the current
+camera placement with [Numpad0] (or [Cmd 0] on Mac). You can set the
+camera object to align with the current viewport with <em>Align Active
+Camera to View</em> with [Ctrl Alt Numpad0] (or [Option Cmd 0] on
+Mac).</li>
+</ul>
+<figure style="width: 90%;">
+<img src="doc/blender_custom_scene_1.jpg">
+</figure>
+<ul>
+<li>When the scene is ready, switch to the scripting view and run the
+script:</li>
+</ul>
+<figure style="width: 90%;">
+<img src="doc/blender_custom_scene_2.jpg">
+</figure>
+<ul>
+<li>The file <code>export_scene_custom.js</code> should have been
+written. Locate it in the root directory and open it with a text editor.
+Copy the scene description into <code>src/scenes.js</code> and add it to
+the list of existing scenes. Your scene should now be available for
+rendering.</li>
+</ul>
+</section>
+<h2 id="what-to-hand-in">What to Hand in</h2>
+<p>Please edit the file <code>readme.md</code> adding a brief
+description (approximately 10 to 20 lines) of how you solved the
+proposed exercises. In the same file, report individual contributions
+following this scheme (sciper in parentheses):</p>
+<pre><code>Name1 Surname1 (000001): 1/3
+Name2 Surname2 (000002): 1/3
+Name3 Surname3 (000003): 1/3</code></pre>
+<p>We ask you to only report global contributions, there is no need to
+provide additional details for each sub-task. The three contributions
+should add up to 1.</p>
+<p>Make sure the <code>theory.md</code> and <code>theory.html</code>
+files containing the solution to task RT1.2.1 are in the
+<code>RT1_collisions</code> directory.</p>
+<p>Compress the directory with all the files it contains – the source
+code with your solution, the source code you did not modify, the
+libraries, the readme, etc. – into a <code>.zip</code> archive. Rename
+the zipped file into <code>Exercise1-Group&lt;GX&gt;.zip</code>, where
+<code>&lt;GX&gt;</code> is your group number, according to the group you
+enrolled in on Moodle.</p>
+<p>Note that it is your responsibility to check that all the components
+necessary to run the code are included. <strong>We will run your web app
+to generate the results. These results we obtain will determine your
+grade</strong>.</p>
+
+ 
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;"><defs id="MathJax_SVG_glyphs"><path stroke-width="1" id="MJMAINB-6E" d="M40 442Q217 450 218 450H224V407L225 365Q233 378 245 391T289 422T362 448Q374 450 398 450Q428 450 448 447T491 434T529 402T551 346Q553 335 554 198V62H623V0H614Q596 3 489 3Q374 3 365 0H356V62H425V194V275Q425 348 416 373T371 399Q326 399 288 370T238 290Q236 281 235 171V62H304V0H295Q277 3 171 3Q64 3 46 0H37V62H106V210V303Q106 353 104 363T91 376Q77 380 50 380H37V442H40Z"></path><path stroke-width="1" id="MJMATHI-70" d="M23 287Q24 290 25 295T30 317T40 348T55 381T75 411T101 433T134 442Q209 442 230 378L240 387Q302 442 358 442Q423 442 460 395T497 281Q497 173 421 82T249 -10Q227 -10 210 -4Q199 1 187 11T168 28L161 36Q160 35 139 -51T118 -138Q118 -144 126 -145T163 -148H188Q194 -155 194 -157T191 -175Q188 -187 185 -190T172 -194Q170 -194 161 -194T127 -193T65 -192Q-5 -192 -24 -194H-32Q-39 -187 -39 -183Q-37 -156 -26 -148H-6Q28 -147 33 -136Q36 -130 94 103T155 350Q156 355 156 364Q156 405 131 405Q109 405 94 377T71 316T59 280Q57 278 43 278H29Q23 284 23 287ZM178 102Q200 26 252 26Q282 26 310 49T356 107Q374 141 392 215T411 325V331Q411 405 350 405Q339 405 328 402T306 393T286 380T269 365T254 350T243 336T235 326L232 322Q232 321 229 308T218 264T204 212Q178 106 178 102Z"></path><path stroke-width="1" id="MJMATHI-62" d="M73 647Q73 657 77 670T89 683Q90 683 161 688T234 694Q246 694 246 685T212 542Q204 508 195 472T180 418L176 399Q176 396 182 402Q231 442 283 442Q345 442 383 396T422 280Q422 169 343 79T173 -11Q123 -11 82 27T40 150V159Q40 180 48 217T97 414Q147 611 147 623T109 637Q104 637 101 637H96Q86 637 83 637T76 640T73 647ZM336 325V331Q336 405 275 405Q258 405 240 397T207 376T181 352T163 330L157 322L136 236Q114 150 114 114Q114 66 138 42Q154 26 178 26Q211 26 245 58Q270 81 285 114T318 219Q336 291 336 325Z"></path><path stroke-width="1" id="MJMAINB-78" d="M227 0Q212 3 121 3Q40 3 28 0H21V62H117L245 213L109 382H26V444H34Q49 441 143 441Q247 441 265 444H274V382H246L281 339Q315 297 316 297Q320 297 354 341L389 382H352V444H360Q375 441 466 441Q547 441 559 444H566V382H471L355 246L504 63L545 62H586V0H578Q563 3 469 3Q365 3 347 0H338V62H366Q366 63 326 112T285 163L198 63L217 62H235V0H227Z"></path><path stroke-width="1" id="MJMAIN-22C5" d="M78 250Q78 274 95 292T138 310Q162 310 180 294T199 251Q199 226 182 208T139 190T96 207T78 250Z"></path><path stroke-width="1" id="MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path><path stroke-width="1" id="MJMAINB-6F" d="M287 -5Q228 -5 182 10T109 48T63 102T39 161T32 219Q32 272 50 314T94 382T154 423T214 446T265 452H279Q319 452 326 451Q428 439 485 376T542 221Q542 156 514 108T442 33Q384 -5 287 -5ZM399 230V250Q399 280 398 298T391 338T372 372T338 392T282 401Q241 401 212 380Q190 363 183 334T175 230Q175 202 175 189T177 153T183 118T195 91T215 68T245 56T287 50Q348 50 374 84Q388 101 393 132T399 230Z"></path><path stroke-width="1" id="MJMAINB-64" d="M351 686L442 690Q533 694 534 694H540V389Q540 327 540 253T539 163Q539 97 541 83T555 66Q569 62 596 62H609V31Q609 0 608 0Q588 0 510 -3T412 -6Q411 -6 411 16V38L401 31Q337 -6 265 -6Q159 -6 99 58T38 224Q38 265 51 303T92 375T165 429T272 449Q359 449 417 412V507V555Q417 597 415 607T402 620Q388 624 361 624H348V686H351ZM411 350Q362 399 291 399Q278 399 256 392T218 371Q195 351 189 320T182 238V221Q182 179 183 159T191 115T212 74Q241 46 288 46Q358 46 404 100L411 109V350Z"></path><path stroke-width="1" id="MJMATHI-74" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"></path><path stroke-width="1" id="MJMAINB-69" d="M72 610Q72 649 98 672T159 695Q193 693 217 670T241 610Q241 572 217 549T157 525Q120 525 96 548T72 610ZM46 442L136 446L226 450H232V62H294V0H286Q271 3 171 3Q67 3 49 0H40V62H109V209Q109 358 108 362Q103 380 55 380H43V442H46Z"></path><path stroke-width="1" id="MJMAINB-63" d="M447 131H458Q478 131 478 117Q478 112 471 95T439 51T377 9Q330 -6 286 -6Q196 -6 135 35Q39 96 39 222Q39 324 101 384Q169 453 286 453Q359 453 411 431T464 353Q464 319 445 302T395 284Q360 284 343 305T325 353Q325 380 338 396H333Q317 398 295 398H292Q280 398 271 397T245 390T218 373T197 338T183 283Q182 275 182 231Q182 199 184 180T193 132T220 85T270 57Q289 50 317 50H326Q385 50 414 115Q419 127 423 129T447 131Z"></path><path stroke-width="1" id="MJMATHI-72" d="M21 287Q22 290 23 295T28 317T38 348T53 381T73 411T99 433T132 442Q161 442 183 430T214 408T225 388Q227 382 228 382T236 389Q284 441 347 441H350Q398 441 422 400Q430 381 430 363Q430 333 417 315T391 292T366 288Q346 288 334 299T322 328Q322 376 378 392Q356 405 342 405Q286 405 239 331Q229 315 224 298T190 165Q156 25 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 114 189T154 366Q154 405 128 405Q107 405 92 377T68 316T57 280Q55 278 41 278H27Q21 284 21 287Z"></path><path stroke-width="1" id="MJMAINB-61" d="M64 349Q64 399 107 426T255 453Q346 453 402 423T473 341Q478 327 478 310T479 196V77Q493 63 529 62Q549 62 553 57T558 31Q558 9 552 5T514 0H497H481Q375 0 367 56L356 46Q300 -6 210 -6Q130 -6 81 30T32 121Q32 188 111 226T332 272H350V292Q350 313 348 327T337 361T306 391T248 402T194 399H189Q204 376 204 354Q204 327 187 306T134 284Q97 284 81 305T64 349ZM164 121Q164 89 186 67T238 45Q274 45 307 63T346 108L350 117V226H347Q248 218 206 189T164 121Z"></path><path stroke-width="1" id="MJMATHI-68" d="M137 683Q138 683 209 688T282 694Q294 694 294 685Q294 674 258 534Q220 386 220 383Q220 381 227 388Q288 442 357 442Q411 442 444 415T478 336Q478 285 440 178T402 50Q403 36 407 31T422 26Q450 26 474 56T513 138Q516 149 519 151T535 153Q555 153 555 145Q555 144 551 130Q535 71 500 33Q466 -10 419 -10H414Q367 -10 346 17T325 74Q325 90 361 192T398 345Q398 404 354 404H349Q266 404 205 306L198 293L164 158Q132 28 127 16Q114 -11 83 -11Q69 -11 59 -2T48 16Q48 30 121 320L195 616Q195 629 188 632T149 637H128Q122 643 122 645T124 664Q129 683 137 683Z"></path><path stroke-width="1" id="MJMAIN-2192" d="M56 237T56 250T70 270H835Q719 357 692 493Q692 494 692 496T691 499Q691 511 708 511H711Q720 511 723 510T729 506T732 497T735 481T743 456Q765 389 816 336T935 261Q944 258 944 250Q944 244 939 241T915 231T877 212Q836 186 806 152T761 85T740 35T732 4Q730 -6 727 -8T711 -11Q691 -11 691 0Q691 7 696 25Q728 151 835 230H70Q56 237 56 250Z"></path><path stroke-width="1" id="MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path><path stroke-width="1" id="MJMAIN-221E" d="M55 217Q55 305 111 373T254 442Q342 442 419 381Q457 350 493 303L507 284L514 294Q618 442 747 442Q833 442 888 374T944 214Q944 128 889 59T743 -11Q657 -11 580 50Q542 81 506 128L492 147L485 137Q381 -11 252 -11Q166 -11 111 57T55 217ZM907 217Q907 285 869 341T761 397Q740 397 720 392T682 378T648 359T619 335T594 310T574 285T559 263T548 246L543 238L574 198Q605 158 622 138T664 94T714 61T765 51Q827 51 867 100T907 217ZM92 214Q92 145 131 89T239 33Q357 33 456 193L425 233Q364 312 334 337Q285 380 233 380Q171 380 132 331T92 214Z"></path></defs></svg></body></html>
