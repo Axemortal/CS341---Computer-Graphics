@@ -235,7 +235,7 @@ Now we solve for $t$ in this equation:
 
 $$
 \begin{equation}
-t = \frac{\pm \frac{h}{2} - (\vec{o} \cdot \vec{a} - \vec{c} \cdot \vec{a})}{\vec{d} \cdot \vec{a}}
+t = \frac{\pm \frac{h}{2} - ((\vec{o} - \vec{c}) \cdot \vec{a})}{\vec{d} \cdot \vec{a}}
 \end{equation}
 $$
 

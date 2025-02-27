@@ -218,13 +218,7 @@ bool ray_plane_intersection(
 /*
 	Check for intersection of the ray with a given cylinder in the scene.
 */
-bool ray_cylinder_intersection(
-	vec3 ray_origin,
-	vec3 ray_direction,
-	Cylinder cyl,
-	out float t,
-	out vec3 normal
-) {
+bool ray_cylinder_intersection(vec3 ray_origin, vec3 ray_direction, Cylinder cyl, out float t, out vec3 normal) {
 	/** #TODO RT1.2.2: 
 	- Compute the first valid intersection between the ray and the cylinder
 		(valid means in front of the viewer: t > 0)
@@ -234,22 +228,80 @@ bool ray_cylinder_intersection(
 	- Return whether there is an intersection with t > 0
 	*/
 
-	vec3 intersection_point;
 	t = MAX_RANGE + 10.;
+	vec2 solutions;
+	bool has_intersection = false;
 
-	return false;
+	vec3 oc = ray_origin - cyl.center; // o - c
+	float oc_dot_a = dot(oc, cyl.axis);
+	vec3 oc_cross_a = cross(oc, cyl.axis);
+	float d_dot_a = dot(ray_direction, cyl.axis);
+	vec3 d_cross_a = cross(ray_direction, cyl.axis);
+	float d_cross_a_len2 = dot(d_cross_a, d_cross_a); // || d x a || ^ 2
+
+    // Case 1: Ray is parallel to the cylinder axis
+	if(d_cross_a_len2 == 0.0) {
+        // Check if the ray origin is on the cylinder surface
+		if(length(oc_cross_a) != cyl.radius) {
+			return false;
+		}
+
+        // Compute intersections with top/bottom edges
+		solutions[0] = (cyl.height / 2.0 - oc_dot_a) / d_dot_a;
+		solutions[1] = (-cyl.height / 2.0 - oc_dot_a) / d_dot_a;
+	} else {
+		float A = d_cross_a_len2;
+		float B = 2.0 * dot(oc_cross_a, d_cross_a); // 2 * ((o - c) x a) . (d x a)
+		float C = dot(oc_cross_a, oc_cross_a) - cyl.radius * cyl.radius; // ((o - c) x a)^2 - r^2
+		int num_solutions = solve_quadratic(A, B, C, solutions);
+
+		if(num_solutions == 0) {
+			return false;
+		}
+	}
+
+	for(int i = 0; i < 2; i++) {
+		float t_candidate = solutions[i];
+		// Ignore negative t
+		if(t_candidate < 0.0) {
+			continue;
+		}
+
+		vec3 intersection_point = ray_origin + t_candidate * ray_direction;
+		float projection = dot(intersection_point - cyl.center, cyl.axis);
+
+		if(projection > cyl.height / 2.0 || projection < -cyl.height / 2.0) {
+			continue;
+		}
+
+        // Store the closest valid intersection
+		if(t_candidate < t) {
+			t = t_candidate;
+			has_intersection = true;
+		}
+	}
+
+	if(!has_intersection) {
+		return false;
+	}
+
+	// Compute the normal at the intersection point
+	vec3 intersection_point = ray_origin + t * ray_direction;
+	vec3 y = intersection_point - cyl.center;
+	vec3 n = y - dot(y, cyl.axis) * cyl.axis;
+	normal = normalize(n);
+
+	if(dot(normal, ray_direction) > 0.0) {
+		normal = -normal;
+	}
+
+	return true; // Valid intersection
 }
 
 /*
 	Check for intersection of the ray with any object in the scene.
 */
-bool ray_intersection(
-	vec3 ray_origin,
-	vec3 ray_direction,
-	out float col_distance,
-	out vec3 col_normal,
-	out int material_id
-) {
+bool ray_intersection(vec3 ray_origin, vec3 ray_direction, out float col_distance, out vec3 col_normal, out int material_id) {
 	col_distance = MAX_RANGE + 10.;
 	col_normal = vec3(0., 0., 0.);
 
@@ -305,13 +357,7 @@ bool ray_intersection(
 	Return the color at an intersection point given a light and a material, exluding the contribution
 	of potential reflected rays.
 */
-vec3 lighting(
-	vec3 object_point,
-	vec3 object_normal,
-	vec3 direction_to_camera,
-	Light light,
-	Material mat
-) {
+vec3 lighting(vec3 object_point, vec3 object_normal, vec3 direction_to_camera, Light light, Material mat) {
 
 	#if SHADING_MODE == SHADING_MODE_PHONG
 	#endif
