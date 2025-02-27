@@ -27,6 +27,9 @@
     <style type="text/css">code{white-space: pre;}</style>
     <style type="text/css">.sidebar ul{padding-left: 10px;}</style>
     <link rel="stylesheet" href="icg_report.css" />
+  <script
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
   </head>
 
   <body>
@@ -44,7 +47,31 @@
           <ul>
           <li><a href="#ray-cylinder-intersection"
           id="toc-ray-cylinder-intersection">Ray-Cylinder
-          Intersection</a></li>
+          Intersection</a>
+          <ul>
+          <li><a href="#cylinder-equation"
+          id="toc-cylinder-equation">Cylinder Equation</a></li>
+          <li><a href="#ray-equation-and-substitution"
+          id="toc-ray-equation-and-substitution">Ray Equation and
+          Substitution</a></li>
+          <li><a href="#finding-the-intersection-points"
+          id="toc-finding-the-intersection-points">Finding the
+          Intersection Points</a></li>
+          <li><a href="#enforce-height-condition"
+          id="toc-enforce-height-condition">Enforce Height
+          Condition</a></li>
+          <li><a href="#determining-the-normal-to-the-surface"
+          id="toc-determining-the-normal-to-the-surface">Determining the
+          Normal to the Surface</a></li>
+          <li><a
+          href="#edge-case-for-a-0-ray-parallel-to-the-cylinders-axis"
+          id="toc-edge-case-for-a-0-ray-parallel-to-the-cylinders-axis">Edge
+          Case for <span class="math inline">\(A = 0\)</span>: Ray
+          Parallel to the Cylinder’s Axis</a></li>
+          <li><a href="#intersection-with-the-top-and-bottom-edges"
+          id="toc-intersection-with-the-top-and-bottom-edges">Intersection
+          with the Top and Bottom Edges</a></li>
+          </ul></li>
           </ul></li>
           </ul>
         </div>
@@ -57,20 +84,283 @@
 <img src="images/cyl_diagram.png" width="300"
 alt="A cylinder with axis \mathbf{a}, center \mathbf{c}, radius r, and height h" />
 <figcaption aria-hidden="true">A cylinder with axis <span
-class="math inline"><strong>a</strong></span>, center <span
-class="math inline"><strong>c</strong></span>, radius <span
-class="math inline"><em>r</em></span>, and height <span
-class="math inline"><em>h</em></span></figcaption>
+class="math inline">\(\mathbf{a}\)</span>, center <span
+class="math inline">\(\mathbf{c}\)</span>, radius <span
+class="math inline">\(r\)</span>, and height <span
+class="math inline">\(h\)</span></figcaption>
 </figure>
-<p>This is an inline LaTeX formula: <span
-class="math inline"><em>a</em><em>t</em><sup>2</sup> + <em>b</em><em>t</em> + <em>c</em> = 0</span>.
-You can use inline formulas to write mathematical expressions in the
-text.</p>
-<p>If you want to write a formula in a separate line, you can use the
-following syntax:</p>
-<p><span
-class="math display"><em>a</em><em>t</em><sup>2</sup> + <em>b</em><em>t</em> + <em>c</em> = 0.</span></p>
-<p>Please replace these lines with your solution.</p>
+<p><br />
+We want to derive an expression for the intersection of a ray with a
+finite, open cylinder.</p>
+<h3 id="cylinder-equation">Cylinder Equation</h3>
+<p>A key property of the cylinder is that all points on its surface are
+equidistant from its axis. This implies the following:</p>
+<p><span class="math display">\[
+\begin{equation}
+\vec{x} \times \vec{a} = ||\vec{x}|| \; ||\vec{a}|| \; \sin\theta =
+||\vec{x}|| \; \sin\theta = \pm r
+\end{equation}
+\]</span></p>
+<p>Thus, we have:</p>
+<p><span class="math display">\[
+\begin{equation}
+(\vec{x} \times \vec{a})^2 = r^2
+\end{equation}
+\]</span></p>
+<p>Additionally, to enforce the height restriction of the cylinder, we
+require that the point <span class="math inline">\(\vec{x}\)</span> lies
+within the vertical bounds of the cylinder:</p>
+<p><span class="math display">\[
+\begin{equation}
+(\vec{x} \cdot \vec{a})^2 \leq \left(\frac{h}{2}\right)^2
+\end{equation}
+\]</span></p>
+<h3 id="ray-equation-and-substitution">Ray Equation and
+Substitution</h3>
+<p>An intersection point between a ray and a cylinder can be described
+by:</p>
+<p><span class="math display">\[
+\begin{equation}
+\vec{x} = \vec{o} + t \vec{d} - \vec{c}
+\end{equation}
+\]</span></p>
+<p>where <span class="math inline">\(\vec{o}\)</span> is the ray’s
+origin, <span class="math inline">\(\vec{d}\)</span> is the direction of
+the ray, <span class="math inline">\(t\)</span> is the parameter, and
+<span class="math inline">\(\vec{c}\)</span> is the cylinder’s
+center.</p>
+<p>Furthermore, the equation must satisfy the aforementioned conditions,
+which gives us:</p>
+<p><span class="math display">\[
+\begin{equation}
+((\vec{o} + t\vec{d} - \vec{c}) \times \vec{a})^2 = r^2
+\end{equation}
+\]</span></p>
+<p><span class="math display">\[
+\begin{equation}
+((\vec{o} + t\vec{d} - \vec{c}) \cdot \vec{a})^2 \leq
+\left(\frac{h}{2}\right)^2
+\end{equation}
+\]</span></p>
+<h3 id="finding-the-intersection-points">Finding the Intersection
+Points</h3>
+<p><span class="math display">\[
+\begin{equation}
+((\vec{o} + t\vec{d} - \vec{c}) \times \vec{a})^2
+\end{equation}
+\]</span></p>
+<p><span class="math display">\[
+\begin{equation}
+= ((\vec{o} - \vec{c}) \times \vec{a} + t (\vec{d} \times \vec{a}))^2
+\end{equation}
+\]</span></p>
+<p><span class="math display">\[
+\begin{equation}
+= ||(\vec{o} - \vec{c}) \times \vec{a}||^2 + 2((\vec{o} - \vec{c})
+\times \vec{a}) \cdot (\vec{d} \times \vec{a})t + ||\vec{d} \times
+\vec{a}||^2 t^2 = r^2
+\end{equation}
+\]</span><br />
+</p>
+<p>This is a quadratic equation in <span
+class="math inline">\(t\)</span>:</p>
+<p><span class="math display">\[
+\begin{equation}
+At^2 + Bt + C = 0
+\end{equation}
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+\begin{equation}
+A = ||\vec{d} \times \vec{a}||^2
+\end{equation}
+\]</span></p>
+<p><span class="math display">\[
+\begin{equation}
+B = 2 ((\vec{o} - \vec{c}) \times \vec{a}) \cdot (\vec{d} \times
+\vec{a})
+\end{equation}
+\]</span></p>
+<p><span class="math display">\[
+\begin{equation}
+C = ||(\vec{o} - \vec{c}) \times \vec{a}||^2 - r^2
+\end{equation}
+\]</span></p>
+<p>Solving this quadratic equation:</p>
+<p><span class="math display">\[
+\begin{equation}
+t = \frac{-B \pm \sqrt{B^2 - 4AC}}{2A}
+\end{equation}
+\]</span></p>
+<h4 id="case-breakdown">Case Breakdown:</h4>
+<ul>
+<li>If <span class="math inline">\(A = 0\)</span>, this implies that the
+ray is parallel to the cylinder’s axis, and no intersection exists
+unless the ray directly hits the top or bottom of the cylinder.</li>
+<li>If the discriminant <span class="math inline">\(B^2 - 4AC &lt;
+0\)</span>, there is no real solution, meaning the ray does not
+intersect the cylinder.</li>
+<li>If the discriminant <span class="math inline">\(B^2 - 4AC \geq
+0\)</span>, we have one or two real solutions for <span
+class="math inline">\(t\)</span>.</li>
+<li>If <span class="math inline">\(t &lt; 0\)</span>, the intersection
+point lies behind the ray’s origin, so the intersection is considered
+invalid.</li>
+</ul>
+<h3 id="enforce-height-condition">Enforce Height Condition</h3>
+<p>Once we find the solutions for <span
+class="math inline">\(t\)</span>, we need to ensure that the
+intersection points lie within the height of the cylinder. We impose the
+following condition to ensure the intersection point is within the
+vertical bounds:</p>
+<p><span class="math display">\[
+\begin{equation}
+((\vec{o} + t \vec{d} - \vec{c}) \cdot \vec{a})^2 \leq \left(
+\frac{h}{2} \right)^2
+\end{equation}
+\]</span></p>
+<p><span class="math display">\[
+\begin{equation}
+\left( (\vec{o} - \vec{c}) \cdot \vec{a} + t (\vec{d} \cdot \vec{a})
+\right)^2 \leq \left( \frac{h}{2} \right)^2
+\end{equation}
+\]</span></p>
+<p><span class="math display">\[
+\begin{equation}
+\left| (\vec{o} - \vec{c}) \cdot \vec{a} + t (\vec{d} \cdot \vec{a})
+\right| \leq \frac{h}{2}
+\end{equation}
+\]</span></p>
+<p>Thus, the parameter <span class="math inline">\(t\)</span> must lie
+within the following range to satisfy the height condition:</p>
+<p><span class="math display">\[
+\begin{equation}
+\frac{-\frac{h}{2} - (\vec{o} - \vec{c}) \cdot \vec{a}}{\vec{d} \cdot
+\vec{a}} \leq t \leq \frac{\frac{h}{2} - (\vec{o} - \vec{c}) \cdot
+\vec{a}}{\vec{d} \cdot \vec{a}}
+\end{equation}
+\]</span></p>
+<p>This results in constraints on <span
+class="math inline">\(t\)</span>, ensuring it lies within the valid
+height range of the cylinder.</p>
+<h4 id="case-breakdown-1">Case Breakdown:</h4>
+<ul>
+<li><strong>No solution:</strong> If no real solution exists for <span
+class="math inline">\(t\)</span>, the ray does not intersect the finite,
+open cylinder.</li>
+<li><strong>One solution:</strong> If there is exactly one solution for
+<span class="math inline">\(t\)</span>, this represents the only
+intersection point between the ray and the cylinder.</li>
+<li><strong>Two solutions:</strong> If two solutions exist, we take the
+smaller value of <span class="math inline">\(t\)</span>, as it
+corresponds to the first intersection point the ray hits.</li>
+</ul>
+<h3 id="determining-the-normal-to-the-surface">Determining the Normal to
+the Surface</h3>
+<p>To determine whether the ray intersects the inside or the outside of
+the cylinder, we first need to compute the surface normal at the
+intersection point.</p>
+<p>The normal vector to the cylinder’s surface at any given point can be
+derived as follows:</p>
+<ol type="1">
+<li><p>Calculate the vector from the center of the cylinder to the
+intersection point: <span class="math display">\[
+\begin{equation}
+\vec{y} = \vec{o} + t\vec{d} - \vec{c}
+\end{equation}
+\]</span></p></li>
+<li><p>Extract the component of <span
+class="math inline">\(\vec{y}\)</span> parallel to the cylinder’s axis
+<span class="math inline">\(\vec{a}\)</span>: <span
+class="math display">\[
+\begin{equation}
+(\vec{y} \cdot \vec{a}) \vec{a}
+\end{equation}
+\]</span></p></li>
+<li><p>Subtract the parallel component to obtain the perpendicular
+component, which gives the surface normal. This normal points outward
+from the cylinder’s surface: <span class="math display">\[
+\begin{equation}
+\vec{n} = \vec{y} - (\vec{y} \cdot \vec{a}) \vec{a}
+\end{equation}
+\]</span></p></li>
+</ol>
+<p>Now, to determine whether the ray hits the inside or the outside of
+the cylinder, we compute the dot product between the ray’s direction
+vector <span class="math inline">\(\vec{d}\)</span> and the normal
+vector <span class="math inline">\(\vec{n}\)</span>.</p>
+<ul>
+<li>If the dot product <span class="math inline">\(\vec{d} \cdot
+\vec{n}\)</span> is <strong>negative</strong>, the normal vector is
+pointing away from the ray, indicating that the ray intersects the
+<strong>outside</strong> of the cylinder.</li>
+<li>If the dot product <span class="math inline">\(\vec{d} \cdot
+\vec{n}\)</span> is <strong>positive</strong>, the normal vector is
+pointing toward the ray, meaning the ray hits the
+<strong>inside</strong> of the cylinder.</li>
+</ul>
+<p>If the ray intersects the inside, we adjust the normal vector by
+flipping its direction to correctly reflect the normal pointing toward
+the camera.</p>
+<h3 id="edge-case-for-a-0-ray-parallel-to-the-cylinders-axis">Edge Case
+for <span class="math inline">\(A = 0\)</span>: Ray Parallel to the
+Cylinder’s Axis</h3>
+<p>When <span class="math inline">\(A = 0\)</span>, the ray is parallel
+to the cylinder’s axis. In this case, we need to check whether the
+origin of the ray lies on the surface of the cylinder, which is
+necessary for the ray to intersect the cylinder at its top and bottom
+edges. If the ray is parallel but the origin does not lie on the
+surface, there will be no intersection.</p>
+<p>At <span class="math inline">\(t = 0\)</span>, the position vector of
+the ray is:</p>
+<p><span class="math display">\[
+\begin{equation}
+\vec{x} = \vec{o} + t \vec{d} - \vec{c} = \vec{o} - \vec{c} \quad
+\text{(for } t = 0\text{)}
+\end{equation}
+\]</span></p>
+<p>Now, we verify if the origin lies on the surface of the cylinder.
+This is done by checking if the radial distance from the cylinder’s axis
+is equal to the radius <span class="math inline">\(r\)</span>. This
+condition is:</p>
+<p><span class="math display">\[
+\begin{equation}
+((\vec{o} - \vec{c}) \times \vec{a})^2 = r^2
+\end{equation}
+\]</span></p>
+<p>If this condition holds true, the ray’s origin is on the surface of
+the cylinder. We can now proceed to determine the points of
+intersection.</p>
+<h3 id="intersection-with-the-top-and-bottom-edges">Intersection with
+the Top and Bottom Edges</h3>
+<p>These top and bottom edges of the cylinder are located at a distance
+<span class="math inline">\(\pm \left(\frac{h}{2}\right)\)</span> from
+the center of the cylinder.</p>
+<p>To find the intersection with the top or bottom, we use the following
+condition for the dot product with the axis <span
+class="math inline">\(\vec{a}\)</span>, which gives the height of the
+ray at a particular <span class="math inline">\(t\)</span>:</p>
+<p><span class="math display">\[
+\begin{equation}
+(\vec{o} + t \vec{d} - \vec{c}) \cdot \vec{a} = \pm \frac{h}{2}
+\end{equation}
+\]</span></p>
+<p>Now we solve for <span class="math inline">\(t\)</span> in this
+equation:</p>
+<p><span class="math display">\[
+\begin{equation}
+t = \frac{\pm \frac{h}{2} - (\vec{o} \cdot \vec{a} - \vec{c} \cdot
+\vec{a})}{\vec{d} \cdot \vec{a}}
+\end{equation}
+\]</span></p>
+<p>Here, the solution for <span class="math inline">\(t\)</span> will
+give the points where the ray intersects either the top or bottom edges
+of the cylinder.</p>
+<p>If <span class="math inline">\(t &lt; 0\)</span>, the intersection
+point lies behind the ray’s origin, and thus the intersection is
+considered invalid.</p>
+<p>Valid intersections will result in a normal that is the negative of
+the ray’s direction vector.</p>
         </div>
       </div>
     </div>
