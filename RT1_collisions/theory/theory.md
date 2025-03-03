@@ -17,15 +17,7 @@ A key property of the cylinder is that all points on its surface are equidistant
 
 $$
 \begin{equation}
-\vec{x} \times \vec{a} = ||\vec{x}|| \; ||\vec{a}|| \; \sin\theta = ||\vec{x}|| \; \sin\theta = \pm r
-\end{equation}
-$$
-
-Thus, we have:
-
-$$
-\begin{equation}
-(\vec{x} \times \vec{a})^2 = r^2
+||\vec{x} \times \vec{a}|| = ||\vec{x}|| \; ||\vec{a}|| \; \sin\theta = ||\vec{x}|| \; \sin\theta = r
 \end{equation}
 $$
 
