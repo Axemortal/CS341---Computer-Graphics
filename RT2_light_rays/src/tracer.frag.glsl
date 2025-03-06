@@ -41,7 +41,7 @@ struct Material {
 };
 uniform Material materials[NUM_MATERIALS];
 #if (NUM_SPHERES != 0) || (NUM_PLANES != 0) || (NUM_CYLINDERS != 0)
-uniform int object_material_id[NUM_SPHERES+NUM_PLANES+NUM_CYLINDERS];
+uniform int object_material_id[NUM_SPHERES + NUM_PLANES + NUM_CYLINDERS];
 #endif
 
 /*
@@ -68,7 +68,6 @@ uniform Light lights[NUM_LIGHTS];
 #endif
 uniform vec3 light_color_ambient;
 
-
 varying vec3 v2f_ray_origin;
 varying vec3 v2f_ray_direction;
 
@@ -79,19 +78,19 @@ varying vec3 v2f_ray_direction;
 int solve_quadratic(float a, float b, float c, out vec2 solutions) {
 
 	// Linear case: bx+c = 0
-	if (abs(a) < 1e-12) {
-		if (abs(b) < 1e-12) {
+	if(abs(a) < 1e-12) {
+		if(abs(b) < 1e-12) {
 			// no solutions
-			return 0; 
+			return 0;
 		} else {
 			// 1 solution: -c/b
-			solutions[0] = - c / b;
+			solutions[0] = -c / b;
 			return 1;
 		}
 	} else {
 		float delta = b * b - 4. * a * c;
 
-		if (delta < 0.) {
+		if(delta < 0.) {
 			// no solutions in real numbers, sqrt(delta) produces an imaginary value
 			return 0;
 		} 
@@ -105,103 +104,197 @@ int solve_quadratic(float a, float b, float c, out vec2 solutions) {
 		// We do not use the sign function, because it returns 0
 		// float a_x1 = -0.5 * (b + sqrt(delta) * sign(b));
 		float sqd = sqrt(delta);
-		if (b < 0.) {
+		if(b < 0.) {
 			sqd = -sqd;
 		}
 		float a_x1 = -0.5 * (b + sqd);
-
 
 		solutions[0] = a_x1 / a;
 		solutions[1] = c / a_x1;
 
 		// 2 solutions
 		return 2;
-	} 
+	}
 }
 
 /*
 	Check for intersection of the ray with a given sphere in the scene.
 */
 bool ray_sphere_intersection(
-		vec3 ray_origin, vec3 ray_direction, 
-		vec3 sphere_center, float sphere_radius, 
-		out float t, out vec3 normal) 
-{
+	vec3 ray_origin,
+	vec3 ray_direction,
+	vec3 sphere_center,
+	float sphere_radius,
+	out float t,
+	out vec3 normal
+) {
 	vec3 oc = ray_origin - sphere_center;
 
 	vec2 solutions; // solutions will be stored here
 
 	int num_solutions = solve_quadratic(
 		// A: t^2 * ||d||^2 = dot(ray_direction, ray_direction) but ray_direction is normalized
-		1., 
+	1., 
 		// B: t * (2d dot (o - c))
-		2. * dot(ray_direction, oc),	
+	2. * dot(ray_direction, oc),	
 		// C: ||o-c||^2 - r^2				
-		dot(oc, oc) - sphere_radius*sphere_radius,
+	dot(oc, oc) - sphere_radius * sphere_radius,
 		// where to store solutions
-		solutions
-	);
+	solutions);
 
 	// result = distance to collision
 	// MAX_RANGE means there is no collision found
-	t = MAX_RANGE+10.;
+	t = MAX_RANGE + 10.;
 	bool collision_happened = false;
 
-	if (num_solutions >= 1 && solutions[0] > 0.) {
+	if(num_solutions >= 1 && solutions[0] > 0.) {
 		t = solutions[0];
 	}
-	
-	if (num_solutions >= 2 && solutions[1] > 0. && solutions[1] < t) {
+
+	if(num_solutions >= 2 && solutions[1] > 0. && solutions[1] < t) {
 		t = solutions[1];
 	}
 
-	if (t < MAX_RANGE) {
+	if(t < MAX_RANGE) {
 		vec3 intersection_point = ray_origin + ray_direction * t;
 		normal = (intersection_point - sphere_center) / sphere_radius;
 
 		return true;
 	} else {
 		return false;
-	}	
+	}
 }
 
 /*
 	Check for intersection of the ray with a given plane in the scene.
 */
 bool ray_plane_intersection(
-		vec3 ray_origin, vec3 ray_direction, 
-		vec3 plane_normal, float plane_offset, 
-		out float t, out vec3 normal) 
-{
+	vec3 ray_origin,
+	vec3 ray_direction,
+	vec3 plane_normal,
+	float plane_offset,
+	out float t,
+	out vec3 normal
+) {
 	// can use the plane center if you need it
 	vec3 plane_center = plane_normal * plane_offset;
 	t = MAX_RANGE + 10.;  // corresponds to no intersection, to be updated if one is found
-	//normal = ...;
-	return false;
+	// Equation of the ray = o + t * d
+	// Equation of the plane = dot(x, n_p) = b
+	// Ray intersects the plane if dot(o + t * d, n_p) = b
+	// t = (b - dot(o, n_p)) / dot(d, n_p)
+
+	// If the ray is parallel to the plane, there is no intersection
+	if(dot(ray_direction, plane_normal) == 0.) {
+		return false;
+	}
+
+	t = (plane_offset - dot(ray_origin, plane_normal)) / dot(ray_direction, plane_normal);
+	if(t <= 0.) {
+		return false;
+	}
+
+	// We want the normal to point towards the camera
+	if(dot(ray_direction, plane_normal) > 0.) {
+		normal = -plane_normal;
+	} else {
+		normal = plane_normal;
+	}
+
+	// There is an intersection
+	return true;
 }
 
 /*
 	Check for intersection of the ray with a given cylinder in the scene.
 */
 bool ray_cylinder_intersection(
-		vec3 ray_origin, vec3 ray_direction, 
-		Cylinder cyl,
-		out float t, out vec3 normal) 
-{
-	vec3 intersection_point;
+	vec3 ray_origin,
+	vec3 ray_direction,
+	Cylinder cyl,
+	out float t,
+	out vec3 normal
+) {
 	t = MAX_RANGE + 10.;
+	vec2 solutions;
+	bool has_intersection = false;
 
-	return false;
+	vec3 oc = ray_origin - cyl.center; // o - c
+	float oc_dot_a = dot(oc, cyl.axis);
+	vec3 oc_cross_a = cross(oc, cyl.axis);
+	float d_dot_a = dot(ray_direction, cyl.axis);
+	vec3 d_cross_a = cross(ray_direction, cyl.axis);
+	float d_cross_a_len2 = dot(d_cross_a, d_cross_a); // || d x a || ^ 2
+
+    // Case 1: Ray is parallel to the cylinder axis
+	if(d_cross_a_len2 == 0.0) {
+        // Check if the ray origin is on the cylinder surface
+		if(length(oc_cross_a) != cyl.radius) {
+			return false;
+		}
+
+        // Compute intersections with top/bottom edges
+		solutions[0] = (cyl.height / 2.0 - oc_dot_a) / d_dot_a;
+		solutions[1] = (-cyl.height / 2.0 - oc_dot_a) / d_dot_a;
+	} else {
+		float A = d_cross_a_len2;
+		float B = 2.0 * dot(oc_cross_a, d_cross_a); // 2 * ((o - c) x a) . (d x a)
+		float C = dot(oc_cross_a, oc_cross_a) - cyl.radius * cyl.radius; // ((o - c) x a)^2 - r^2
+		int num_solutions = solve_quadratic(A, B, C, solutions);
+
+		if(num_solutions == 0) {
+			return false;
+		}
+	}
+
+	for(int i = 0; i < 2; i++) {
+		float t_candidate = solutions[i];
+		// Ignore negative t
+		if(t_candidate < 0.0) {
+			continue;
+		}
+
+		vec3 intersection_point = ray_origin + t_candidate * ray_direction;
+		float projection = dot(intersection_point - cyl.center, cyl.axis);
+
+		if(projection > cyl.height / 2.0 || projection < -cyl.height / 2.0) {
+			continue;
+		}
+
+        // Store the closest valid intersection
+		if(t_candidate < t) {
+			t = t_candidate;
+			has_intersection = true;
+		}
+	}
+
+	if(!has_intersection) {
+		return false;
+	}
+
+	// Compute the normal at the intersection point
+	vec3 intersection_point = ray_origin + t * ray_direction;
+	vec3 y = intersection_point - cyl.center;
+	vec3 n = y - dot(y, cyl.axis) * cyl.axis;
+	normal = normalize(n);
+
+	if(dot(normal, ray_direction) > 0.0) {
+		normal = -normal;
+	}
+
+	return true; // Valid intersection
 }
-
 
 /*
 	Check for intersection of the ray with any object in the scene.
 */
 bool ray_intersection(
-		vec3 ray_origin, vec3 ray_direction, 
-		out float col_distance, out vec3 col_normal, out int material_id) 
-{
+	vec3 ray_origin,
+	vec3 ray_direction,
+	out float col_distance,
+	out vec3 col_normal,
+	out int material_id
+) {
 	col_distance = MAX_RANGE + 10.;
 	col_normal = vec3(0., 0., 0.);
 
@@ -211,20 +304,13 @@ bool ray_intersection(
 	// Check for intersection with each sphere
 	#if NUM_SPHERES != 0 // only run if there are spheres in the scene
 	for(int i = 0; i < NUM_SPHERES; i++) {
-		bool b_col = ray_sphere_intersection(
-			ray_origin, 
-			ray_direction, 
-			spheres_center_radius[i].xyz, 
-			spheres_center_radius[i][3], 
-			object_distance, 
-			object_normal
-		);
+		bool b_col = ray_sphere_intersection(ray_origin, ray_direction, spheres_center_radius[i].xyz, spheres_center_radius[i][3], object_distance, object_normal);
 
 		// choose this collision if its closer than the previous one
-		if (b_col && object_distance < col_distance) {
+		if(b_col && object_distance < col_distance) {
 			col_distance = object_distance;
 			col_normal = object_normal;
-			material_id =  object_material_id[i];
+			material_id = object_material_id[i];
 		}
 	}
 	#endif
@@ -232,20 +318,13 @@ bool ray_intersection(
 	// Check for intersection with each plane
 	#if NUM_PLANES != 0 // only run if there are planes in the scene
 	for(int i = 0; i < NUM_PLANES; i++) {
-		bool b_col = ray_plane_intersection(
-			ray_origin, 
-			ray_direction, 
-			planes_normal_offset[i].xyz, 
-			planes_normal_offset[i][3], 
-			object_distance, 
-			object_normal
-		);
+		bool b_col = ray_plane_intersection(ray_origin, ray_direction, planes_normal_offset[i].xyz, planes_normal_offset[i][3], object_distance, object_normal);
 
 		// choose this collision if its closer than the previous one
-		if (b_col && object_distance < col_distance) {
+		if(b_col && object_distance < col_distance) {
 			col_distance = object_distance;
 			col_normal = object_normal;
-			material_id =  object_material_id[NUM_SPHERES+i];
+			material_id = object_material_id[NUM_SPHERES + i];
 		}
 	}
 	#endif
@@ -253,19 +332,13 @@ bool ray_intersection(
 	// Check for intersection with each cylinder
 	#if NUM_CYLINDERS != 0 // only run if there are cylinders in the scene
 	for(int i = 0; i < NUM_CYLINDERS; i++) {
-		bool b_col = ray_cylinder_intersection(
-			ray_origin, 
-			ray_direction,
-			cylinders[i], 
-			object_distance, 
-			object_normal
-		);
+		bool b_col = ray_cylinder_intersection(ray_origin, ray_direction, cylinders[i], object_distance, object_normal);
 
 		// choose this collision if its closer than the previous one
-		if (b_col && object_distance < col_distance) {
+		if(b_col && object_distance < col_distance) {
 			col_distance = object_distance;
 			col_normal = object_normal;
-			material_id =  object_material_id[NUM_SPHERES+NUM_PLANES+i];
+			material_id = object_material_id[NUM_SPHERES + NUM_PLANES + i];
 		}
 	}
 	#endif
@@ -278,8 +351,12 @@ bool ray_intersection(
 	of potential reflected rays.
 */
 vec3 lighting(
-		vec3 object_point, vec3 object_normal, vec3 direction_to_camera, 
-		Light light, Material mat) {
+	vec3 object_point,
+	vec3 object_normal,
+	vec3 direction_to_camera,
+	Light light,
+	Material mat
+) {
 
 	/** #TODO RT2.1: 
 	- compute the diffuse component
@@ -296,7 +373,6 @@ vec3 lighting(
 	- check whether it intersects an object from the scene
 	- update the lighting accordingly
 	*/
-
 
 	#if SHADING_MODE == SHADING_MODE_PHONG
 	#endif
@@ -365,7 +441,6 @@ vec3 render_light(vec3 ray_origin, vec3 ray_direction) {
 	return pix_color;
 }
 
-
 /*
 	Draws the normal vectors of the scene in false color.
 */
@@ -374,14 +449,13 @@ vec3 render_normals(vec3 ray_origin, vec3 ray_direction) {
 	vec3 col_normal = vec3(0.);
 	int mat_id = 0;
 
-	if( ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id) ) {	
-		return 0.5*(col_normal + 1.0);
+	if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
+		return 0.5 * (col_normal + 1.0);
 	} else {
 		vec3 background_color = vec3(0., 0., 1.);
 		return background_color;
 	}
 }
-
 
 void main() {
 	vec3 ray_origin = v2f_ray_origin;
