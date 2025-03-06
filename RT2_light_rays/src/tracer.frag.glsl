@@ -347,7 +347,7 @@ bool ray_intersection(
 }
 
 /*
-	Return the color at an intersection point given a light and a material, exluding the contribution
+	Return the color at an intersection point given a light and a material, excluding the contribution
 	of potential reflected rays.
 */
 vec3 lighting(
@@ -357,7 +357,6 @@ vec3 lighting(
 	Light light,
 	Material mat
 ) {
-
 	/** #TODO RT2.1: 
 	- compute the diffuse component
 	- make sure that the light is located in the correct side of the object
@@ -368,19 +367,33 @@ vec3 lighting(
 	You can use existing methods for `vec3` objects such as `reflect`, `dot`, `normalize` and `length`.
 	*/
 
+	// Diffuse component is given by I_l * m_d * cos(theta) = I_l * m_d * dot(n, l)
+	vec3 light_direction = normalize(light.position - object_point);
+	vec3 diffuse_component = light.color * mat.color * mat.diffuse * max(0., dot(object_normal, light_direction));
+
+	// Specular component is given by I_l * m_s * cos(alpha)^s = I_l * m_s * dot(r, v)^s = I_l * m_s * dot(h, n)^s
+	vec3 r = reflect(-light_direction, object_normal);
+	vec3 h = normalize(light_direction + direction_to_camera);
+
 	/** #TODO RT2.2: 
 	- shoot a shadow ray from the intersection point to the light
 	- check whether it intersects an object from the scene
 	- update the lighting accordingly
 	*/
 
+	float dot_product = 0.0;
+
 	#if SHADING_MODE == SHADING_MODE_PHONG
+	dot_product = dot(r, direction_to_camera);
 	#endif
 
 	#if SHADING_MODE == SHADING_MODE_BLINN_PHONG
+	dot_product = dot(h, object_normal);
 	#endif
 
-	return mat.color;
+	vec3 specular_component = light.color * mat.color * mat.specular * pow(max(0., dot_product), mat.shininess);
+
+	return diffuse_component + specular_component;
 }
 
 /*
@@ -429,12 +442,16 @@ vec3 render_light(vec3 ray_origin, vec3 ray_direction) {
 	int mat_id = 0;
 	if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
 		Material m = get_material(mat_id);
-		pix_color = m.color;
 
+		// ambient contribution
+		pix_color += light_color_ambient * m.color * m.ambient;
+
+		// diffuse and specular contributions
 		#if NUM_LIGHTS != 0
-		// for(int i_light = 0; i_light < NUM_LIGHTS; i_light++) {
-		// // do something for each light lights[i_light]
-		// }
+		for(int i_light = 0; i_light < NUM_LIGHTS; i_light++) {
+			Light light = lights[i_light];
+			pix_color += lighting(ray_origin + col_distance * ray_direction, col_normal, -ray_direction, light, m);
+		}
 		#endif
 	}
 
