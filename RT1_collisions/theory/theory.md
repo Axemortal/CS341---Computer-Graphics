@@ -8,7 +8,6 @@ title: Theory Exercise RT1 – Ray-Cylinder Intersection
 
 ![A cylinder with axis $\mathbf{a}$, center $\mathbf{c}$, radius $r$, and height $h$](images/cyl_diagram.png){width="300px"}
 
-<<<<<<< HEAD
 To define the cylinder equation, we start with an arbitrary point $P$ that passes through the cylinder, and $P\perp$ is the perpendicular component of $P - C$ relative to the axis $a$:
 
 $$
@@ -74,78 +73,6 @@ $$
 \end{equation}
 $$
 Rearrange into Quadratic form:
-=======
-\
-We want to derive an expression for the intersection of a ray with a finite, open cylinder.
-
-### Cylinder Equation
-
-A key property of the cylinder is that all points on its surface are equidistant from its axis. This implies the following:
-
-$$
-\begin{equation}
-||\vec{x} \times \vec{a}|| = ||\vec{x}|| \; ||\vec{a}|| \; \sin\theta = ||\vec{x}|| \; \sin\theta = r
-\end{equation}
-$$
-
-Additionally, to enforce the height restriction of the cylinder, we require that the point $\vec{x}$ lies within the vertical bounds of the cylinder:
-
-$$
-\begin{equation}
-(\vec{x} \cdot \vec{a})^2 \leq \left(\frac{h}{2}\right)^2
-\end{equation}
-$$
-
-### Ray Equation and Substitution
-
-An intersection point between a ray and a cylinder can be described by:
-
-$$
-\begin{equation}
-\vec{x} = \vec{o} + t \vec{d} - \vec{c}
-\end{equation}
-$$
-
-where $\vec{o}$ is the ray's origin, $\vec{d}$ is the direction of the ray, $t$ is the parameter, and $\vec{c}$ is the cylinder's center.
-
-Furthermore, the equation must satisfy the aforementioned conditions, which gives us:
-
-$$
-\begin{equation}
-((\vec{o} + t\vec{d} - \vec{c}) \times \vec{a})^2 = r^2
-\end{equation}
-$$
-
-$$
-\begin{equation}
-((\vec{o} + t\vec{d} - \vec{c}) \cdot \vec{a})^2 \leq \left(\frac{h}{2}\right)^2
-\end{equation}
-$$
-
-### Finding the Intersection Points
-
-$$
-\begin{equation}
-((\vec{o} + t\vec{d} - \vec{c}) \times \vec{a})^2
-\end{equation}
-$$
-
-$$
-\begin{equation}
-= ((\vec{o} - \vec{c}) \times \vec{a} + t (\vec{d} \times \vec{a}))^2
-\end{equation}
-$$
-
-$$
-\begin{equation}
-= ||(\vec{o} - \vec{c}) \times \vec{a}||^2 + 2((\vec{o} - \vec{c}) \times \vec{a}) \cdot (\vec{d} \times \vec{a})t + ||\vec{d} \times \vec{a}||^2 t^2 = r^2
-\end{equation}
-$$\
-
-
-This is a quadratic equation in $t$:
-
->>>>>>> origin/main
 $$
 \begin{equation}
 At^2 + Bt + C = 0
