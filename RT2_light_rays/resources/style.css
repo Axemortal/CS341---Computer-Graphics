@@ -1,0 +1,140 @@
+
+/*
+This CSS governs the appearance of our site.
+You can find the basic concepts of CSS here: https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/How_CSS_works
+*/
+
+/*
+This makes the border and padding be counted as part of the element's size.
+https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Box_model
+It switches from
+	https://mdn.mozillademos.org/files/13647/box-model-standard-small.png
+to
+	https://mdn.mozillademos.org/files/13649/box-model-alt-small.png
+*/
+* {
+	box-sizing: border-box;
+}
+
+/*
+Make the document fill the whole viewport, this overrides any weird defaults that browsers might have.
+*/
+html, body, figure {
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	border: 0;
+}
+
+/* Default font and size */
+body {
+	width: 100vw;
+	/* height: 100vh; */
+	/* overflow: hidden; */
+
+	/* center vertically */
+	display: flex;
+	flex-flow: row;
+	justify-content: center;
+	align-content: center;
+
+	/* background behind the plot */
+	background: rgb(40, 40, 40);
+
+	/* default text */
+	font-family: sans-serif;
+	font-size: 1.1rem;
+	color: white;
+}
+
+/*
+The various units of measurement available in CSS:
+	https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Values_and_units
+*/
+
+#debug-overlay {
+	top: 1rem; 
+	left: 1rem; 
+	position: absolute; 
+	z-index: 2;
+
+	/* padding: 0 0.5rem 0 0.5rem; */
+	border-radius: 0.5rem;
+	background: rgba(0, 0, 0, 0.5);
+
+	overflow: hidden;
+}
+
+a {
+	color: rgb(118, 255, 152);
+}
+#debug-overlay p {
+	margin: 0.5rem;
+}
+#debug-overlay pre {
+	font-size: 0.8em;
+}
+
+.button {
+	display: inline;
+	padding: 0.25rem;
+	padding-left: 0.65rem;
+	padding-right: 0.65rem; 
+	margin-left: 0.25rem;
+	margin-right: 0.25rem;
+	border: white 1px solid;
+
+	border-radius: 0.5rem;
+}
+
+.button:hover {
+	border: hsl(135, 100%, 73%) 1px solid;
+	background:hsla(135, 100%, 73%, 0.3);
+
+}
+
+.keyboard {
+	/* border:1px white solid;  */
+	padding: 0 0.25em 0 0.25em;
+	color:black;
+	background-color: hsl(0, 0%, 60%);
+	border-radius: 0.1em;
+}
+
+.hide {
+	display: none;
+}
+
+#menu {
+	padding: 1em;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.selector {
+	list-style: none;
+	padding: 0;
+}
+
+.selector li {
+	padding: 0.25em;
+	border-radius: 0.4em;
+}
+
+.selector li:hover {
+	background:hsl(0, 0%, 30%);
+}
+
+.selector li.selected {
+	border: hsl(135, 100%, 73%) 1px solid;
+}
+
+.selector.horizontal li {
+	display: inline;
+	padding: 1rem;
+}
+
+main canvas {
+	margin-left: auto;
+	margin-right: auto;
+}

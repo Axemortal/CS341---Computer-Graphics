@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>CG Raytracing</title>
+	<meta name="author" content="Krzysztof Lis">
+
+	<link rel="stylesheet" href="resources/style.css">
+</head>
+<body>
+	<script src="src/main.js" type="module" ></script>
+
+	<main>
+		<div id="debug-overlay">
+			<pre id="debug-text"></pre>
+		</div>
+
+		<canvas id="viewport"></canvas>
+
+	</main>
+	<div id="menu">
+		<h4>CG Raytracer</h4> 
+		<a href="RT2_light_rays.html">Task Description</a>
+		<span id="btn-screenshot" class="button"><strong class="keyboard">s</strong> Save image </span>
+		<h4>Scenes</h4>
+		<ul id="menu-scenes" class="selector"></ul>
+		<h4>Shading strategy</h4>
+		<ul id="menu-shading" class="selector horizontal"></ul>
+		<h4>Reflections</h4>
+		<ul id="menu-reflections" class="selector horizontal"></ul>
+	</div>
+
+</body>
+</html>

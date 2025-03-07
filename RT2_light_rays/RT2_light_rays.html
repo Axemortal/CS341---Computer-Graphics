@@ -1,0 +1,1150 @@
+<!DOCTYPE html><html lang="en"><head>
+	<meta charset="utf-8">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title> RT2 - Lighting and Light Rays </title>
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    padding: 0;
+    padding-bottom: 10rem;
+    margin: 0;
+    border: 0;
+
+    max-width: 55rem;
+    margin-left: auto;
+    margin-right: auto;
+
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 1.2rem;
+    line-height: 1.6;
+
+    text-align: justify;
+    background-color: hsla(0, 0%, 100%, 0.8); 
+}
+
+h1, h2, h3, h4, h5, h6, a {
+    margin-top: 4rem;
+    color: hsl(204, 80%, 28%);
+}
+
+h6 {
+    font-weight: normal;
+}
+
+p, ul {
+    margin-left: 1.5em;
+    margin-right: 1.5em;
+}
+
+h3, h4, h5, h6 {
+    margin-left: 1em;
+}
+
+ul {
+    padding-left: 1.5em;
+}
+
+h2 {
+    margin-top: 5em;
+    padding: 1em;
+
+    width: 100%;
+
+    background: hsla(0, 0%, 97%, 0.2); 
+    border: solid 2px hsla(236, 18%, 81%, 0.5);
+    border-radius: 0.3rem;
+}
+
+h1 { font-size: 2em; }
+h2 { font-size: 1.75em; }
+h3 { font-size: 1.4em; }
+h4 { font-size: 1.05em; }
+h5 { 
+    font-size: 1.05em; 
+    font-style: italic;
+}
+
+body > img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+code {
+    color: hsl(210, 10%, 35%);
+}
+
+figure {
+    margin-bottom: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+    
+    width: 100%;
+    max-width: 100%;
+
+    display: flex;
+    flex-flow: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+figure.captioned {
+    flex-flow: column;
+}
+
+figcaption {
+    margin: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+
+    max-height: 30rem;
+
+    text-align: center;
+
+    font-style: italic;
+}
+
+figure img, video {
+    object-fit: contain;
+    max-width: inherit;
+    max-height: inherit;
+}
+
+figure.col2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 1rem;
+}
+
+figure.col3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-column-gap: 1rem;
+}
+
+.box {
+    margin-left: 1rem;
+    border: 0.1rem solid;
+    border-top: 0.3rem solid;
+    border-radius: 0.3rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.box.practice {
+    border-color: hsl(204, 100%, 40%, 0.5);
+    background: hsla(204, 100%, 90%, 0.2); 
+}
+
+.box.task {
+    border-color: hsla(29, 100%, 50%, 0.5);
+    background: hsla(32, 100%, 90%, 0.2); 
+}
+
+.box.hint {
+    border-color: hsla(21, 100%, 50%, 0.702);
+    background: hsla(26, 100%, 90%, 0.248); 
+}
+
+.box.project {
+    border-color: hsla(294, 79%, 26%, 0.702);
+    background: hsla(294, 46%, 92%, 0.588); 
+}
+
+.box.grade {
+    border-color: hsla(29, 93%, 57%, 0.5);
+    background: hsla(12, 100%, 90%, 0.2); 
+}
+
+.box h2,
+.box h3,
+.box h4,
+.box h5 {
+    color: black;
+    margin-top: 1rem;
+}
+
+pre {
+    background: hsla(0, 0%, 0%, 0.05);
+    border-radius: 0.5rem;
+}
+
+pre {
+    font-size: 0.9rem;
+    margin-left: 2rem;
+}
+
+.sourceCode a {
+    color: black;
+    pointer-events: none;
+    text-decoration: none;
+}
+
+
+</style>
+
+<!-- <link rel="stylesheet" href="3rdparty/pseudocode.min.css">
+<script src="3rdparty/pseudocode.min.js"></script>
+<script src="3rdparty/katex/katex.min.js"></script> -->
+<style type="text/css">
+                            .mjpage .MJX-monospace {
+                            font-family: monospace
+                            }
+
+                            .mjpage .MJX-sans-serif {
+                            font-family: sans-serif
+                            }
+
+                            .mjpage {
+                            display: inline;
+                            font-style: normal;
+                            font-weight: normal;
+                            line-height: normal;
+                            font-size: 100%;
+                            font-size-adjust: none;
+                            text-indent: 0;
+                            text-align: left;
+                            text-transform: none;
+                            letter-spacing: normal;
+                            word-spacing: normal;
+                            word-wrap: normal;
+                            white-space: nowrap;
+                            float: none;
+                            direction: ltr;
+                            max-width: none;
+                            max-height: none;
+                            min-width: 0;
+                            min-height: 0;
+                            border: 0;
+                            padding: 0;
+                            margin: 0
+                            }
+
+                            .mjpage * {
+                            transition: none;
+                            -webkit-transition: none;
+                            -moz-transition: none;
+                            -ms-transition: none;
+                            -o-transition: none
+                            }
+
+                            .mjx-svg-href {
+                            fill: blue;
+                            stroke: blue
+                            }
+
+                            .MathJax_SVG_LineBox {
+                            display: table!important
+                            }
+
+                            .MathJax_SVG_LineBox span {
+                            display: table-cell!important;
+                            width: 10000em!important;
+                            min-width: 0;
+                            max-width: none;
+                            padding: 0;
+                            border: 0;
+                            margin: 0
+                            }
+
+                            .mjpage__block {
+                            text-align: center;
+                            margin: 1em 0em;
+                            position: relative;
+                            display: block!important;
+                            text-indent: 0;
+                            max-width: none;
+                            max-height: none;
+                            min-width: 0;
+                            min-height: 0;
+                            width: 100%
+                            }</style></head>
+
+<body>
+
+<h1>RT2 - Lighting and Light Rays</h1>
+
+<ul>
+<li><a href="#tasks" id="toc-tasks">Tasks</a>
+<ul>
+<li><a href="#lighting-models" id="toc-lighting-models">Lighting
+Models</a></li>
+<li><a href="#shadows" id="toc-shadows">Shadows</a></li>
+<li><a href="#reflections" id="toc-reflections">Reflections</a></li>
+<li><a href="#blender-exercises-optional" id="toc-blender-exercises-optional">Blender Exercises
+(Optional)</a></li>
+</ul></li>
+<li><a href="#grading" id="toc-grading">Grading</a></li>
+<li><a href="#what-to-hand-in" id="toc-what-to-hand-in">What to Hand
+in</a></li>
+</ul>
+
+<figure id="castle-full">
+<img src="doc/castle_BlinnPhong_full.png">
+</figure>
+<figcaption>
+<p>The <code>castle</code> scene involves the rendering effects you will
+implement in this homework assignment: ambient, diffuse, and specular
+lighting, shadows, and reflections.</p>
+This reference image was rendered using the <code>Blinn-Phong</code>
+shading strategy with <code>4</code> reflections.
+</figcaption>
+
+<p>In this assignment, you will implement the Phong lighting model and
+learn how to compute reflections. The framework code for this assignment
+extends the one from last week. After downloading
+<code>RT2_light_rays.zip</code> from Moodle, you will need to port your
+implementation of the plane and cylinder intersections into
+<code>tracer.frag.glsl</code>.</p>
+<p>You will test your implementation on the provided scenes. As usual,
+we invite you to design your own test scenes. The <a href="#castle-full">figure above</a> shows what the <code>castle</code>
+scene should look like if you implement all the tasks of this homework
+correctly.</p>
+<h2 id="tasks">Tasks</h2>
+<p>You will start by implementing the Phong and Blinn-Phong lighting
+models, and then add shadows and reflections.</p>
+<h3 id="lighting-models">Lighting Models</h3>
+<h4 id="phong">Phong</h4>
+<figure id="fig-phong" class="captioned">
+<img src="doc/phong_diagram.png">
+<figcaption>
+Reflected direction <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.102ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 474.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">\mathbf{r}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-72" x="0" y="0"></use>
+</g>
+</svg></span></span> in
+Phong lighting model.
+</figcaption>
+</figure>
+<p>The goal of the first part of this assignment is to implement the
+Phong lighting model. So far, we colored objects in the scene according
+to their normals. Phong model enables having more realistic scenes at a
+relatively low cost. We recall the corresponding empirical formula (see
+lecture slides for more details):</p>
+<p><span class="math display"><span class="mjpage mjpage__block"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="56.867ex" height="6.509ex" style="vertical-align: -4.005ex;" viewBox="0 -1078.4 24484.3 2802.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-2-Title">
+<title id="MathJax-SVG-2-Title">\mathbf{I}_{\text{Phong}} =
+\mathbf{I}_a*\mathbf{m}_a +
+\sum_{\mbox{light} \; l} \left[
+    \mathbf{I}_l*(\mathbf{m}_d.(\mathbf{n}^T\mathbf{l}) +
+\mathbf{m}_s.(\mathbf{r}^T\mathbf{v})^s)
+\right] </title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+<g transform="translate(436,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-50"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-68" x="681" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-6F" x="1238" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-6E" x="1738" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-67" x="2295" y="0"></use>
+</g>
+ <use xlink:href="#MJMAIN-3D" x="2790" y="0"></use>
+<g transform="translate(3847,0)">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-61" x="617" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2217" x="4980" y="0"></use>
+<g transform="translate(5703,0)">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-61" x="1355" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2B" x="7358" y="0"></use>
+<g transform="translate(8358,0)">
+ <use xlink:href="#MJSZ2-2211" x="523" y="0"></use>
+<g transform="translate(0,-1314)">
+ <use xlink:href="#MJMAIN-6C"></use>
+ <use xlink:href="#MJMAIN-69" x="278" y="0"></use>
+ <use xlink:href="#MJMAIN-67" x="557" y="0"></use>
+ <use xlink:href="#MJMAIN-68" x="1057" y="0"></use>
+ <use xlink:href="#MJMAIN-74" x="1614" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6C" x="3226" y="0"></use>
+</g>
+</g>
+<g transform="translate(11018,0)">
+ <use xlink:href="#MJSZ1-5B"></use>
+<g transform="translate(417,0)">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6C" x="617" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2217" x="1387" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="2110" y="0"></use>
+<g transform="translate(2499,0)">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-64" x="1355" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2E" x="3928" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="4373" y="0"></use>
+<g transform="translate(4762,0)">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-54" x="904" y="583"></use>
+</g>
+ <use xlink:href="#MJMAINB-6C" x="6000" y="0"></use>
+ <use xlink:href="#MJMAIN-29" x="6320" y="0"></use>
+ <use xlink:href="#MJMAIN-2B" x="6931" y="0"></use>
+<g transform="translate(7932,0)">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-73" x="1355" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2E" x="9322" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="9768" y="0"></use>
+<g transform="translate(10157,0)">
+ <use xlink:href="#MJMAINB-72" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-54" x="671" y="583"></use>
+</g>
+ <use xlink:href="#MJMAINB-76" x="11230" y="0"></use>
+<g transform="translate(11837,0)">
+ <use xlink:href="#MJMAIN-29" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-73" x="550" y="583"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="12659" y="0"></use>
+ <use xlink:href="#MJSZ1-5D" x="13048" y="-1"></use>
+</g>
+</g>
+</svg></span></span></p>
+<p>The notation used for the vectors is shown in the above <a href="#fig-phong">diagram</a>. Note that:</p>
+<ul>
+<li>The symbol <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.162ex" height="1.509ex" style="vertical-align: 0.079ex; margin-bottom: -0.25ex;" viewBox="0 -576.1 500.5 649.8" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-3-Title">
+<title id="MathJax-SVG-3-Title">*</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAIN-2217" x="0" y="0"></use>
+</g>
+</svg></span></span> denotes
+component-wise multiplication,</li>
+<li><span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.014ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 436.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-4-Title">
+<title id="MathJax-SVG-4-Title">\mathbf{I}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+</g>
+</svg></span></span> is the global
+intensity at an intersection point (a <code>vec3</code> containing the
+RGB components),</li>
+<li><span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.116ex" height="2.509ex" style="vertical-align: -0.671ex;" viewBox="0 -791.3 910.9 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-5-Title">
+<title id="MathJax-SVG-5-Title">\mathbf{I}_a</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-61" x="617" y="-213"></use>
+</g>
+</svg></span></span> is the ambient
+intensity (global constant <code>light_color_ambient</code> in the
+code), and</li>
+<li><span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.736ex" height="2.509ex" style="vertical-align: -0.671ex;" viewBox="0 -791.3 747.6 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-6-Title">
+<title id="MathJax-SVG-6-Title">\mathbf{I}_l</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6C" x="617" y="-213"></use>
+</g>
+</svg></span></span> is the light
+intensity (<code>light.color</code> in the code).</li>
+<li>The material properties are given by: <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="3.328ex" height="2.009ex" style="vertical-align: -0.671ex;" viewBox="0 -576.1 1432.9 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-7-Title">
+<title id="MathJax-SVG-7-Title">\mathbf{m}_a</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-61" x="1355" y="-213"></use>
+</g>
+</svg></span></span> the RGB ambient
+coefficients, <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="3.318ex" height="2.009ex" style="vertical-align: -0.671ex;" viewBox="0 -576.1 1428.7 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-8-Title">
+<title id="MathJax-SVG-8-Title">\mathbf{m}_d</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-64" x="1355" y="-213"></use>
+</g>
+</svg></span></span> the RGB
+diffuse coefficients, <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="3.23ex" height="2.009ex" style="vertical-align: -0.671ex;" viewBox="0 -576.1 1390.5 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-9-Title">
+<title id="MathJax-SVG-9-Title">\mathbf{m}_s</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-73" x="1355" y="-213"></use>
+</g>
+</svg></span></span>
+the RGB specular coefficients, and <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.09ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 469.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-10-Title">
+<title id="MathJax-SVG-10-Title">s</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-73" x="0" y="0"></use>
+</g>
+</svg></span></span> the shininess. Such coefficients can be
+recovered in the code by multiplying <code>material.color</code> (a 3D
+vector) and <code>material.*</code> (a float), where <code>*</code>
+needs to be replaced by the relevant coefficient name.</li>
+<li>The light source is a point-light located at
+<code>light.position</code>.</li>
+</ul>
+<section id="hint-1" class="box hint">
+<h5>Hint 1</h5>
+<p>The ambient contribution should be added only once, so it is
+convenient to do so in the main <code>render_light</code> function.</p>
+<p>You can then add the contribution from each light in the
+<code>lighting</code> function, which is called multiple times within
+<code>render_light</code>.</p>
+</section>
+<h4 id="blinn-phong">Blinn-Phong</h4>
+<figure id="fig-BlinnPhong" class="captioned">
+<img src="doc/BlinnPhong_diagram.png">
+<figcaption>
+Half vector <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.485ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 639.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-11-Title">
+<title id="MathJax-SVG-11-Title">\mathbf{h}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-68" x="0" y="0"></use>
+</g>
+</svg></span></span> in
+Blinn-Phong lighting model.
+</figcaption>
+</figure>
+<p><span class="math display"><span class="mjpage mjpage__block"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="61.778ex" height="6.509ex" style="vertical-align: -4.005ex;" viewBox="0 -1078.4 26598.9 2802.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-12-Title">
+<title id="MathJax-SVG-12-Title">\mathbf{I}_{\text{Blinn-Phong}} =
+\mathbf{I}_a*\mathbf{m}_a +
+\sum_{\mbox{light}\; l} \left[
+    \mathbf{I}_l*(\mathbf{m}_d.(\mathbf{n}^T\mathbf{l}) +
+\mathbf{m}_s.(\mathbf{h}^T\mathbf{n})^s)
+\right]</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+<g transform="translate(436,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-42"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-6C" x="708" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-69" x="987" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-6E" x="1265" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-6E" x="1822" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-2D" x="2378" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-50" x="2712" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-68" x="3393" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-6F" x="3950" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-6E" x="4450" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-67" x="5007" y="0"></use>
+</g>
+ <use xlink:href="#MJMAIN-3D" x="4708" y="0"></use>
+<g transform="translate(5764,0)">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-61" x="617" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2217" x="6898" y="0"></use>
+<g transform="translate(7620,0)">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-61" x="1355" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2B" x="9275" y="0"></use>
+<g transform="translate(10276,0)">
+ <use xlink:href="#MJSZ2-2211" x="523" y="0"></use>
+<g transform="translate(0,-1314)">
+ <use xlink:href="#MJMAIN-6C"></use>
+ <use xlink:href="#MJMAIN-69" x="278" y="0"></use>
+ <use xlink:href="#MJMAIN-67" x="557" y="0"></use>
+ <use xlink:href="#MJMAIN-68" x="1057" y="0"></use>
+ <use xlink:href="#MJMAIN-74" x="1614" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6C" x="3226" y="0"></use>
+</g>
+</g>
+<g transform="translate(12935,0)">
+ <use xlink:href="#MJSZ1-5B"></use>
+<g transform="translate(417,0)">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6C" x="617" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2217" x="1387" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="2110" y="0"></use>
+<g transform="translate(2499,0)">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-64" x="1355" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2E" x="3928" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="4373" y="0"></use>
+<g transform="translate(4762,0)">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-54" x="904" y="583"></use>
+</g>
+ <use xlink:href="#MJMAINB-6C" x="6000" y="0"></use>
+ <use xlink:href="#MJMAIN-29" x="6320" y="0"></use>
+ <use xlink:href="#MJMAIN-2B" x="6931" y="0"></use>
+<g transform="translate(7932,0)">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-73" x="1355" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2E" x="9322" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="9768" y="0"></use>
+<g transform="translate(10157,0)">
+ <use xlink:href="#MJMAINB-68" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-54" x="904" y="596"></use>
+</g>
+ <use xlink:href="#MJMAINB-6E" x="11395" y="0"></use>
+<g transform="translate(12034,0)">
+ <use xlink:href="#MJMAIN-29" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-73" x="550" y="583"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="12856" y="0"></use>
+ <use xlink:href="#MJSZ1-5D" x="13245" y="-1"></use>
+</g>
+</g>
+</svg></span></span></p>
+<p>The Blinn-Phong lighting model is a historical evolution and
+simplification over Phong model. The specular component is determined by
+the product of surface normal <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.485ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 639.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-13-Title">
+<title id="MathJax-SVG-13-Title">\mathbf{n}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+</g>
+</svg></span></span> and the half-vector <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.485ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 639.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-14-Title">
+<title id="MathJax-SVG-14-Title">\mathbf{h}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-68" x="0" y="0"></use>
+</g>
+</svg></span></span>, raised to the power of
+shininess <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.09ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 469.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-15-Title">
+<title id="MathJax-SVG-15-Title">s</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-73" x="0" y="0"></use>
+</g>
+</svg></span></span>. The half vector is the
+intermediate direction between viewing direction <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.411ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 607.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-16-Title">
+<title id="MathJax-SVG-16-Title">\mathbf{v}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-76" x="0" y="0"></use>
+</g>
+</svg></span></span> and direction to light <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="0.742ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 319.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-17-Title">
+<title id="MathJax-SVG-17-Title">\mathbf{l}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6C" x="0" y="0"></use>
+</g>
+</svg></span></span>:</p>
+<p><span class="math display"><span class="mjpage mjpage__block"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="13.001ex" height="6.176ex" style="vertical-align: -2.671ex;" viewBox="0 -1508.9 5597.5 2659.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-18-Title">
+<title id="MathJax-SVG-18-Title">\mathbf{h} =
+\frac{\mathbf{v}+\mathbf{l}}{||\mathbf{v}+\mathbf{l}||}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-68" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-3D" x="917" y="0"></use>
+<g transform="translate(1695,0)">
+<g transform="translate(397,0)">
+<rect stroke="none" width="3383" height="60" x="0" y="220"></rect>
+<g transform="translate(617,676)">
+ <use xlink:href="#MJMAINB-76" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-2B" x="829" y="0"></use>
+ <use xlink:href="#MJMAINB-6C" x="1830" y="0"></use>
+</g>
+<g transform="translate(60,-771)">
+ <use xlink:href="#MJMAIN-7C" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-7C" x="278" y="0"></use>
+ <use xlink:href="#MJMAINB-76" x="557" y="0"></use>
+ <use xlink:href="#MJMAIN-2B" x="1386" y="0"></use>
+ <use xlink:href="#MJMAINB-6C" x="2387" y="0"></use>
+ <use xlink:href="#MJMAIN-7C" x="2706" y="0"></use>
+ <use xlink:href="#MJMAIN-7C" x="2985" y="0"></use>
+</g>
+</g>
+</g>
+</g>
+</svg></span></span></p>
+<section id="task-rt2.1-implement-lighting-models" class="box task">
+<h4>Task RT2.1: Implement Lighting Models</h4>
+<ul>
+<li><p>In <code>tracer.frag.glsl</code>:</p>
+<ul>
+<li>Fill in the method <code>render_light</code>. If the current ray
+intersects an object:
+<ul>
+<li>Compute the ambient contribution to the total intensity.</li>
+<li>Compute the intensity contribution from each light in the scene in
+the <code>lighting</code> function and add them to the resulting light
+intensity.</li>
+</ul></li>
+<li>Implement the diffuse component in the <code>lighting</code>
+function:
+<ul>
+<li>Compute the diffuse component.</li>
+<li>Make sure that the light is located on the correct side of the
+object.</li>
+</ul></li>
+<li>Compute the specular light components in the <code>lighting</code>
+function according to Blinn-Phong and Phong models:
+<ul>
+<li>Implement the Blinn-Phong shading model. Compute the half vector and
+resulting specular component.</li>
+<li>Implement the Phong shading model. Make sure that the reflected
+light shines towards the camera and compute the resulting specular
+component.</li>
+</ul></li>
+</ul></li>
+</ul>
+<section id="hint-2" class="box hint">
+<h5>Hint 2</h5>
+<p>When implementing lighting models, a good idea is to start
+implementing the diffuse component, which is the same for both Phong and
+Blinn-Phong. Going from flat colors to diffuse lighting allows us to
+clearly see the shapes of objects.</p>
+<figure class="col2">
+<img src="doc/castle_Color.png">
+<img src="doc/castle_Diffuse.png">
+<figcaption>
+Flat colors.
+</figcaption>
+<figcaption>
+Diffuse lighting.
+</figcaption>
+</figure>
+<p>You should obtain a similar result with your own implementation.</p>
+<p>The specular component of Phong and Blinn-Phong gives us shiny
+surfaces. You may notice that the specular highlights are by default
+bigger in the Blinn-Phong version. Try modifying the shininess <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.09ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 469.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-19-Title">
+<title id="MathJax-SVG-19-Title">s</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-73" x="0" y="0"></use>
+</g>
+</svg></span></span> and check that the change you see in
+the rendered images matches your expectations.</p>
+<figure class="col2">
+<img src="doc/castle_BlinnPhong_norays.png">
+<img src="doc/castle_Phong_norays.png">
+<figcaption>
+Blinn-Phong shading.
+</figcaption>
+<figcaption>
+Phong shading.
+</figcaption>
+</figure>
+</section>
+<section id="hint-3" class="box hint">
+<h5>Hint 3</h5>
+<p>You can use existing methods for <code>vec3</code> objects such as
+<code>dot</code>, <code>normalize</code> and <code>length</code>.</p>
+</section>
+<section id="hint-4" class="box hint">
+<h5>Hint 4</h5>
+<p>In the scene <code>shading_lights</code>, two distinct red and green
+lights should be visible. Check the file <code>scenes.js</code> for more
+details on the definition of the scene. Play with the parameters that
+set the material properties and light colors to validate that your
+implementation is correct.</p>
+</section>
+</section>
+<h3 id="shadows">Shadows</h3>
+<figure id="columns_shadows" class="captioned">
+<img src="doc/columns_BlinnPhong.png">
+<figcaption>
+Example of shadows in the <code>columns</code> scene. This reference
+image was rendered using the <code>Blinn-Phong</code> shading strategy
+with <code>0</code> reflections.
+</figcaption>
+</figure>
+<p>Some objects in the scene might occlude light sources, which we want
+to account for.</p>
+<section id="task-rt2.2-implement-shadows" class="box task">
+<h4>Task RT2.2: Implement Shadows</h4>
+<ul>
+<li>Fill in the method <code>lighting</code> in
+<code>tracer.frag.glsl</code>:
+<ul>
+<li>Shoot a shadow ray from the intersection point to the light.</li>
+<li>Check whether it intersects an object from the scene.</li>
+<li>Update the lighting accordingly.</li>
+</ul></li>
+</ul>
+<section id="hint-5" class="box hint">
+<h5>Hint 5</h5>
+<p>Do not forget to prevent shadow acne as described in the lecture.</p>
+</section>
+</section>
+<h3 id="reflections">Reflections</h3>
+<figure id="mirror_creature" class="captioned">
+<img src="doc/mirror_creature_Phong.png">
+<figcaption>
+Example of reflections in the <code>mirror_creature</code> scene. This
+reference image was rendered using the <code>Phong</code> shading
+strategy with <code>4</code> reflections.
+</figcaption>
+</figure>
+<p>The last part of this assignment is about adding reflections to your
+scene. The resulting color for a given pixel <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.126ex" height="2.009ex" style="vertical-align: -0.671ex;" viewBox="0 -576.1 915.2 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-20-Title">
+<title id="MathJax-SVG-20-Title">\mathbf{c}_b</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-62" x="723" y="-213"></use>
+</g>
+</svg></span></span>, is obtained from the color
+at the first intersection without reflections <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.242ex" height="2.009ex" style="vertical-align: -0.671ex;" viewBox="0 -576.1 965.4 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-21-Title">
+<title id="MathJax-SVG-21-Title">\mathbf{c}_0</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-30" x="723" y="-213"></use>
+</g>
+</svg></span></span>, and the color <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.242ex" height="2.509ex" style="vertical-align: -0.338ex;" viewBox="0 -934.9 965.4 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-22-Title">
+<title id="MathJax-SVG-22-Title">\mathbf{c}^1</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-31" x="723" y="513"></use>
+</g>
+</svg></span></span> due to further reflections
+using the following relation:</p>
+<p><span class="math display"><span class="mjpage mjpage__block"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="24.092ex" height="3.176ex" style="vertical-align: -0.838ex;" viewBox="0 -1006.6 10372.8 1367.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-23-Title">
+<title id="MathJax-SVG-23-Title">\mathbf{c}_b = (1 - \alpha_0)
+\mathbf{c}_0 + \alpha_0 \mathbf{c}^1,</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-62" x="723" y="-213"></use>
+ <use xlink:href="#MJMAIN-3D" x="1192" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="2249" y="0"></use>
+ <use xlink:href="#MJMAIN-31" x="2638" y="0"></use>
+ <use xlink:href="#MJMAIN-2212" x="3361" y="0"></use>
+<g transform="translate(4362,0)">
+ <use xlink:href="#MJMATHI-3B1" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-30" x="905" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="5456" y="0"></use>
+<g transform="translate(5846,0)">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-30" x="723" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2B" x="7033" y="0"></use>
+<g transform="translate(8034,0)">
+ <use xlink:href="#MJMATHI-3B1" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-30" x="905" y="-213"></use>
+</g>
+<g transform="translate(9128,0)">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-31" x="723" y="583"></use>
+</g>
+ <use xlink:href="#MJMAIN-2C" x="10094" y="0"></use>
+</g>
+</svg></span></span></p>
+<p>where <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="10.035ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 4320.6 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-24-Title">
+<title id="MathJax-SVG-24-Title">\alpha_0\in[0, 1]</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-3B1" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-30" x="905" y="-213"></use>
+ <use xlink:href="#MJMAIN-2208" x="1372" y="0"></use>
+ <use xlink:href="#MJMAIN-5B" x="2317" y="0"></use>
+ <use xlink:href="#MJMAIN-30" x="2595" y="0"></use>
+ <use xlink:href="#MJMAIN-2C" x="3096" y="0"></use>
+ <use xlink:href="#MJMAIN-31" x="3541" y="0"></use>
+ <use xlink:href="#MJMAIN-5D" x="4042" y="0"></use>
+</g>
+</svg></span></span>
+represents how reflective the first material we intersect is, and can be
+accessed as <code>materials.mirror</code> in the code. The color <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.242ex" height="2.509ex" style="vertical-align: -0.338ex;" viewBox="0 -934.9 965.4 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-25-Title">
+<title id="MathJax-SVG-25-Title">\mathbf{c}^1</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-31" x="723" y="513"></use>
+</g>
+</svg></span></span> can be computed by
+recursively following the reflected ray. Denoting by <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.242ex" height="2.509ex" style="vertical-align: -0.338ex;" viewBox="0 -934.9 965.4 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-26-Title">
+<title id="MathJax-SVG-26-Title">\mathbf{c}^2</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-32" x="723" y="513"></use>
+</g>
+</svg></span></span> the color obtained by
+blending colors after 2 reflections, we have:</p>
+<p><span class="math display"><span class="mjpage mjpage__block"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="24.208ex" height="3.176ex" style="vertical-align: -0.838ex;" viewBox="0 -1006.6 10423 1367.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-27-Title">
+<title id="MathJax-SVG-27-Title">\mathbf{c}^1 = (1 - \alpha_1)
+\mathbf{c}_1 + \alpha_1 \mathbf{c}^2.</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-31" x="723" y="583"></use>
+ <use xlink:href="#MJMAIN-3D" x="1243" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="2299" y="0"></use>
+ <use xlink:href="#MJMAIN-31" x="2688" y="0"></use>
+ <use xlink:href="#MJMAIN-2212" x="3411" y="0"></use>
+<g transform="translate(4412,0)">
+ <use xlink:href="#MJMATHI-3B1" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-31" x="905" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="5506" y="0"></use>
+<g transform="translate(5896,0)">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-31" x="723" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2B" x="7083" y="0"></use>
+<g transform="translate(8084,0)">
+ <use xlink:href="#MJMATHI-3B1" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-31" x="905" y="-213"></use>
+</g>
+<g transform="translate(9179,0)">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-32" x="723" y="583"></use>
+</g>
+ <use xlink:href="#MJMAIN-2E" x="10144" y="0"></use>
+</g>
+</svg></span></span></p>
+<p>Again, <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.242ex" height="2.009ex" style="vertical-align: -0.671ex;" viewBox="0 -576.1 965.4 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-28-Title">
+<title id="MathJax-SVG-28-Title">\mathbf{c}_1</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-31" x="723" y="-213"></use>
+</g>
+</svg></span></span> corresponds
+to the color obtained at the intersection of the first reflected ray
+without considering reflections, and <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.542ex" height="2.009ex" style="vertical-align: -0.671ex;" viewBox="0 -576.1 1094.4 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-29-Title">
+<title id="MathJax-SVG-29-Title">\alpha_1</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-3B1" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-31" x="905" y="-213"></use>
+</g>
+</svg></span></span> is the reflection coefficient of
+the material that is being intersected with the first reflected ray. To
+simplify the notation, we assume that if intersection number <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="0.802ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 345.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-30-Title">
+<title id="MathJax-SVG-30-Title">i</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-69" x="0" y="0"></use>
+</g>
+</svg></span></span> does not occur, the corresponding color
+obtained without reflection at this intersection is <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="6.249ex" height="2.509ex" style="vertical-align: -0.671ex;" viewBox="0 -791.3 2690.4 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-31-Title">
+<title id="MathJax-SVG-31-Title">\mathbf{c}_i=0</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="723" y="-213"></use>
+ <use xlink:href="#MJMAIN-3D" x="1133" y="0"></use>
+ <use xlink:href="#MJMAIN-30" x="2189" y="0"></use>
+</g>
+</svg></span></span>.</p>
+<p>Computing reflections as described above is based on ray tracing,
+which is an inherently recursive procedure. Unfortunately, recursive
+calls are not supported in WebGL. We will then opt for rephrasing the
+reflection computations using a <code>for</code> loop. You will first
+prove how the procedure detailed above can be unraveled into an
+iterative procedure. You will then implement this procedure in glsl.</p>
+<section id="task-rt2.3.1-derive-iterative-formula" class="box task">
+<h4>Task RT2.3.1: Derive Iterative Formula</h4>
+<ul>
+<li>Show that we have the following:</li>
+</ul>
+<p><span class="math display"><span class="mjpage mjpage__block"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="29.701ex" height="7.509ex" style="vertical-align: -3.171ex;" viewBox="0 -1867.7 12788.1 3233.2" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-32-Title">
+<title id="MathJax-SVG-32-Title">\mathbf{c}_b =  \sum_{i=0}^{+\infty} (1
+- \alpha_i) \left(\prod_{k=0}^{i-1} \alpha_k \right)
+\mathbf{c}_i.</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-62" x="723" y="-213"></use>
+ <use xlink:href="#MJMAIN-3D" x="1192" y="0"></use>
+<g transform="translate(2249,0)">
+ <use xlink:href="#MJSZ2-2211" x="0" y="0"></use>
+<g transform="translate(147,-1090)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-3D" x="345" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-30" x="1124" y="0"></use>
+</g>
+<g transform="translate(93,1151)">
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-2B" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-221E" x="778" y="0"></use>
+</g>
+</g>
+ <use xlink:href="#MJMAIN-28" x="3693" y="0"></use>
+ <use xlink:href="#MJMAIN-31" x="4083" y="0"></use>
+ <use xlink:href="#MJMAIN-2212" x="4805" y="0"></use>
+<g transform="translate(5806,0)">
+ <use xlink:href="#MJMATHI-3B1" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="905" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="6791" y="0"></use>
+<g transform="translate(7347,0)">
+ <use xlink:href="#MJSZ4-28"></use>
+<g transform="translate(792,0)">
+ <use xlink:href="#MJSZ2-220F" x="0" y="0"></use>
+<g transform="translate(2,-1110)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6B" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-3D" x="521" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-30" x="1300" y="0"></use>
+</g>
+<g transform="translate(64,1151)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-2212" x="345" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-31" x="1124" y="0"></use>
+</g>
+</g>
+<g transform="translate(2237,0)">
+ <use xlink:href="#MJMATHI-3B1" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6B" x="905" y="-213"></use>
+</g>
+ <use xlink:href="#MJSZ4-29" x="3346" y="0"></use>
+</g>
+<g transform="translate(11653,0)">
+ <use xlink:href="#MJMAINB-63" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="723" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2E" x="12509" y="0"></use>
+</g>
+</svg></span></span></p>
+<ul>
+<li>Give a simplification of the above formula assuming that we consider
+at most <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.064ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 888.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-33-Title">
+<title id="MathJax-SVG-33-Title">N</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-4E" x="0" y="0"></use>
+</g>
+</svg></span></span> reflections.</li>
+</ul>
+</section>
+<p>Write your solution in <code>theory.md</code> and compile it to
+<code>theory.html</code>. You can find template files in the
+<code>RT2_theory/</code> directory. Please refer to the previous handout
+for more details.</p>
+<p>Now that you know how to change the recursive strategy into an
+iterative one, you can implement it into your raytracer.</p>
+<section id="task-rt2.3.2-implement-reflections" class="box task">
+<h4>Task RT2.3.2: Implement Reflections</h4>
+<ul>
+<li>Fill in the method <code>render_light</code> in
+<code>tracer.frag.glsl</code>:
+<ul>
+<li>Create an outer loop over the number of reflections.</li>
+<li>Compute lighting with the current ray (consider that it might have
+been reflected).</li>
+<li>Use the above formula for blending the current pixel color with the
+reflected one.</li>
+<li>Update the ray origin and direction.</li>
+</ul></li>
+<li>Experiment with selecting different numbers of reflections in the
+UI.</li>
+</ul>
+<section id="hint-6" class="box hint">
+<h5>Hint 6</h5>
+<p>The maximum number of reflections, denoted by <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.064ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 888.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-34-Title">
+<title id="MathJax-SVG-34-Title">N</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-4E" x="0" y="0"></use>
+</g>
+</svg></span></span> in this handout, corresponds to the
+variable <code>NUM_REFLECTIONS</code> in
+<code>tracer.frag.glsl</code>.</p>
+</section>
+<section id="hint-7" class="box hint">
+<h5>Hint 7</h5>
+<p>Do not forget to offset intersection points to avoid reflection
+artifacts the same way as you did for shadow acne in the previous
+task.</p>
+</section>
+</section>
+<h3 id="blender-exercises-optional">Blender Exercises (Optional)</h3>
+<p>Here are some optional exercises you can do to get more familiar with
+the Blender interface and the scene description in <code>regl</code>.
+These are not graded, but they can be useful to get more comfortable
+with the tools you will use in subsequent homework assignments, and in
+the final project.</p>
+<section id="project-preparation" class="box project">
+<h4>Project Preparation</h4>
+<p>You will use the provided template file <code>RT_scenes.blend</code>
+to edit and add lights and materials, and to analyze the definition of
+camera objects.</p>
+<p>Please refer to last week’s handout for more details on the scene
+export procedure.</p>
+<ul>
+<li>From Blender GUI, move the existing lights around. Check the preview
+of the generated shadow in Blender, and compare it to the one you obtain
+with your implementation. To get a fully shaded preview in Blender,
+including shadows, remember to select the <em>Render Preview</em> mode
+for the <em>Viewport Shading</em> option at the top right (see
+screenshot).</li>
+</ul>
+<figure style="width: 60%;">
+<img src="doc/viewport_shading.png">
+</figure>
+<ul>
+<li><p>Try to understand how the position of the camera is specified in
+the scene description. You can move the camera object in Blender GUI and
+check how the camera position changes in the scene description. Check
+the export script to see which Blender parameter is mapped to which
+scene description parameter. Camera movement will be the subject of a
+future homework assignment: starting building some knowledge and
+intuition about it will be helpful.</p></li>
+<li><p>Add a new light. Note that the name of the light object should
+follow a given formatting rule to be correctly exported. Read the Python
+script to understand how the light object is identified and exported,
+and make sure the expected convention is respected.</p></li>
+<li><p>Place the new light in such a way that it creates interesting
+shadow overlaps in the scene. Try having some regions in your scene that
+are hit by all the lights, and some that are only lighted by two or one
+(see the screenshot below). Is the shading behavior as expected? Make
+sure you understand how the light intensity is specified in the scene
+description. If you noticed any inconsistencies in the shading, can you
+explain what happened?</p></li>
+</ul>
+<figure style="width: 60%;">
+<img src="doc/scene_3_lights.png">
+</figure>
+<ul>
+<li>Assign a material to the objects currently in the scene. You can do
+this by:
+<ul>
+<li>Selecting an object in the scene.</li>
+<li>Going to the <em>Object Properties</em> tab in the right panel
+(orange square).</li>
+<li>Scrolling all the way down to <em>Custom Properties</em>.</li>
+<li>Clicking on <em>New</em>.</li>
+<li>Clicking on the gear icon to edit the newly added property.</li>
+<li>Selecting <em>String</em> as <em>Type</em>.</li>
+<li>Writing <em>material</em> in <em>Property Name</em>.</li>
+<li>Exiting the edit menu (gear icon), and writing the name of the
+material you want to assign (for example: <em>black</em>) to the object
+in place of the default value, which is usually <em>1.0</em>. Try
+exporting the scene. Make sure the material name you specify is listed
+among the ones defined in the python Blender script.</li>
+</ul></li>
+</ul>
+<figure style="width: 90%;">
+<img src="doc/blender_material.png">
+</figure>
+<ul>
+<li>Add a new material definition in the Blender file and assign it to
+one of the objects in the scene. Export the scene and check that the
+material is correctly rendered in the browser.</li>
+</ul>
+<p>Remember that the provided export script is just a starting point for
+exploration. Blender, has much more advanced features that can be useful
+to design you own scene. For example, different kinds of lights exist
+(can you understand the difference between a point and a spot light
+sources? Try playing with these two in the Blender GUI, and check the <a href="https://docs.blender.org/manual/en/latest/render/lights/light_object.html">docs</a>
+if interested), as well as much more advanced material models.</p>
+<p>Our simple script is only exporting a small subset of the object
+properties that Blender can handle. This is because our
+<code>regl</code> framework does not currently support more advanced
+rendering techniques either. Some optional features you can decide to
+implement in the project will go in the direction of extending the
+capabilities of the <code>regl</code> pipeline. Learning the basics of
+Blender is then a good way to start getting an idea about which aspects
+of rendering you find interesting, and maybe want to implement in the
+final project.</p>
+<p>Note that many advanced rendering techniques, especially for what
+concerns ray tracing, are not object of this course and are taught in <a href="https://edu.epfl.ch/coursebook/en/advanced-computer-graphics-CS-440">CS-440
+Advanced Computer Grahpics</a>.</p>
+</section>
+<h2 id="grading">Grading</h2>
+<p>Each task of this assignment are graded as follow:</p>
+<ul>
+<li>Ambient contribution: 5%</li>
+<li>Diffuse contribution: 15%</li>
+<li>Specular Phong contribution: 10%</li>
+<li>Specular Blinn-Phong contribution: 10%</li>
+<li>Sum of light sources 5%</li>
+<li>Shadows: 25%</li>
+<li>Reflections (theory): 10%</li>
+<li>Reflections (implementation): 20%</li>
+</ul>
+<h2 id="what-to-hand-in">What to Hand in</h2>
+<p>Please edit the file <code>readme.md</code> adding a brief
+description (approximately 10 to 20 lines) of how you solved the
+proposed exercises. In the same file, report individual contributions
+following this scheme (sciper in parentheses):</p>
+<pre><code>Name1 Surname1 (000001): 1/3
+Name2 Surname2 (000002): 1/3
+Name3 Surname3 (000003): 1/3</code></pre>
+<p>We ask you to only report global contributions, there is no need to
+provide additional details for each sub-task. The three contributions
+should add up to 1.</p>
+<p>Make sure the <code>theory.md</code> and <code>theory.html</code>
+files containing the solution to task RT2.3.1 are in the
+<code>RT2_light_rays/RT2_theory/</code> directory.</p>
+<p>Compress the directory with all the files it contains – the source
+code with your solution, the source code you did not modify, the
+libraries, the readme, etc. – into a <code>.zip</code> archive. Rename
+the zipped file into <code>Exercise2-Group&lt;GX&gt;.zip</code>, where
+<code>&lt;GX&gt;</code> is your group number, according to the group you
+enrolled in on Moodle.</p>
+<p>Note that it is your responsibility to check that all the components
+necessary to run the code are included. <strong>We will run your web app
+to generate the results. These results will determine your
+grade</strong>.</p>
+
+ 
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;"><defs id="MathJax_SVG_glyphs"><path stroke-width="1" id="MJMAINB-72" d="M405 293T374 293T324 312T305 361Q305 378 312 394Q315 397 315 399Q305 399 294 394T266 375T238 329T222 249Q221 241 221 149V62H308V0H298Q280 3 161 3Q47 3 38 0H29V62H98V210V303Q98 353 96 363T83 376Q69 380 42 380H29V442H32L118 446Q204 450 205 450H210V414L211 378Q247 449 315 449H321Q384 449 413 422T442 360Q442 332 424 313Z"></path><path stroke-width="1" id="MJMAINB-49" d="M397 0Q370 3 218 3Q65 3 38 0H25V62H139V624H25V686H38Q65 683 218 683Q370 683 397 686H410V624H296V62H410V0H397Z"></path><path stroke-width="1" id="MJMAIN-50" d="M130 622Q123 629 119 631T103 634T60 637H27V683H214Q237 683 276 683T331 684Q419 684 471 671T567 616Q624 563 624 489Q624 421 573 372T451 307Q429 302 328 301H234V181Q234 62 237 58Q245 47 304 46H337V0H326Q305 3 182 3Q47 3 38 0H27V46H60Q102 47 111 49T130 61V622ZM507 488Q507 514 506 528T500 564T483 597T450 620T397 635Q385 637 307 637H286Q237 637 234 628Q231 624 231 483V342H302H339Q390 342 423 349T481 382Q507 411 507 488Z"></path><path stroke-width="1" id="MJMAIN-68" d="M41 46H55Q94 46 102 60V68Q102 77 102 91T102 124T102 167T103 217T103 272T103 329Q103 366 103 407T103 482T102 542T102 586T102 603Q99 622 88 628T43 637H25V660Q25 683 27 683L37 684Q47 685 66 686T103 688Q120 689 140 690T170 693T181 694H184V367Q244 442 328 442Q451 442 463 329Q464 322 464 190V104Q464 66 466 59T477 49Q498 46 526 46H542V0H534L510 1Q487 2 460 2T422 3Q319 3 310 0H302V46H318Q379 46 379 62Q380 64 380 200Q379 335 378 343Q372 371 358 385T334 402T308 404Q263 404 229 370Q202 343 195 315T187 232V168V108Q187 78 188 68T191 55T200 49Q221 46 249 46H265V0H257L234 1Q210 2 183 2T145 3Q42 3 33 0H25V46H41Z"></path><path stroke-width="1" id="MJMAIN-6F" d="M28 214Q28 309 93 378T250 448Q340 448 405 380T471 215Q471 120 407 55T250 -10Q153 -10 91 57T28 214ZM250 30Q372 30 372 193V225V250Q372 272 371 288T364 326T348 362T317 390T268 410Q263 411 252 411Q222 411 195 399Q152 377 139 338T126 246V226Q126 130 145 91Q177 30 250 30Z"></path><path stroke-width="1" id="MJMAIN-6E" d="M41 46H55Q94 46 102 60V68Q102 77 102 91T102 122T103 161T103 203Q103 234 103 269T102 328V351Q99 370 88 376T43 385H25V408Q25 431 27 431L37 432Q47 433 65 434T102 436Q119 437 138 438T167 441T178 442H181V402Q181 364 182 364T187 369T199 384T218 402T247 421T285 437Q305 442 336 442Q450 438 463 329Q464 322 464 190V104Q464 66 466 59T477 49Q498 46 526 46H542V0H534L510 1Q487 2 460 2T422 3Q319 3 310 0H302V46H318Q379 46 379 62Q380 64 380 200Q379 335 378 343Q372 371 358 385T334 402T308 404Q263 404 229 370Q202 343 195 315T187 232V168V108Q187 78 188 68T191 55T200 49Q221 46 249 46H265V0H257L234 1Q210 2 183 2T145 3Q42 3 33 0H25V46H41Z"></path><path stroke-width="1" id="MJMAIN-67" d="M329 409Q373 453 429 453Q459 453 472 434T485 396Q485 382 476 371T449 360Q416 360 412 390Q410 404 415 411Q415 412 416 414V415Q388 412 363 393Q355 388 355 386Q355 385 359 381T368 369T379 351T388 325T392 292Q392 230 343 187T222 143Q172 143 123 171Q112 153 112 133Q112 98 138 81Q147 75 155 75T227 73Q311 72 335 67Q396 58 431 26Q470 -13 470 -72Q470 -139 392 -175Q332 -206 250 -206Q167 -206 107 -175Q29 -140 29 -75Q29 -39 50 -15T92 18L103 24Q67 55 67 108Q67 155 96 193Q52 237 52 292Q52 355 102 398T223 442Q274 442 318 416L329 409ZM299 343Q294 371 273 387T221 404Q192 404 171 388T145 343Q142 326 142 292Q142 248 149 227T179 192Q196 182 222 182Q244 182 260 189T283 207T294 227T299 242Q302 258 302 292T299 343ZM403 -75Q403 -50 389 -34T348 -11T299 -2T245 0H218Q151 0 138 -6Q118 -15 107 -34T95 -74Q95 -84 101 -97T122 -127T170 -155T250 -167Q319 -167 361 -139T403 -75Z"></path><path stroke-width="1" id="MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path><path stroke-width="1" id="MJMATHI-61" d="M33 157Q33 258 109 349T280 441Q331 441 370 392Q386 422 416 422Q429 422 439 414T449 394Q449 381 412 234T374 68Q374 43 381 35T402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487Q506 153 506 144Q506 138 501 117T481 63T449 13Q436 0 417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157ZM351 328Q351 334 346 350T323 385T277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q217 26 254 59T298 110Q300 114 325 217T351 328Z"></path><path stroke-width="1" id="MJMAIN-2217" d="M229 286Q216 420 216 436Q216 454 240 464Q241 464 245 464T251 465Q263 464 273 456T283 436Q283 419 277 356T270 286L328 328Q384 369 389 372T399 375Q412 375 423 365T435 338Q435 325 425 315Q420 312 357 282T289 250L355 219L425 184Q434 175 434 161Q434 146 425 136T401 125Q393 125 383 131T328 171L270 213Q283 79 283 63Q283 53 276 44T250 35Q231 35 224 44T216 63Q216 80 222 143T229 213L171 171Q115 130 110 127Q106 124 100 124Q87 124 76 134T64 161Q64 166 64 169T67 175T72 181T81 188T94 195T113 204T138 215T170 230T210 250L74 315Q65 324 65 338Q65 353 74 363T98 374Q106 374 116 368T171 328L229 286Z"></path><path stroke-width="1" id="MJMAINB-6D" d="M40 442Q217 450 218 450H224V365Q226 367 235 378T254 397T278 416T314 435T362 448Q376 450 400 450H406Q503 450 534 393Q545 376 545 370Q545 368 555 379Q611 450 716 450Q774 450 809 434Q850 414 861 379T873 276V213V198V62H942V0H933Q915 3 809 3Q702 3 684 0H675V62H744V194V275Q744 348 735 373T690 399Q645 399 607 370T557 290Q555 281 554 171V62H623V0H614Q596 3 489 3Q374 3 365 0H356V62H425V194V275Q425 348 416 373T371 399Q326 399 288 370T238 290Q236 281 235 171V62H304V0H295Q277 3 171 3Q64 3 46 0H37V62H106V210V303Q106 353 104 363T91 376Q77 380 50 380H37V442H40Z"></path><path stroke-width="1" id="MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path><path stroke-width="1" id="MJSZ2-2211" d="M60 948Q63 950 665 950H1267L1325 815Q1384 677 1388 669H1348L1341 683Q1320 724 1285 761Q1235 809 1174 838T1033 881T882 898T699 902H574H543H251L259 891Q722 258 724 252Q725 250 724 246Q721 243 460 -56L196 -356Q196 -357 407 -357Q459 -357 548 -357T676 -358Q812 -358 896 -353T1063 -332T1204 -283T1307 -196Q1328 -170 1348 -124H1388Q1388 -125 1381 -145T1356 -210T1325 -294L1267 -449L666 -450Q64 -450 61 -448Q55 -446 55 -439Q55 -437 57 -433L590 177Q590 178 557 222T452 366T322 544L56 909L55 924Q55 945 60 948Z"></path><path stroke-width="1" id="MJMAIN-6C" d="M42 46H56Q95 46 103 60V68Q103 77 103 91T103 124T104 167T104 217T104 272T104 329Q104 366 104 407T104 482T104 542T103 586T103 603Q100 622 89 628T44 637H26V660Q26 683 28 683L38 684Q48 685 67 686T104 688Q121 689 141 690T171 693T182 694H185V379Q185 62 186 60Q190 52 198 49Q219 46 247 46H263V0H255L232 1Q209 2 183 2T145 3T107 3T57 1L34 0H26V46H42Z"></path><path stroke-width="1" id="MJMAIN-69" d="M69 609Q69 637 87 653T131 669Q154 667 171 652T188 609Q188 579 171 564T129 549Q104 549 87 564T69 609ZM247 0Q232 3 143 3Q132 3 106 3T56 1L34 0H26V46H42Q70 46 91 49Q100 53 102 60T104 102V205V293Q104 345 102 359T88 378Q74 385 41 385H30V408Q30 431 32 431L42 432Q52 433 70 434T106 436Q123 437 142 438T171 441T182 442H185V62Q190 52 197 50T232 46H255V0H247Z"></path><path stroke-width="1" id="MJMAIN-74" d="M27 422Q80 426 109 478T141 600V615H181V431H316V385H181V241Q182 116 182 100T189 68Q203 29 238 29Q282 29 292 100Q293 108 293 146V181H333V146V134Q333 57 291 17Q264 -10 221 -10Q187 -10 162 2T124 33T105 68T98 100Q97 107 97 248V385H18V422H27Z"></path><path stroke-width="1" id="MJMATHI-6C" d="M117 59Q117 26 142 26Q179 26 205 131Q211 151 215 152Q217 153 225 153H229Q238 153 241 153T246 151T248 144Q247 138 245 128T234 90T214 43T183 6T137 -11Q101 -11 70 11T38 85Q38 97 39 102L104 360Q167 615 167 623Q167 626 166 628T162 632T157 634T149 635T141 636T132 637T122 637Q112 637 109 637T101 638T95 641T94 647Q94 649 96 661Q101 680 107 682T179 688Q194 689 213 690T243 693T254 694Q266 694 266 686Q266 675 193 386T118 83Q118 81 118 75T117 65V59Z"></path><path stroke-width="1" id="MJMAIN-5B" d="M118 -250V750H255V710H158V-210H255V-250H118Z"></path><path stroke-width="1" id="MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path><path stroke-width="1" id="MJMATHI-64" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"></path><path stroke-width="1" id="MJMAIN-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"></path><path stroke-width="1" id="MJMAINB-6E" d="M40 442Q217 450 218 450H224V407L225 365Q233 378 245 391T289 422T362 448Q374 450 398 450Q428 450 448 447T491 434T529 402T551 346Q553 335 554 198V62H623V0H614Q596 3 489 3Q374 3 365 0H356V62H425V194V275Q425 348 416 373T371 399Q326 399 288 370T238 290Q236 281 235 171V62H304V0H295Q277 3 171 3Q64 3 46 0H37V62H106V210V303Q106 353 104 363T91 376Q77 380 50 380H37V442H40Z"></path><path stroke-width="1" id="MJMATHI-54" d="M40 437Q21 437 21 445Q21 450 37 501T71 602L88 651Q93 669 101 677H569H659Q691 677 697 676T704 667Q704 661 687 553T668 444Q668 437 649 437Q640 437 637 437T631 442L629 445Q629 451 635 490T641 551Q641 586 628 604T573 629Q568 630 515 631Q469 631 457 630T439 622Q438 621 368 343T298 60Q298 48 386 46Q418 46 427 45T436 36Q436 31 433 22Q429 4 424 1L422 0Q419 0 415 0Q410 0 363 1T228 2Q99 2 64 0H49Q43 6 43 9T45 27Q49 40 55 46H83H94Q174 46 189 55Q190 56 191 56Q196 59 201 76T241 233Q258 301 269 344Q339 619 339 625Q339 630 310 630H279Q212 630 191 624Q146 614 121 583T67 467Q60 445 57 441T43 437H40Z"></path><path stroke-width="1" id="MJMAINB-6C" d="M43 686L134 690Q225 694 226 694H232V62H301V0H292Q274 3 170 3Q67 3 49 0H40V62H109V332Q109 387 109 453T110 534Q110 593 108 605T94 620Q80 624 53 624H40V686H43Z"></path><path stroke-width="1" id="MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path><path stroke-width="1" id="MJMATHI-73" d="M131 289Q131 321 147 354T203 415T300 442Q362 442 390 415T419 355Q419 323 402 308T364 292Q351 292 340 300T328 326Q328 342 337 354T354 372T367 378Q368 378 368 379Q368 382 361 388T336 399T297 405Q249 405 227 379T204 326Q204 301 223 291T278 274T330 259Q396 230 396 163Q396 135 385 107T352 51T289 7T195 -10Q118 -10 86 19T53 87Q53 126 74 143T118 160Q133 160 146 151T160 120Q160 94 142 76T111 58Q109 57 108 57T107 55Q108 52 115 47T146 34T201 27Q237 27 263 38T301 66T318 97T323 122Q323 150 302 164T254 181T195 196T148 231Q131 256 131 289Z"></path><path stroke-width="1" id="MJMAINB-76" d="M401 444Q413 441 495 441Q568 441 574 444H580V382H510L409 156Q348 18 339 6Q331 -4 320 -4Q318 -4 313 -4T303 -3H288Q273 -3 264 12T221 102Q206 135 197 156L96 382H26V444H34Q49 441 145 441Q252 441 270 444H279V382H231L284 264Q335 149 338 149Q338 150 389 264T442 381Q442 382 418 382H394V444H401Z"></path><path stroke-width="1" id="MJMAIN-5D" d="M22 710V750H159V-250H22V-210H119V710H22Z"></path><path stroke-width="1" id="MJSZ1-5B" d="M202 -349V850H394V810H242V-309H394V-349H202Z"></path><path stroke-width="1" id="MJSZ1-5D" d="M22 810V850H214V-349H22V-309H174V810H22Z"></path><path stroke-width="1" id="MJMAINB-68" d="M40 686L131 690Q222 694 223 694H229V533L230 372L238 381Q248 394 264 407T317 435T398 450Q428 450 448 447T491 434T529 402T551 346Q553 335 554 198V62H623V0H614Q596 3 489 3Q374 3 365 0H356V62H425V194V275Q425 348 416 373T371 399Q326 399 288 370T238 290Q236 281 235 171V62H304V0H295Q277 3 171 3Q64 3 46 0H37V62H106V332Q106 387 106 453T107 534Q107 593 105 605T91 620Q77 624 50 624H37V686H40Z"></path><path stroke-width="1" id="MJMAIN-42" d="M131 622Q124 629 120 631T104 634T61 637H28V683H229H267H346Q423 683 459 678T531 651Q574 627 599 590T624 512Q624 461 583 419T476 360L466 357Q539 348 595 302T651 187Q651 119 600 67T469 3Q456 1 242 0H28V46H61Q103 47 112 49T131 61V622ZM511 513Q511 560 485 594T416 636Q415 636 403 636T371 636T333 637Q266 637 251 636T232 628Q229 624 229 499V374H312L396 375L406 377Q410 378 417 380T442 393T474 417T499 456T511 513ZM537 188Q537 239 509 282T430 336L329 337H229V200V116Q229 57 234 52Q240 47 334 47H383Q425 47 443 53Q486 67 511 104T537 188Z"></path><path stroke-width="1" id="MJMAIN-2D" d="M11 179V252H277V179H11Z"></path><path stroke-width="1" id="MJMAIN-7C" d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"></path><path stroke-width="1" id="MJMAINB-63" d="M447 131H458Q478 131 478 117Q478 112 471 95T439 51T377 9Q330 -6 286 -6Q196 -6 135 35Q39 96 39 222Q39 324 101 384Q169 453 286 453Q359 453 411 431T464 353Q464 319 445 302T395 284Q360 284 343 305T325 353Q325 380 338 396H333Q317 398 295 398H292Q280 398 271 397T245 390T218 373T197 338T183 283Q182 275 182 231Q182 199 184 180T193 132T220 85T270 57Q289 50 317 50H326Q385 50 414 115Q419 127 423 129T447 131Z"></path><path stroke-width="1" id="MJMATHI-62" d="M73 647Q73 657 77 670T89 683Q90 683 161 688T234 694Q246 694 246 685T212 542Q204 508 195 472T180 418L176 399Q176 396 182 402Q231 442 283 442Q345 442 383 396T422 280Q422 169 343 79T173 -11Q123 -11 82 27T40 150V159Q40 180 48 217T97 414Q147 611 147 623T109 637Q104 637 101 637H96Q86 637 83 637T76 640T73 647ZM336 325V331Q336 405 275 405Q258 405 240 397T207 376T181 352T163 330L157 322L136 236Q114 150 114 114Q114 66 138 42Q154 26 178 26Q211 26 245 58Q270 81 285 114T318 219Q336 291 336 325Z"></path><path stroke-width="1" id="MJMAIN-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"></path><path stroke-width="1" id="MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path><path stroke-width="1" id="MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path><path stroke-width="1" id="MJMATHI-3B1" d="M34 156Q34 270 120 356T309 442Q379 442 421 402T478 304Q484 275 485 237V208Q534 282 560 374Q564 388 566 390T582 393Q603 393 603 385Q603 376 594 346T558 261T497 161L486 147L487 123Q489 67 495 47T514 26Q528 28 540 37T557 60Q559 67 562 68T577 70Q597 70 597 62Q597 56 591 43Q579 19 556 5T512 -10H505Q438 -10 414 62L411 69L400 61Q390 53 370 41T325 18T267 -2T203 -11Q124 -11 79 39T34 156ZM208 26Q257 26 306 47T379 90L403 112Q401 255 396 290Q382 405 304 405Q235 405 183 332Q156 292 139 224T121 120Q121 71 146 49T208 26Z"></path><path stroke-width="1" id="MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path><path stroke-width="1" id="MJMAIN-2208" d="M84 250Q84 372 166 450T360 539Q361 539 377 539T419 540T469 540H568Q583 532 583 520Q583 511 570 501L466 500Q355 499 329 494Q280 482 242 458T183 409T147 354T129 306T124 272V270H568Q583 262 583 250T568 230H124V228Q124 207 134 177T167 112T231 48T328 7Q355 1 466 0H570Q583 -10 583 -20Q583 -32 568 -40H471Q464 -40 446 -40T417 -41Q262 -41 172 45Q84 127 84 250Z"></path><path stroke-width="1" id="MJMAIN-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"></path><path stroke-width="1" id="MJMATHI-69" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"></path><path stroke-width="1" id="MJMAIN-221E" d="M55 217Q55 305 111 373T254 442Q342 442 419 381Q457 350 493 303L507 284L514 294Q618 442 747 442Q833 442 888 374T944 214Q944 128 889 59T743 -11Q657 -11 580 50Q542 81 506 128L492 147L485 137Q381 -11 252 -11Q166 -11 111 57T55 217ZM907 217Q907 285 869 341T761 397Q740 397 720 392T682 378T648 359T619 335T594 310T574 285T559 263T548 246L543 238L574 198Q605 158 622 138T664 94T714 61T765 51Q827 51 867 100T907 217ZM92 214Q92 145 131 89T239 33Q357 33 456 193L425 233Q364 312 334 337Q285 380 233 380Q171 380 132 331T92 214Z"></path><path stroke-width="1" id="MJSZ2-220F" d="M220 812Q220 813 218 819T214 829T208 840T199 853T185 866T166 878T140 887T107 893T66 896H56V950H1221V896H1211Q1080 896 1058 812V-311Q1076 -396 1211 -396H1221V-450H725V-396H735Q864 -396 888 -314Q889 -312 889 -311V896H388V292L389 -311Q405 -396 542 -396H552V-450H56V-396H66Q195 -396 219 -314Q220 -312 220 -311V812Z"></path><path stroke-width="1" id="MJMATHI-6B" d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"></path><path stroke-width="1" id="MJSZ4-28" d="M758 -1237T758 -1240T752 -1249H736Q718 -1249 717 -1248Q711 -1245 672 -1199Q237 -706 237 251T672 1700Q697 1730 716 1749Q718 1750 735 1750H752Q758 1744 758 1741Q758 1737 740 1713T689 1644T619 1537T540 1380T463 1176Q348 802 348 251Q348 -242 441 -599T744 -1218Q758 -1237 758 -1240Z"></path><path stroke-width="1" id="MJSZ4-29" d="M33 1741Q33 1750 51 1750H60H65Q73 1750 81 1743T119 1700Q554 1207 554 251Q554 -707 119 -1199Q76 -1250 66 -1250Q65 -1250 62 -1250T56 -1249Q55 -1249 53 -1249T49 -1250Q33 -1250 33 -1239Q33 -1236 50 -1214T98 -1150T163 -1052T238 -910T311 -727Q443 -335 443 251Q443 402 436 532T405 831T339 1142T224 1438T50 1716Q33 1737 33 1741Z"></path><path stroke-width="1" id="MJMATHI-4E" d="M234 637Q231 637 226 637Q201 637 196 638T191 649Q191 676 202 682Q204 683 299 683Q376 683 387 683T401 677Q612 181 616 168L670 381Q723 592 723 606Q723 633 659 637Q635 637 635 648Q635 650 637 660Q641 676 643 679T653 683Q656 683 684 682T767 680Q817 680 843 681T873 682Q888 682 888 672Q888 650 880 642Q878 637 858 637Q787 633 769 597L620 7Q618 0 599 0Q585 0 582 2Q579 5 453 305L326 604L261 344Q196 88 196 79Q201 46 268 46H278Q284 41 284 38T282 19Q278 6 272 0H259Q228 2 151 2Q123 2 100 2T63 2T46 1Q31 1 31 10Q31 14 34 26T39 40Q41 46 62 46Q130 49 150 85Q154 91 221 362L289 634Q287 635 234 637Z"></path></defs></svg></body></html>
