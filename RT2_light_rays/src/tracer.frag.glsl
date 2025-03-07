@@ -367,13 +367,7 @@ vec3 lighting(
 	You can use existing methods for `vec3` objects such as `reflect`, `dot`, `normalize` and `length`.
 	*/
 
-	// Diffuse component is given by I_l * m_d * cos(theta) = I_l * m_d * dot(n, l)
 	vec3 light_direction = normalize(light.position - object_point);
-	vec3 diffuse_component = light.color * mat.color * mat.diffuse * max(0., dot(object_normal, light_direction));
-
-	// Specular component is given by I_l * m_s * cos(alpha)^s = I_l * m_s * dot(r, v)^s = I_l * m_s * dot(h, n)^s
-	vec3 r = reflect(-light_direction, object_normal);
-	vec3 h = normalize(light_direction + direction_to_camera);
 
 	/** #TODO RT2.2: 
 	- shoot a shadow ray from the intersection point to the light
@@ -389,17 +383,22 @@ vec3 lighting(
 		return vec3(0., 0., 0.);
 	}
 
-	float dot_product = 0.0;
+	float n_dot_l = max(0., dot(object_normal, light_direction));
+	vec3 diffuse_component = light.color * mat.color * mat.diffuse * n_dot_l;
+
+	vec3 reflection_direction = reflect(-light_direction, object_normal);
+	vec3 halfway_vector = normalize(light_direction + direction_to_camera);
+	float specular_factor = 0.0;
 
 	#if SHADING_MODE == SHADING_MODE_PHONG
-	dot_product = dot(r, direction_to_camera);
+	specular_factor = dot(reflection_direction, direction_to_camera);
 	#endif
 
 	#if SHADING_MODE == SHADING_MODE_BLINN_PHONG
-	dot_product = dot(h, object_normal);
+	specular_factor = dot(halfway_vector, object_normal);
 	#endif
 
-	vec3 specular_component = light.color * mat.color * mat.specular * pow(max(0., dot_product), mat.shininess);
+	vec3 specular_component = light.color * mat.color * mat.specular * pow(max(0., specular_factor), mat.shininess);
 
 	return diffuse_component + specular_component;
 }
@@ -420,49 +419,43 @@ vec3 render_light(vec3 ray_origin, vec3 ray_direction) {
 	- compute lighting with the current ray (might be reflected)
 	- use the above formula for blending the current pixel color with the reflected one
 	- update ray origin and direction
-
-	We suggest you structure your code in the following way:
-
-	vec3 pix_color          = vec3(0.);
-	float reflection_weight = ...;
-
-	for(int i_reflection = 0; i_reflection < NUM_REFLECTIONS+1; i_reflection++) {
-		float col_distance;
-		vec3 col_normal = vec3(0.);
-		int mat_id      = 0;
-
-		if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
-			Material m = get_material(mat_id); // get material of the intersected object
-
-			...
-
-			ray_origin        = ...;
-			ray_direction     = ...;
-			reflection_weight = ...;
-		}
-	}
 	*/
 
 	vec3 pix_color = vec3(0.);
+	float reflection_weight = 1.;
 
-	float col_distance;
-	vec3 col_normal = vec3(0.);
-	int mat_id = 0;
-	if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
-		Material m = get_material(mat_id);
+	for(int i_reflection = 0; i_reflection < NUM_REFLECTIONS + 1; i_reflection++) {
+		float col_distance;
+		vec3 col_normal = vec3(0.);
+		int mat_id = 0;
 
-		// ambient contribution
-		pix_color += light_color_ambient * m.color * m.ambient;
+		if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
+			Material m = get_material(mat_id);
+			float contribution_weight = reflection_weight * (1. - m.mirror);
 
-		// diffuse and specular contributions
-		#if NUM_LIGHTS != 0
-		for(int i_light = 0; i_light < NUM_LIGHTS; i_light++) {
-			Light light = lights[i_light];
-			pix_color += lighting(ray_origin + col_distance * ray_direction, col_normal, -ray_direction, light, m);
+			// ambient contribution
+			pix_color += contribution_weight * light_color_ambient * m.color * m.ambient;
+
+			vec3 object_point = ray_origin + col_distance * ray_direction;
+
+			// diffuse and specular contributions
+			#if NUM_LIGHTS != 0
+			for(int i_light = 0; i_light < NUM_LIGHTS; i_light++) {
+				Light light = lights[i_light];
+				pix_color += contribution_weight * lighting(object_point, col_normal, -ray_direction, light, m);
+			}
+			#endif
+
+			// Update the ray direction and origin for the next iteration
+			ray_direction = reflect(ray_direction, col_normal);
+			// We add a constant in the direction of the reflected ray to avoid self-intersection
+			ray_origin = object_point + 0.005 * ray_direction;
+			reflection_weight *= m.mirror;
+		} else {
+			// If no intersection, return accumulated color
+			return pix_color;
 		}
-		#endif
 	}
-
 	return pix_color;
 }
 
