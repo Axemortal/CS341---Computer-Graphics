@@ -381,6 +381,14 @@ vec3 lighting(
 	- update the lighting accordingly
 	*/
 
+	float col_distance;
+	vec3 col_normal = vec3(0., 0., 0.);
+	int mat_id = 0;
+	// We add a constant in the direction of the light to avoid self-intersection and shadow acne
+	if(ray_intersection(object_point + 0.005 * light_direction, light_direction, col_distance, col_normal, mat_id)) {
+		return vec3(0., 0., 0.);
+	}
+
 	float dot_product = 0.0;
 
 	#if SHADING_MODE == SHADING_MODE_PHONG
