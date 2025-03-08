@@ -425,7 +425,7 @@ vec3 lighting(
                 // Phong specular component
                 vec3 reflection_dir = reflect(-light_dir, object_normal);
                 float spec_angle = max(dot(direction_to_camera, reflection_dir), 0.0);
-                vec3 specular = mat.specular * light.color * pow(spec_angle, mat.shininess);
+                vec3 specular = mat.specular * mat.color * light.color * pow(spec_angle, mat.shininess);
                 result += specular;
             #endif
 
@@ -433,7 +433,7 @@ vec3 lighting(
                 // Blinn-Phong specular component
                 vec3 half_vector = normalize(light_dir + direction_to_camera);
                 float spec_angle = max(dot(object_normal, half_vector), 0.0);
-                vec3 specular = mat.specular * light.color * pow(spec_angle, mat.shininess);
+                vec3 specular = mat.specular * mat.color * light.color * pow(spec_angle, mat.shininess);
                 result += specular;
             #endif
         }
@@ -481,33 +481,80 @@ vec3 render_light(vec3 ray_origin, vec3 ray_direction) {
 	}
 	*/
 
-	vec3 pix_color = vec3(0.);
+	// Final accumulated color
+    vec3 pix_color = vec3(0.0);
 
-	float col_distance;
-	vec3 col_normal = vec3(0.);
-	int mat_id = 0;
-	if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
-		Material m = get_material(mat_id);
-		
-		// Calculate intersection point
-		vec3 hit_point = ray_origin + ray_direction * col_distance;
-		
-		// Normalize vectors
-		vec3 normal = normalize(col_normal);
-		vec3 view_dir = normalize(-ray_direction);
-		
-		// Start with ambient contribution
-		pix_color = m.ambient * m.color * light_color_ambient;
+    // This "reflection_weight" keeps track of the product of all previous mirror coefficients
+    float reflection_weight = 1.0;
 
-		#if NUM_LIGHTS != 0
-		for(int i_light = 0; i_light < NUM_LIGHTS; i_light++) {
-			// Add contribution from each light
-			pix_color += lighting(hit_point, normal, view_dir, lights[i_light], m);
-		}
-		#endif
-	}
+    // Loop over the direct ray + NUM_REFLECTIONS bounces
+    for(int i_reflection = 0; i_reflection < NUM_REFLECTIONS + 1; i_reflection++) {
 
-	return pix_color;
+        float col_distance;
+        vec3 col_normal = vec3(0.0);
+        int mat_id = 0;
+
+        // Check if the current ray hits an object
+        if (ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
+            // Get material properties
+            Material m = get_material(mat_id);
+
+            // Compute intersection point and surface normal
+            vec3 hit_point = ray_origin + col_distance * ray_direction;
+            vec3 normal = normalize(col_normal);
+
+            // Compute view direction (towards camera)
+            vec3 view_dir = normalize(-ray_direction);
+
+            // ------------------------------
+            // 1) Compute local color (ambient + diffuse + specular)
+            // ------------------------------
+            vec3 local_color = vec3(0.0);
+
+            // Ambient contribution
+            local_color += m.ambient * m.color * light_color_ambient;
+
+            // Per-light contributions (diffuse + specular)
+            #if NUM_LIGHTS != 0
+            for (int i_light = 0; i_light < NUM_LIGHTS; i_light++) {
+                local_color += lighting(hit_point, normal, view_dir, lights[i_light], m);
+            }
+            #endif
+
+            // ------------------------------
+            // 2) Blend using mirror coefficient
+            // ------------------------------
+            // The factor (1 - m.mirror) is how much local color we keep at this bounce
+            // multiplied by the reflection_weight from previous bounces.
+            float alpha = m.mirror; // Mirror coefficient
+            pix_color += reflection_weight * (1.0 - alpha) * local_color;
+
+            // ------------------------------
+            // 3) Update reflection weight
+            // ------------------------------
+            reflection_weight *= alpha;
+
+            // ------------------------------
+            // 4) Prepare for the next bounce (reflection)
+            // ------------------------------
+            // Offset the origin to avoid self-intersection (shadow acne)
+            ray_origin = hit_point + 0.001 * normal;
+
+            // Reflect the direction around the surface normal
+            ray_direction = reflect(ray_direction, normal);
+
+            // If the reflection weight is negligible, stop
+            if (reflection_weight < 0.001) {
+                break;
+            }
+
+        } else {
+            // No intersection: break out, or optionally add background color
+            break;
+        }
+    }
+
+    return pix_color;
 }
 
 /*
