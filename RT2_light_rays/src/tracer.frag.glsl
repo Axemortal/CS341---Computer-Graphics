@@ -169,29 +169,120 @@ bool ray_sphere_intersection(
 	Check for intersection of the ray with a given plane in the scene.
 */
 bool ray_plane_intersection(
-		vec3 ray_origin, vec3 ray_direction, 
-		vec3 plane_normal, float plane_offset, 
-		out float t, out vec3 normal) 
-{
+	vec3 ray_origin,
+	vec3 ray_direction,
+	vec3 plane_normal,
+	float plane_offset,
+	out float t,
+	out vec3 normal
+) {
 	// can use the plane center if you need it
 	vec3 plane_center = plane_normal * plane_offset;
 	t = MAX_RANGE + 10.;  // corresponds to no intersection, to be updated if one is found
-	//normal = ...;
-	return false;
+	// Equation of the ray = o + t * d
+	// Equation of the plane = dot(x, n_p) = b
+	// Ray intersects the plane if dot(o + t * d, n_p) = b
+	// t = (b - dot(o, n_p)) / dot(d, n_p)
+
+	// If the ray is parallel to the plane, there is no intersection
+	if(dot(ray_direction, plane_normal) == 0.) {
+		return false;
+	}
+
+	t = (plane_offset - dot(ray_origin, plane_normal)) / dot(ray_direction, plane_normal);
+	if(t <= 0.) {
+		return false;
+	}
+
+	// We want the normal to point towards the camera
+	if(dot(ray_direction, plane_normal) > 0.) {
+		normal = -plane_normal;
+	} else {
+		normal = plane_normal;
+	}
+
+	// There is an intersection
+	return true;
 }
 
 /*
 	Check for intersection of the ray with a given cylinder in the scene.
 */
 bool ray_cylinder_intersection(
-		vec3 ray_origin, vec3 ray_direction, 
-		Cylinder cyl,
-		out float t, out vec3 normal) 
-{
-	vec3 intersection_point;
+	vec3 ray_origin,
+	vec3 ray_direction,
+	Cylinder cyl,
+	out float t,
+	out vec3 normal
+) {
 	t = MAX_RANGE + 10.;
+	vec2 solutions;
+	bool has_intersection = false;
 
-	return false;
+	vec3 oc = ray_origin - cyl.center; // o - c
+	float oc_dot_a = dot(oc, cyl.axis);
+	vec3 oc_cross_a = cross(oc, cyl.axis);
+	float d_dot_a = dot(ray_direction, cyl.axis);
+	vec3 d_cross_a = cross(ray_direction, cyl.axis);
+	float d_cross_a_len2 = dot(d_cross_a, d_cross_a); // || d x a || ^ 2
+
+    // Case 1: Ray is parallel to the cylinder axis
+	if(d_cross_a_len2 == 0.0) {
+        // Check if the ray origin is on the cylinder surface
+		if(length(oc_cross_a) != cyl.radius) {
+			return false;
+		}
+
+        // Compute intersections with top/bottom edges
+		solutions[0] = (cyl.height / 2.0 - oc_dot_a) / d_dot_a;
+		solutions[1] = (-cyl.height / 2.0 - oc_dot_a) / d_dot_a;
+	} else {
+		float A = d_cross_a_len2;
+		float B = 2.0 * dot(oc_cross_a, d_cross_a); // 2 * ((o - c) x a) . (d x a)
+		float C = dot(oc_cross_a, oc_cross_a) - cyl.radius * cyl.radius; // ((o - c) x a)^2 - r^2
+		int num_solutions = solve_quadratic(A, B, C, solutions);
+
+		if(num_solutions == 0) {
+			return false;
+		}
+	}
+
+	for(int i = 0; i < 2; i++) {
+		float t_candidate = solutions[i];
+		// Ignore negative t
+		if(t_candidate < 0.0) {
+			continue;
+		}
+
+		vec3 intersection_point = ray_origin + t_candidate * ray_direction;
+		float projection = dot(intersection_point - cyl.center, cyl.axis);
+
+		if(projection > cyl.height / 2.0 || projection < -cyl.height / 2.0) {
+			continue;
+		}
+
+        // Store the closest valid intersection
+		if(t_candidate < t) {
+			t = t_candidate;
+			has_intersection = true;
+		}
+	}
+
+	if(!has_intersection) {
+		return false;
+	}
+
+	// Compute the normal at the intersection point
+	vec3 intersection_point = ray_origin + t * ray_direction;
+	vec3 y = intersection_point - cyl.center;
+	vec3 n = y - dot(y, cyl.axis) * cyl.axis;
+	normal = normalize(n);
+
+	if(dot(normal, ray_direction) > 0.0) {
+		normal = -normal;
+	}
+
+	return true; // Valid intersection
 }
 
 
@@ -278,33 +369,77 @@ bool ray_intersection(
 	of potential reflected rays.
 */
 vec3 lighting(
-		vec3 object_point, vec3 object_normal, vec3 direction_to_camera, 
-		Light light, Material mat) {
+        vec3 object_point, vec3 object_normal, vec3 direction_to_camera, 
+        Light light, Material mat) {
 
-	/** #TODO RT2.1: 
-	- compute the diffuse component
-	- make sure that the light is located in the correct side of the object
-	- compute the specular component 
-	- make sure that the reflected light shines towards the camera
-	- return the ouput color
+    /** #TODO RT2.1: 
+    - compute the diffuse component
+    - make sure that the light is located in the correct side of the object
+    - compute the specular component 
+    - make sure that the reflected light shines towards the camera
+    - return the ouput color
+    */
 
-	You can use existing methods for `vec3` objects such as `reflect`, `dot`, `normalize` and `length`.
-	*/
+    /** #TODO RT2.2: 
+    - shoot a shadow ray from the intersection point to the light
+    - check whether it intersects an object from the scene
+    - update the lighting accordingly
+    */
 
-	/** #TODO RT2.2: 
-	- shoot a shadow ray from the intersection point to the light
-	- check whether it intersects an object from the scene
-	- update the lighting accordingly
-	*/
+    vec3 result = vec3(0.0);
+    
+    // Calculate vector from intersection point to light
+    vec3 light_vec = light.position - object_point;
+    float light_distance = length(light_vec);
+    vec3 light_dir = normalize(light_vec);
+    
+    // Check if light is on the correct side of the object
+    float n_dot_l = dot(object_normal, light_dir);
+    
+    if (n_dot_l > 0.0) {
+        // Shadow ray calculation
+        float shadow_distance;
+        vec3 shadow_normal;
+        int shadow_mat_id;
+        
+        // Offset the origin slightly to prevent self-intersection (shadow acne)
+        vec3 shadow_ray_origin = object_point + object_normal * 0.001;
+        
+        // Check for shadow
+        bool in_shadow = false;
+        
+        // The ray_intersection function returns true if there's any intersection within MAX_RANGE
+        // We need to check if that intersection is between us and the light
+        if (ray_intersection(shadow_ray_origin, light_dir, shadow_distance, shadow_normal, shadow_mat_id)) {
+            // Only consider it a shadow if the intersection is closer than the light source
+            in_shadow = (shadow_distance < light_distance);
+        }
+        
+        // Only calculate lighting if not in shadow
+        if (!in_shadow) {
+            // Diffuse component
+            vec3 diffuse = mat.diffuse * mat.color * light.color * n_dot_l;
+            result += diffuse;
+            
+            #if SHADING_MODE == SHADING_MODE_PHONG
+                // Phong specular component
+                vec3 reflection_dir = reflect(-light_dir, object_normal);
+                float spec_angle = max(dot(direction_to_camera, reflection_dir), 0.0);
+                vec3 specular = mat.specular * light.color * pow(spec_angle, mat.shininess);
+                result += specular;
+            #endif
 
+            #if SHADING_MODE == SHADING_MODE_BLINN_PHONG
+                // Blinn-Phong specular component
+                vec3 half_vector = normalize(light_dir + direction_to_camera);
+                float spec_angle = max(dot(object_normal, half_vector), 0.0);
+                vec3 specular = mat.specular * light.color * pow(spec_angle, mat.shininess);
+                result += specular;
+            #endif
+        }
+    }
 
-	#if SHADING_MODE == SHADING_MODE_PHONG
-	#endif
-
-	#if SHADING_MODE == SHADING_MODE_BLINN_PHONG
-	#endif
-
-	return mat.color;
+    return result;
 }
 
 /*
@@ -353,18 +488,27 @@ vec3 render_light(vec3 ray_origin, vec3 ray_direction) {
 	int mat_id = 0;
 	if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
 		Material m = get_material(mat_id);
-		pix_color = m.color;
+		
+		// Calculate intersection point
+		vec3 hit_point = ray_origin + ray_direction * col_distance;
+		
+		// Normalize vectors
+		vec3 normal = normalize(col_normal);
+		vec3 view_dir = normalize(-ray_direction);
+		
+		// Start with ambient contribution
+		pix_color = m.ambient * m.color * light_color_ambient;
 
 		#if NUM_LIGHTS != 0
-		// for(int i_light = 0; i_light < NUM_LIGHTS; i_light++) {
-		// // do something for each light lights[i_light]
-		// }
+		for(int i_light = 0; i_light < NUM_LIGHTS; i_light++) {
+			// Add contribution from each light
+			pix_color += lighting(hit_point, normal, view_dir, lights[i_light], m);
+		}
 		#endif
 	}
 
 	return pix_color;
 }
-
 
 /*
 	Draws the normal vectors of the scene in false color.
