@@ -1,0 +1,49 @@
+
+/*
+This CSS governs the appearance of our site.
+You can find the basic concepts of CSS here: https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/How_CSS_works
+*/
+
+/* Default font and size */
+body {
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+
+	/* center vertically */
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: center;
+	align-content: center;
+
+	/* background behind the plot */
+	background: rgb(40, 40, 40);
+
+	/* default text */
+	font-family: sans-serif;
+	font-size: 1.1rem;
+}
+
+#overlay {
+	top: 1rem; 
+	left: 1rem; 
+	position: absolute; 
+	z-index: 2;
+
+	/* padding: 0 0.5rem 0 0.5rem; */
+	border-radius: 0.5rem;
+	background: rgba(0, 0, 0, 0.5);
+	color: white;
+
+	overflow: hidden;
+}
+
+#overlay a {
+	color: rgb(118, 255, 152);
+}
+#overlay p {
+	margin: 0.5rem;
+}
+#overlay pre {
+	font-size: 0.8em;
+}

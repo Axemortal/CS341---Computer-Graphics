@@ -1,0 +1,887 @@
+<!DOCTYPE html><html lang="en"><head>
+	<meta charset="utf-8">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title> CG GL1 - GPU Pipeline - Geometric Transforms </title>
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    padding: 0;
+    padding-bottom: 10rem;
+    margin: 0;
+    border: 0;
+
+    max-width: 55rem;
+    margin-left: auto;
+    margin-right: auto;
+
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 1.2rem;
+    line-height: 1.6;
+
+    text-align: justify;
+    background-color: hsla(0, 0%, 100%, 0.8); 
+}
+
+h1, h2, h3, h4, h5, h6, a {
+    margin-top: 4rem;
+    color: hsl(204, 80%, 28%);
+}
+
+h6 {
+    font-weight: normal;
+}
+
+p, ul {
+    margin-left: 1.5em;
+    margin-right: 1.5em;
+}
+
+h3, h4, h5, h6 {
+    margin-left: 1em;
+}
+
+ul {
+    padding-left: 1.5em;
+}
+
+h2 {
+    margin-top: 5em;
+    padding: 1em;
+
+    width: 100%;
+
+    background: hsla(0, 0%, 97%, 0.2); 
+    border: solid 2px hsla(236, 18%, 81%, 0.5);
+    border-radius: 0.3rem;
+}
+
+h1 { font-size: 2em; }
+h2 { font-size: 1.75em; }
+h3 { font-size: 1.4em; }
+h4 { font-size: 1.05em; }
+h5 { 
+    font-size: 1.05em; 
+    font-style: italic;
+}
+
+body > img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+code {
+    color: hsl(210, 10%, 35%);
+}
+
+figure {
+    margin-bottom: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+    
+    width: 100%;
+    max-width: 100%;
+
+    display: flex;
+    flex-flow: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+figure.captioned {
+    flex-flow: column;
+}
+
+figcaption {
+    margin: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+
+    max-height: 30rem;
+
+    text-align: center;
+
+    font-style: italic;
+}
+
+figure img, video {
+    object-fit: contain;
+    max-width: inherit;
+    max-height: inherit;
+}
+
+figure.col2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 1rem;
+}
+
+figure.col3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-column-gap: 1rem;
+}
+
+.box {
+    margin-left: 1rem;
+    border: 0.1rem solid;
+    border-top: 0.3rem solid;
+    border-radius: 0.3rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.box.practice {
+    border-color: hsl(204, 100%, 40%, 0.5);
+    background: hsla(204, 100%, 90%, 0.2); 
+}
+
+.box.task {
+    border-color: hsla(29, 100%, 50%, 0.5);
+    background: hsla(32, 100%, 90%, 0.2); 
+}
+
+.box.hint {
+    border-color: hsla(21, 100%, 50%, 0.702);
+    background: hsla(26, 100%, 90%, 0.248); 
+}
+
+.box.project {
+    border-color: hsla(294, 79%, 26%, 0.702);
+    background: hsla(294, 46%, 92%, 0.588); 
+}
+
+.box.grade {
+    border-color: hsla(29, 93%, 57%, 0.5);
+    background: hsla(12, 100%, 90%, 0.2); 
+}
+
+.box h2,
+.box h3,
+.box h4,
+.box h5 {
+    color: black;
+    margin-top: 1rem;
+}
+
+pre {
+    background: hsla(0, 0%, 0%, 0.05);
+    border-radius: 0.5rem;
+}
+
+pre {
+    font-size: 0.9rem;
+    margin-left: 2rem;
+}
+
+.sourceCode a {
+    color: black;
+    pointer-events: none;
+    text-decoration: none;
+}
+
+
+</style>
+
+<!-- <link rel="stylesheet" href="3rdparty/pseudocode.min.css">
+<script src="3rdparty/pseudocode.min.js"></script>
+<script src="3rdparty/katex/katex.min.js"></script> -->
+</head>
+
+<body>
+
+<h1>CG GL1 - GPU Pipeline - Geometric Transforms</h1>
+
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#matrix-operations-with-gl-matrix" id="toc-matrix-operations-with-gl-matrix">Matrix Operations with
+<code>gl-matrix</code></a></li>
+<li><a href="#gpu-pipeline-recap" id="toc-gpu-pipeline-recap">GPU
+Pipeline Recap</a>
+<ul>
+<li><a href="#regl-pipeline" id="toc-regl-pipeline"><code>regl</code>
+Pipeline</a></li>
+<li><a href="#shaders" id="toc-shaders">Shaders</a></li>
+<li><a href="#example" id="toc-example">Example</a></li>
+</ul></li>
+<li><a href="#task-gl1.1-2d-scene" id="toc-task-gl1.1-2d-scene">Task
+GL1.1: 2D Scene</a>
+<ul>
+<li><a href="#task-gl1.1.1-2d-translation-in-shader" id="toc-task-gl1.1.1-2d-translation-in-shader">Task GL1.1.1: 2D
+Translation in Shader</a></li>
+<li><a href="#task-gl1.1.2-2d-matrix-transform" id="toc-task-gl1.1.2-2d-matrix-transform">Task GL1.1.2: 2D Matrix
+Transform</a></li>
+</ul></li>
+<li><a href="#task-gl1.2-solar-system" id="toc-task-gl1.2-solar-system">Task GL1.2: Solar System</a>
+<ul>
+<li><a href="#model-view-projection" id="toc-model-view-projection">Model-View-Projection</a></li>
+<li><a href="#task-gl1.2.1-mvp-matrix" id="toc-task-gl1.2.1-mvp-matrix">Task GL1.2.1: MVP Matrix</a></li>
+<li><a href="#task-gl1.2.2-view-matrix" id="toc-task-gl1.2.2-view-matrix">Task GL1.2.2: View Matrix</a></li>
+<li><a href="#task-gl1.2.3-model-matrix" id="toc-task-gl1.2.3-model-matrix">Task GL1.2.3: Model Matrix</a></li>
+</ul></li>
+<li><a href="#predefined-views" id="toc-predefined-views">Predefined
+Views</a></li>
+<li><a href="#grading" id="toc-grading">Grading</a></li>
+<li><a href="#what-to-hand-in" id="toc-what-to-hand-in">What to Hand
+in</a></li>
+</ul>
+
+<figure class="captioned">
+<img src="doc/icg_solar_title.jpg">
+</figure>
+<figcaption>
+The model of the solar system you will implement in this assignment.
+</figcaption>
+
+<h2 id="introduction">Introduction</h2>
+<p>In this assignment you will implement geometric transforms within the
+GPU pipeline.</p>
+<p>A program based on the GPU pipeline, like our renderer, is divided
+into different parts. Some parts run on the CPU, i.e.&nbsp;the processing
+unit used for many common programming tasks. <em>Shaders</em>, instead,
+implement routines that run on the GPU. The GPU is often a completely
+separate device, with its own memory and hardware instructions. You will
+be writing code in both these different environments. Keeping this
+distinction in mind this will make the exercises easier to
+understand.</p>
+<ul>
+<li>CPU execution - <code>.js</code> files using the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript">JavaScript</a>
+language, run in the browser.
+<ul>
+<li>Operations on vectors and matrices are done with the <a href="http://glmatrix.net/"><code>gl-matrix</code></a> library (more
+below). They generally need an output argument and look something like
+this:</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> a_p_b <span class="op">=</span> vec3<span class="op">.</span><span class="fu">add</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> a<span class="op">,</span> b)</span></code></pre></div>
+<ul>
+<li>Types are not checked ahead of time, errors happen at runtime.
+Mistakes in mathematical operations often cause the creation of
+<code>NaN</code> values – if you see them, most probably one of the
+<code>gl-matrix</code> functions did not receive all the needed
+arguments.</li>
+<li>You can print messages to the browser console via <a href="https://developer.mozilla.org/en-US/docs/Web/API/Console/log"><code>console.log('message', value)</code></a>.</li>
+<li>You can use the <em>Debugger</em> (<a href="https://developer.mozilla.org/en-US/docs/Tools/Debugger">Firefox</a>,
+<a href="https://developers.google.com/web/tools/chrome-devtools/javascript">Chrome</a>)
+to set breakpoints, i.e.&nbsp;places where the program pauses, and inspect
+the values of the variables.</li>
+</ul></li>
+<li>GPU execution - <code>.glsl</code> files, using the <a href="https://shaderific.com/glsl.html">GLSL</a> language.
+<ul>
+<li>Operations on vectors and matrices are done using <a href="https://en.wikibooks.org/wiki/GLSL_Programming/Vector_and_Matrix_Operations">built-in
+operators and functions</a> and look something like this:</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>vec3 a_p_b <span class="op">=</span> a <span class="op">+</span> b<span class="op">;</span></span></code></pre></div>
+<ul>
+<li>The code is compiled before execution, variables are typed and types
+are checked.</li>
+<li>The output of the shader is the color of a pixel or position of a
+vertex.</li>
+<li><strong>There is no debugger nor variable printing</strong>.</li>
+</ul></li>
+</ul>
+<h2 id="matrix-operations-with-gl-matrix">Matrix Operations with
+<code>gl-matrix</code></h2>
+<p>For matrix and vector operations in JavaScript, we will be using <a href="http://glmatrix.net/"><code>gl-matrix</code></a>. The source code
+of the library is in general quite straight-forward, see for example the
+<a href="https://github.com/toji/gl-matrix/blob/master/src/mat4.js"><code>mat4.js</code></a>
+file. We primarily use the 4x4 matrices to express transformation in 3D
+space. You can check the docs of the <code>mat4</code> module
+implementing 4x4 matrices <a href="http://glmatrix.net/docs/module-mat4.html">here</a>.</p>
+<p>Here are some specificities of the <code>gl-matrix</code>
+library:</p>
+<p><strong>Functions instead of operators:</strong> JavaScript does not
+have operator overloading, so we can not express matrix multiplication
+with <code>*</code>. The <code>multiply</code> function should be used
+instead.</p>
+<p><strong>Printing:</strong> Matrices and vectors are both stored as
+flat arrays, so a 4x4 matrix is a 16-element array. This array is what
+you will see if you call <code>console.log(matrix)</code>. Use
+<code>mat4_to_string(m, decimals)</code> to format the string in a
+readable form.</p>
+<p><strong>Output argument:</strong> <code>gl-matrix</code> has been
+designed for fast performance, so it tries to reuse the matrix objects
+instead of creating new ones. In nearly all functions, the first
+argument is the output object to which the result is written.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> M_rotation <span class="op">=</span> mat4<span class="op">.</span><span class="fu">create</span>()<span class="op">;</span> <span class="co">// allocate matrix</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">// set matrix to 45 deg rotation around Z axis</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>mat4<span class="op">.</span><span class="fu">fromZRotation</span>(M_rotation<span class="op">,</span> <span class="dv">45</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">/</span> <span class="dv">180</span>)<span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> C <span class="op">=</span> mat4<span class="op">.</span><span class="fu">create</span>()<span class="op">;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">// multiply: C = A * B</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>mat4<span class="op">.</span><span class="fu">multiply</span>(C<span class="op">,</span> A<span class="op">,</span> B)<span class="op">;</span></span></code></pre></div>
+<p>You should reuse matrices whenever performance is key. In our
+applications, however, the performance loss is usually negligible, so
+you can safely allocate new matrix objects.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// allocate a new matrix for the result</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> M_rotation <span class="op">=</span> mat4<span class="op">.</span><span class="fu">fromZRotation</span>(mat4<span class="op">.</span><span class="fu">create</span>()<span class="op">,</span> <span class="dv">45</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">/</span> <span class="dv">180</span>)<span class="op">;</span> </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">// and</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> C <span class="op">=</span> mat4<span class="op">.</span><span class="fu">multiply</span>(mat4<span class="op">.</span><span class="fu">create</span>()<span class="op">,</span> A<span class="op">,</span> B)<span class="op">;</span></span></code></pre></div>
+<p>You can do operations in-place:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>mat4<span class="op">.</span><span class="fu">multiply</span>(A<span class="op">,</span> A<span class="op">,</span> B)<span class="op">;</span> <span class="co">// A = A*B</span></span></code></pre></div>
+<section id="tutorial-gl-matrix-in-the-console" class="box project">
+<h4>Tutorial: <code>gl-matrix</code> in the Console</h4>
+<p>Here are some example commands you can directly run in your browser
+console to get familiar with some native <code>mat4</code>
+functions.</p>
+<ul>
+<li>Open <code>index_2d_transform.html</code> in your browser and open
+the console.</li>
+<li>Create a translation matrix</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> M_translation <span class="op">=</span> mat4<span class="op">.</span><span class="fu">fromTranslation</span>(mat4<span class="op">.</span><span class="fu">create</span>()<span class="op">,</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">10</span><span class="op">,</span> <span class="dv">0</span>])<span class="op">;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>M_translation<span class="op">.</span><span class="fu">toString</span>()</span></code></pre></div>
+<p>Can you understand what each of the printed values represent?</p>
+<ul>
+<li>Create a rotation matrix</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> M_rotation <span class="op">=</span> mat4<span class="op">.</span><span class="fu">fromZRotation</span>(mat4<span class="op">.</span><span class="fu">create</span>()<span class="op">,</span> <span class="dv">90</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">/</span> <span class="dv">180</span>)<span class="op">;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>M_rotation<span class="op">.</span><span class="fu">toString</span>()</span></code></pre></div>
+<p>Make sure the values you see are consistent with your interpretation
+of the 4x4 matrix printout from the previous point.</p>
+<ul>
+<li>Combine the transformations by multiplication</li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> M_RT <span class="op">=</span> mat4<span class="op">.</span><span class="fu">multiply</span>(mat4<span class="op">.</span><span class="fu">create</span>()<span class="op">,</span> M_translation<span class="op">,</span> M_rotation)<span class="op">;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>M_RT<span class="op">.</span><span class="fu">toString</span>()</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> M_TR <span class="op">=</span> mat4<span class="op">.</span><span class="fu">multiply</span>(mat4<span class="op">.</span><span class="fu">create</span>()<span class="op">,</span> M_rotation<span class="op">,</span> M_translation)<span class="op">;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>M_TR<span class="op">.</span><span class="fu">toString</span>()</span></code></pre></div>
+<ul>
+<li>Check the resulting translations.</li>
+</ul>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>mat4<span class="op">.</span><span class="fu">getTranslation</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> M_RT)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>mat4<span class="op">.</span><span class="fu">getTranslation</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> M_TR)</span></code></pre></div>
+<p>Are they the same? Do you understand why?</p>
+</section>
+<p><code>gl-matrix</code> is a great library, but it only has rather
+basic funciontalities. We provide some extra utilities in
+<code>src/icg_math.js</code>:</p>
+<ul>
+<li><p><code>matrix.get(row, col)</code>: Get element (row and col and
+0-indexed).</p></li>
+<li><p><code>matrix.set(row, col, value)</code>: Set element (row and
+col and 0-indexed).</p></li>
+<li><p><code>mat4_matmul_many</code>: Multiply any number of
+matrices:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">//out = m1 * m2 * m3 * ...</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mat4_matmul_many</span>(out<span class="op">,</span> m1<span class="op">,</span> m2<span class="op">,</span> m3<span class="op">,</span> <span class="op">...</span>)</span></code></pre></div></li>
+<li><p><code>vec_to_string(vector, decimals)</code>: Display a vector
+with fixed decimal places.</p></li>
+<li><p><code>matrix.toString()</code>: Represent a matrix as a
+human-readable string.</p></li>
+</ul>
+<p>Note that these custom functions are not imported in the console, so
+if you directly try to call them there you will encounter an error. They
+are, however, imported in other <code>.js</code> files, see for example
+the beginning of <code>main_2d_transform.js</code> for an example of how
+to import a custom function from another <code>.js</code> file.</p>
+<h2 id="gpu-pipeline-recap">GPU Pipeline Recap</h2>
+<p>Rasterization is performed on the GPU. GPUs are specialized in
+massively parallel processing of mesh geometry and image pixels. They
+operate according to a specific sequence of steps to process the given
+input data and produce the final image.</p>
+<p>The GPU pipeline inputs are:</p>
+<ul>
+<li><em>Vertex attributes</em>: position, normal, texture coordinates,
+etc.</li>
+<li><em>Faces</em>: mesh triangles, stored as triples of indices.</li>
+<li><em>Uniforms</em>: data globally available to the GPU programs,
+e.g.&nbsp;textures.</li>
+</ul>
+<p>These input values are processed by <em>shaders</em> to produce the
+final output image. Different types of shaders exists. In this series of
+homework assignments we will describe and use <em>vertex</em> and
+<em>fragment</em> shaders.</p>
+<p>In this section we review the structure of a typical
+<code>regl</code> pipeline.</p>
+<h3 id="regl-pipeline"><code>regl</code> Pipeline</h3>
+<p>The pipeline is instantiated using all the data that do not change at
+runtime. This construction step is expensive and should be done only
+once.</p>
+<p>Values which change in time are marked as
+<code>regl.prop('prop_name')</code>. We can supply these values when
+rendering each individual frame by calling
+<code>draw({prop_name: ...})</code>.</p>
+<p>Refer to the <a href="#example">commented code snippet</a> below for
+an example of a <code>regl</code> pipeline definition.</p>
+<h3 id="shaders">Shaders</h3>
+<p>Shaders are programs which run on the GPU. They have their own
+language, GLSL, which is quite similar to C, with the added <a href="https://en.wikibooks.org/wiki/GLSL_Programming/Vector_and_Matrix_Operations">vector
+and matrix types</a>.</p>
+<p>The pipeline contains two shader programs:</p>
+<ul>
+<li><em>Vertex shader</em>: program executed for each vertex of the
+mesh. A vertex shader computes vertex positions in the image, as well as
+intermediate variables used by the fragment shader.</li>
+<li><em>Fragment shader</em>: program executed for each output pixel of
+the mesh. A fragment shader computes the output color of the
+pixels.</li>
+</ul>
+<h4 id="vertex-shader">Vertex Shader</h4>
+<p>The vertex shader receives as input vertex attributes, which are
+declared using the <code>attribute</code> keyword.</p>
+<p>The vertex shader can pass per-vertex data to the fragment shader.
+Variables representing such data are declared using the
+<code>varying</code> keyword.</p>
+<p>The vertex shader writes the vertex <em>image</em> coordinates to
+<code>gl_Position</code> which is a <code>vec4</code> in <a href="https://en.wikipedia.org/wiki/Homogeneous_coordinates">homogenous
+coordinates</a>.</p>
+<p>Here is a simple vertex shader.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Vertex attributes, specified in the "attributes" entry of the pipeline</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>attribute vec3 position<span class="op">;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Intermediate value passed on to fragment shader</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>varying vec2 tex_coord<span class="op">;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> main<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// intermediate value passed on to fragment shader</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    tex_coord <span class="op">=</span> position<span class="op">.</span>xy<span class="op">;</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// output position [x, y, z, 1]</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    gl_Position <span class="op">=</span> vec4<span class="op">(</span>position<span class="op">,</span> <span class="dv">1</span><span class="op">);</span>    </span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>The <a href="#example">example</a> in the next section also provides
+a simple vertex shader definition in the context of a fully functional
+pipeline.</p>
+<h4 id="fragment-shader">Fragment Shader</h4>
+<p>The fragment shader receives data from the vertex shader as
+<code>varying</code> variables. The <code>varying</code> values are
+interpolated between the triangle vertices by the fragment shader,
+weighted by barycentric coordinates.</p>
+<p>The fragment shader writes the pixel color to
+<code>gl_FragColor</code> as
+<code>vec4(Red, Green, Blue, Opacity)</code>.</p>
+<p>Both vertex and fragment shader have access to the global
+<code>uniform</code> values.</p>
+<p>Here is a simple fragment shader.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// numerical precision of calculation</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>precision mediump <span class="dt">float</span><span class="op">;</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Intermediate value from vertex shader have to be declared in both shaders</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>varying vec2 tex_coord<span class="op">;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Access global values</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>uniform vec3 color<span class="op">;</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> main<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// [R, G, B, 1] in 0..1 range</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    gl_FragColor <span class="op">=</span> vec4<span class="op">(</span>color<span class="op">,</span> <span class="fl">1.</span><span class="op">);</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="example">Example</h3>
+<p>Here is an example of a simple pipeline drawing a red triangle in the
+plane.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> regl <span class="op">=</span> <span class="fu">createREGL</span>()<span class="op">;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">// The pipeline is constructed only once!</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> draw_triangle <span class="op">=</span> <span class="fu">regl</span>({</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Vertex attributes - properties of each vertex such as </span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// position, normal, texture coordinates, etc.</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">attributes</span><span class="op">:</span> {</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 3 vertices with 2 coordinates each</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">position</span><span class="op">:</span> [</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>            [<span class="dv">0</span><span class="op">,</span> <span class="fl">0.2</span>]<span class="op">,</span> <span class="co">// [x, y] - vertex 0</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>            [<span class="op">-</span><span class="fl">0.2</span><span class="op">,</span> <span class="op">-</span><span class="fl">0.2</span>]<span class="op">,</span> <span class="co">// [x, y] - vertex 1</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>            [<span class="fl">0.2</span><span class="op">,</span> <span class="op">-</span><span class="fl">0.2</span>]<span class="op">,</span> <span class="co">// [x, y] - vertex 2</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>        ]<span class="op">,</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Triangles (faces), as triplets of vertex indices</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">elements</span><span class="op">:</span> [</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>        [<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">2</span>]<span class="op">,</span> <span class="co">// a triangle</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    ]<span class="op">,</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Uniforms: global data available to the shader</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uniforms</span><span class="op">:</span> {</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>        <span class="dt">color</span><span class="op">:</span> regl<span class="op">.</span><span class="fu">prop</span>(<span class="st">'color'</span>)<span class="op">,</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* </span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co">    Vertex shader program</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="co">    Given vertex attributes, it calculates the position of the vertex on screen</span></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a><span class="co">    and intermediate data ("varying") passed on to the fragment shader</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a><span class="co">    */</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">vert</span><span class="op">:</span> <span class="vs">`</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="vs">    // Vertex attributes, specified in the "attributes" entry of the pipeline</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="vs">    attribute vec2 position;</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="vs">    </span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a><span class="vs">    void main() {</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="vs">        // [x, y, 0, 1]</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="vs">        gl_Position = vec4(position, 0, 1);</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a><span class="vs">    }`</span><span class="op">,</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* </span></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a><span class="co">    Fragment shader program</span></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a><span class="co">    Calculates the color of each pixel covered by the mesh.</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a><span class="co">    The "varying" values are interpolated between the values </span></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a><span class="co">    given by the vertex shader on the vertices of the current triangle.</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a><span class="co">    */</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>    <span class="dt">frag</span><span class="op">:</span> <span class="vs">`</span></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a><span class="vs">    precision mediump float;</span></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a><span class="vs">    </span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a><span class="vs">    uniform vec3 color;</span></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a><span class="vs">    void main() {</span></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a><span class="vs">        // [R, G, B, 1]</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a><span class="vs">        gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range</span></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a><span class="vs">    }`</span><span class="op">,</span></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a><span class="co">// Function run to draw each frame</span></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>regl<span class="op">.</span><span class="fu">frame</span>((frame) <span class="kw">=&gt;</span> {</span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Reset the canvas to black</span></span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a>    regl<span class="op">.</span><span class="fu">clear</span>({<span class="dt">color</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span>]})<span class="op">;</span></span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Execute the declared pipeline</span></span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a>    <span class="fu">draw_triangle</span>({</span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a>        <span class="dt">color</span><span class="op">:</span> [<span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> <span class="co">// provide the value for regl.prop('color') in uniforms.</span></span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+<p>Understanding the details of the pipeline definition and execution is
+key to successfully complete both this series of homework assignments,
+and the final project. Before getting started in solving this week’s
+tasks, we suggest you take the time to do the following introductory
+exercises, and get familiar with all the aspects of the GPU pipeline in
+the code above.</p>
+<section id="tutorial-gpu-pipeline" class="box project">
+<h4>Tutorial: GPU Pipeline</h4>
+<ol type="1">
+<li>We start by setting up the code infrastructure to run the example
+pipeline in the browser.</li>
+</ol>
+<ul>
+<li>Open the <code>index_tutorial.html</code> file in the browser. The
+file is located in the <code>tutorial/</code> directory. You will get a
+404 error in the browser console. Make sure you understand what that
+means.</li>
+<li>To resolve the error, create a new file named
+<code>main_tutorial.js</code>. Check the <code>html</code> source in
+<code>index_tutorial.html</code> to understand where
+<code>main_tutorial.js</code> should be located. If the new file is in
+the correct directory, the 404 error should disappear.</li>
+<li>Copy-paste the example code above into the file. A new error
+appears. Why is the <code>createREGL</code> function not defined? Find a
+way to fix this import error by checking how resources are handled,
+e.g., in <code>src/main.js</code>.</li>
+<li>After the import error is fixed, you should see a red triangle
+appearing on the screen.</li>
+</ul>
+<ol start="2" type="1">
+<li>We can now customize the scene definition directly in the JavaScript
+file.</li>
+</ol>
+<ul>
+<li>Display a blue triangle over a green background.</li>
+<li>Display a square. Which variables do you need to edit? Are quads
+supported by the GPU pipeline?</li>
+<li>Is the square skewed when displayed on screen, or do all its edges
+have the same length? Try resizing the browser window. What do you
+observe?</li>
+<li>Fix the aspect ratio of the canvas so that they are always square.
+<a href="https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html">Here</a>
+is a useful tutorial discussing the (non-trivial) topic of canvas
+resizing. In general, you can either prescribe a predefined canvas size,
+e.g.&nbsp;in the <code>html</code> file, or you can resize your canvas at
+runtime. Check the files <code>main_2d_transform.js</code> and
+<code>index_2d_transform.html</code> to understand how a
+<code>canvas</code> object defined in the <code>html</code> file can be
+fetched in JavaScript, resized, and passed to the
+<code>createREGL</code> function, in such a way that your canvas are
+always square.</li>
+</ul>
+<ol start="3" type="1">
+<li>In this last section of the tutorial we focus on shaders.</li>
+</ol>
+<ul>
+<li>Let us briefly zoom into on how resources can be imported in a
+<code>regl</code> pipeline.
+<ul>
+<li>In this scene, shaders are particularly simple, and are thus defined
+as text strings directly in the <code>.js</code> file. If your shader
+implementation becomes more complex, it can be convenient to move it to
+<code>.glsl</code> files, as done in previous homework assignments. Try
+moving the shader definitions to <code>.glsl</code> files. We suggest
+you create a dedicated directory <code>tutorial/src/shaders</code>,
+mimicking the structure of the main <code>src</code> directory. Your
+code to load shaders from file can then be changed to something like the
+following:</li>
+</ul>
+<div class="sourceCode" id="cb14"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ...</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Vertex shader</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>vert<span class="op">:</span> <span class="cf">await</span> (<span class="cf">await</span> <span class="fu">fetch</span>(<span class="st">'./src/shaders/&lt;shader_name&gt;.vert.glsl'</span>))<span class="op">.</span><span class="fu">text</span>()<span class="op">,</span> </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Fragment shader</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>frag<span class="op">:</span> <span class="cf">await</span> (<span class="cf">await</span> <span class="fu">fetch</span>(<span class="st">'./src/shaders/&lt;shader_name&gt;.frag.glsl'</span>))<span class="op">.</span><span class="fu">text</span>()<span class="op">,</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">// ...</span></span></code></pre></div>
+<ul>
+<li>Note the use of <a href="https://javascript.info/fetch"><code>fetch</code> and
+<code>await</code></a>. Right now, you are not required to know more
+about this topic, but you might need these features later on for your
+project. In <code>main.js</code>, a more structured way of loading
+resources is implemented. Please refer to that pipeline if you are
+curious, and keep it mind as a reference in case you need to load more
+complex resources in the future.</li>
+</ul></li>
+<li>We will now edit the vertex and fragment shaders to render a
+triangle with colors that smoothly vary between its vertices.
+<figure class="captioned" style="width: 50%;">
+<img src="doc/triangle_tutorial.png"> 
+</figure>
+<figcaption>
+The expected result after implementing varying colors in the shaders.
+</figcaption>
+
+<ul>
+<li><p>First, we need to define per-vertex colors in the form of vertex
+attributes. Until now, we worked with colors defined as uniform
+variables associated to the whole shape. To define a new attribute,
+simply add it to the existing <code>attributes</code> list. Populate the
+<code>color</code> list with three entries, each representing the color
+of the corresponding vertex.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>attributes<span class="op">:</span> {</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">position</span><span class="op">:</span> [</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>        <span class="co">// ...</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    ]<span class="op">,</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">color</span><span class="op">:</span> [</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// </span><span class="al">TODO</span><span class="co">: populate the list</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    ]<span class="op">,</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span></span></code></pre></div></li>
+<li><p>All attributes are then readily available in the vertex shader
+upon declaration of a corresponding variable. Similar to how
+<code>attribute vec2 position</code> declares the <code>position</code>
+variable, add a declaration for the <code>color</code> variable in the
+vertex shader, paying attention to the variable type.</p></li>
+<li><p>Last, we need to define a <code>varying</code> variable, shared
+between the vertex and fragment shader. The vertex shader will be in
+charge of updating its value for each vertex; the fragment shader will
+interpolate between these values for each pixel within the triangle.</p>
+<ul>
+<li>Add the definition of a <code>varying</code> variable named
+<code>pixel_color</code> in both shaders. Again, pay attention to the
+variable type.</li>
+<li>Assign the vertex color to <code>pixel_color</code> in the vertex
+shader.</li>
+<li>Assign <code>pixel_color</code> to <code>gl_FragColor</code> in the
+fragment shader.</li>
+</ul>
+<p>Overall, your shaders should look something like:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Vertex shader</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>precision mediump <span class="dt">float</span><span class="op">;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>attribute vec2 position<span class="op">;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>attribute TODO color<span class="op">;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>varying TODO pixel_color<span class="op">;</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> main<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    gl_Position <span class="op">=</span> vec4<span class="op">(</span>position<span class="op">,</span> <span class="dv">0</span><span class="er">.0</span><span class="op">,</span> <span class="fl">1.0</span><span class="op">);</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    TODO <span class="co">// Pass the color to the fragment shader</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>and</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Fragment shader</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>precision mediump <span class="dt">float</span><span class="op">;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>varying TODO pixel_color<span class="op">;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> main<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    gl_FragColor <span class="op">=</span> TODO<span class="op">;</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+</ul>
+Note that, since the color is now processed as an attribute, the color
+passed as uniform is redundant, and the corresponding uniform field can
+be removed.</li>
+</ul>
+</section>
+<h2 id="task-gl1.1-2d-scene">Task GL1.1: 2D Scene</h2>
+<p>In this part we practice 2D transformations in the GPU pipeline on
+the example of simple triangles. You will edit the file
+<code>src/main_2d_transform.js</code>. Run
+<code>index_2d_transform.html</code> to render the results in your
+browser. This is the desired result.</p>
+<figure>
+<video src="doc/icg_solar_2d_loop.webm" autoplay="true" loop="true" muted="true">
+</video>
+</figure>
+<section id="task-gl1.1.1-2d-translation-in-shader" class="box task">
+<h3>Task GL1.1.1: 2D Translation in Shader</h3>
+<p>We draw a blue triangle using the
+<code>draw_triangle_with_offset</code> pipeline. We want the triangle to
+be moved when we click and drag with the mouse. We provide code which
+tracks the mouse offset and store it in <code>mouse_offset</code>.</p>
+<ul>
+<li><p><strong>GL1.1.1.1</strong> Edit the <em>vertex shader</em> of
+<code>draw_triangle_with_offset</code> to apply translation to vertex
+position (no need to use a matrix here). Any compilation error of the
+shader program will be shown in the console.</p></li>
+<li><p><strong>GL1.1.1.2</strong> Provide the mouse position and the
+color to the <code>draw_triangle_with_offset</code> call.</p></li>
+</ul>
+</section>
+<section id="task-gl1.1.2-2d-matrix-transform" class="box task">
+<h3>Task GL1.1.2: 2D Matrix Transform</h3>
+<p>We draw a green and blue triangles using the
+<code>draw_triangle_with_transform</code> pipeline, which applies a
+transformation matrix to the triangle position.</p>
+<ul>
+<li><strong>GL1.1.2.1</strong> Edit the <em>vertex shader</em> of
+<code>draw_triangle_with_transform</code> to apply the transform matrix
+<code>mat_transform</code> to the vertex position vector.</li>
+<li><strong>GL1.1.2.2</strong> Construct a translation matrix for vector
+<code>[0.5, 0, 0]</code>, and a rotation around Z for angle
+<code>(time * 30 deg)</code>. Multiply the matrices in appropriate order
+and call the pipeline to draw:
+<ul>
+<li>A green triangle orbiting the center point</li>
+<li>A red triangle spinning at <code>[0.5, 0, 0]</code></li>
+</ul></li>
+</ul>
+</section>
+<h2 id="task-gl1.2-solar-system">Task GL1.2: Solar System</h2>
+<p>In this part we create a 3D solar system visualization. You will edit
+the files <code>src/main.js</code>, <code>src/planets.js</code>, and
+<code>src/shaders/unshaded.vert.glsl</code>. Run <code>index.html</code>
+to render the results in your browser. If you implement all the tasks
+correctly, you should see something similar to the following video.</p>
+<figure>
+<video src="doc/icg_solar_3d_loop.mp4" autoplay="true" loop="true" muted="true" width="90%">
+</video>
+</figure>
+<!-- <figure><video src="doc/icg_solar_3d_loop.webm" autoplay="true" loop="true" muted="true"> </video></figure> -->
+<h3 id="model-view-projection">Model-View-Projection</h3>
+<p>The vertex shader transforms the vertex positions from their original
+place in the model (mesh) to the final position in the output image.</p>
+<p>This is done in several steps:</p>
+<ul>
+<li>Model matrix: transforms model to world coordinates (variable:
+<code>actor.mat_model_to_world</code>, where <em>actor</em> is the
+object holding information about the current model)</li>
+<li>View matrix: transforms world coordinates into coordinates relative
+to the camera (variable: <code>frame_info.mat_view</code>)</li>
+<li>Projection matrix: transforms from camera frame to the homogenous
+coordinates in the image (variable:
+<code>frame_info.mat_projection</code>).</li>
+</ul>
+<figure>
+<img src="doc/mvp_transform.svg"> 
+</figure>
+<p>Here are some more useful resources on the topic:</p>
+<ul>
+<li>Visualization: <a href="https://jsantell.com/model-view-projection">Model View
+Projection</a> by Jordan Santell</li>
+<li>Example matrices: <a href="http://www.codinglabs.net/article_world_view_projection_matrix.aspx">World,
+View and Projection Transformation Matrices</a>.</li>
+</ul>
+<p>The projection matrix is already given in our code, we ask you to
+calculate the remaining steps and combine them into the final
+model-view-projection matrix.</p>
+<section id="task-gl1.2.1-mvp-matrix" class="box task">
+<h3>Task GL1.2.1: MVP Matrix</h3>
+<ul>
+<li><strong>GL1.2.1.1</strong> Edit the <em>vertex shader</em>
+<code>unshaded.vert.glsl</code> to apply the transform matrix
+<code>mat_mvp</code> to the vertex position vector. The solution is the
+same as <strong>GL1.1.2.1</strong>.</li>
+<li><strong>GL1.2.1.2</strong> Calculate the MVP matrix
+<code>this.mat_mvp</code> in <code>planets.js</code>
+<code>SysRenderPlanetsUnshaded.render</code>. The model matrix is given
+as <code>actor.mat_model_to_world</code>, the view matrix is
+<code>mat_view</code> and the projection is
+<code>mat_projection</code>.</li>
+</ul>
+</section>
+<section id="task-gl1.2.2-view-matrix" class="box task">
+<h3>Task GL1.2.2: View Matrix</h3>
+<p>Construct the view matrix in the <code>update_cam_transform</code>
+function (in <code>main.js</code>) and store it in the variable
+<code>frame_info.mat_turntable</code>. We are using a “turntable”
+camera, it always looks at the origin point <code>[0, 0, 0]</code> and
+we can turn it around with the mouse.</p>
+<ul>
+<li>The distance from the camera to <code>[0, 0, 0]</code> is
+<code>r = cam_distance_base*cam_distance_factor</code>.</li>
+<li>The angle between the camera’s forward-ray and the XY plane is
+<code>cam_angle_y</code>.</li>
+<li>The XY plane is rotated by <code>cam_angle_z</code>.</li>
+</ul>
+<figure>
+<img src="doc/camera_pos.svg" width="400"> 
+</figure>
+<p>It is convenient to create a view matrix with the <em>look-at</em>
+function <code>mat4.lookAt(out, eye, target, up)</code>. You should then
+combine it with appropriate rotations to achieve the turn-table
+effect.</p>
+<div class="box hint">
+<p><em>Hint</em>: pay attention to the <em>left</em>-hand-based sign
+convention used for the rotation angles.</p>
+</div>
+<div class="box hint">
+<p><em>Hint</em>: to visualize the world coordinate system, you can
+press the <code>F</code> key.</p>
+</div>
+</section>
+<section id="task-gl1.2.3-model-matrix" class="box task">
+<h3>Task GL1.2.3: Model Matrix</h3>
+<p>Construct the model matrix in the
+<code>SysOrbitalMovement.calculate_model_matrix</code> function (in
+<code>planets.js</code>) and store it in
+<code>actor.mat_model_to_world</code>.</p>
+<ul>
+<li><p>Each celestial body spins around its Z axis, the angle of
+rotation is <code>sim_time * actor.rotation_speed</code>.</p></li>
+<li><p>The original mesh is a unit sphere, we scale it by
+<code>actor.size</code> to achieve the desired size.</p></li>
+<li><p>Planets can orbit around other bodies. The parent body (around
+which we are orbiting) is stored in
+<code>parent = actors_by_name[actor.orbit]</code>; the Sun’s parent is
+<code>null</code>. The parent’s model matrix is
+<code>parent.mat_model_to_world</code>, the orbit angle is
+<code>sim_time * actor.orbit_speed + actor.orbit_phase</code> and the
+radius <code>actor.orbit_radius</code>. Planets orbit in the XY
+plane.</p></li>
+</ul>
+</section>
+<h2 id="predefined-views">Predefined Views</h2>
+<p>To validate your implementation, you can look at some predefined
+scenes by pressing keys <code>1</code>, <code>2</code>, and
+<code>3</code>. The image for predefined scene <code>1</code> is given
+below: check if your result matches it.</p>
+<figure>
+<img src="doc/GL1_predefined_1.png" width="800"> 
+</figure>
+<h2 id="grading">Grading</h2>
+<ul>
+<li><strong>10%</strong> Task 1.1: 2D translation in shader</li>
+<li><strong>20%</strong> Task 1.2: 2D matrix transform</li>
+<li><strong>10%</strong> Task 2.1: MVP matrix</li>
+<li><strong>30%</strong> Task 2.2: View matrix</li>
+<li><strong>30%</strong> Task 2.3: Model matrix</li>
+</ul>
+<h2 id="what-to-hand-in">What to Hand in</h2>
+<p>Please edit the file <code>readme.md</code> adding a brief
+description (approximately 10 to 20 lines) of how you solved the
+proposed exercises. In the same file, report individual contributions
+following this scheme (sciper in parentheses):</p>
+<pre><code>Name1 Surname1 (000001): 1/3
+Name2 Surname2 (000002): 1/3
+Name3 Surname3 (000003): 1/3</code></pre>
+<p>We ask you to only report global contributions, there is no need to
+provide additional details for each sub-task. The three contributions
+should add up to 1.</p>
+<p>Compress the directory with all the files it contains – the source
+code with your solution, the source code you did not modify, the
+libraries, the readme, etc. – into a <code>.zip</code> archive. Rename
+the zipped file into <code>Exercise3-Group&lt;GX&gt;.zip</code>, where
+<code>&lt;GX&gt;</code> is your group number, according to the group you
+enrolled in on Moodle.</p>
+<p>Note that it is your responsibility to check that all the components
+necessary to run the code are included. We will run your web app to
+generate the results. These results will determine your grade.</p>
+
+ 
+</body></html>
