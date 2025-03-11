@@ -16,11 +16,11 @@ c_b = (1-\alpha_0)c_0 + \alpha_0 c^1
 \end{equation}
 $$
 
-Additionally, the value of $c_1$ is defined by the equation:
+Additionally, the value of $c^1$ is defined by the equation:
 
 $$
 \begin{equation}
-c_1 = (1-\alpha_1)c_1 + \alpha_1 c^2
+c^1 = (1-\alpha_1)c_1 + \alpha_1 c^2
 \end{equation}
 $$
 
