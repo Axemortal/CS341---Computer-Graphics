@@ -1,10 +1,10 @@
 
-import {createREGL} from "../lib/regljs_2.1.0/regl.module.js"
+import { createREGL } from "../lib/regljs_2.1.0/regl.module.js"
 
-import {vec2, vec3, vec4, mat3, mat4} from "../lib/gl-matrix_3.3.0/esm/index.js"
+import { vec2, vec3, vec4, mat3, mat4 } from "../lib/gl-matrix_3.3.0/esm/index.js"
 
-import {DOM_loaded_promise} from "./icg_web.js"
-import {deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many} from "./icg_math.js"
+import { DOM_loaded_promise } from "./icg_web.js"
+import { deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many } from "./icg_math.js"
 
 
 async function main() {
@@ -62,7 +62,7 @@ async function main() {
 			*/
 			mouse_offset: regl.prop('mouse_offset'),
 			color: regl.prop('color'),
-		},	
+		},
 
 		/* 
 		Vertex shader program
@@ -79,9 +79,10 @@ async function main() {
 		void main() {
 			// #TODO GL1.1.1.1 Edit the vertex shader to apply mouse_offset translation to the vertex position.
 			// We have to return a vec4, because homogenous coordinates are being used.
-			gl_Position = vec4(position, 0, 1);
+			vec2 new_position = position + mouse_offset;
+			gl_Position = vec4(new_position, 0, 1);
 		}`,
-			
+
 		/* 
 		Fragment shader program
 		Calculates the color of each pixel covered by the mesh.
@@ -124,7 +125,7 @@ async function main() {
 			// #TODO GL1.1.2.1 Edit the vertex shader to apply mat_transform to the vertex position.
 			gl_Position = vec4(position, 0, 1);
 		}`,
-		
+
 		frag: /*glsl*/`
 		precision mediump float;
 		
@@ -138,7 +139,7 @@ async function main() {
 		uniforms: {
 			mat_transform: regl.prop('mat_transform'),
 			color: regl.prop('color'),
-		},	
+		},
 	})
 
 	/*---------------------------------------------------------------
@@ -186,14 +187,14 @@ async function main() {
 		const sim_time = frame.time;
 
 		// Set the whole image to black
-		regl.clear({color: [0, 0, 0, 1]})
+		regl.clear({ color: [0, 0, 0, 1] })
 
 
 		// #TODO GL1.1.1.2 Draw the blue triangle translated by mouse_offset
-		
+
 		draw_triangle_with_offset({
-			mouse_offset: [0, 0],
-			color: [0.5, 0.5, 0.5],
+			mouse_offset: mouse_offset,
+			color: color_blue,
 		});
 
 		/*
@@ -201,7 +202,7 @@ async function main() {
 			Construct a translation matrix for vector [0.5, 0, 0], 
 			and a rotation around Z for angle (time * 30 deg). 
 			Multiply the matrices in appropriate order and call the pipeline to obtain:
-    			* a green triangle orbiting the center point
+				* a green triangle orbiting the center point
 				* a red triangle spinning at [0.5, 0, 0]
 			You do not have to apply the mouse_offset to them.
 		*/
