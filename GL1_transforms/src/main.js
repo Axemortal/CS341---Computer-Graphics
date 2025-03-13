@@ -1,14 +1,14 @@
 
-import {createREGL} from "../lib/regljs_2.1.0/regl.module.js"
-import {vec2, vec3, vec4, mat3, mat4} from "../lib/gl-matrix_3.3.0/esm/index.js"
+import { createREGL } from "../lib/regljs_2.1.0/regl.module.js"
+import { vec2, vec3, vec4, mat3, mat4 } from "../lib/gl-matrix_3.3.0/esm/index.js"
 
-import {DOM_loaded_promise, load_text, load_texture, register_keyboard_action} from "./icg_web.js"
-import {deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many} from "./icg_math.js"
-import {icg_mesh_make_uv_sphere} from "./icg_mesh.js"
-import {SystemRenderGrid} from "./icg_grid.js"
-import {SystemRenderFrame} from "./icg_frame.js"
+import { DOM_loaded_promise, load_text, load_texture, register_keyboard_action } from "./icg_web.js"
+import { deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many } from "./icg_math.js"
+import { icg_mesh_make_uv_sphere } from "./icg_mesh.js"
+import { SystemRenderGrid } from "./icg_grid.js"
+import { SystemRenderFrame } from "./icg_frame.js"
 
-import {create_scene_content, SysOrbitalMovement, SysRenderPlanetsUnshaded} from "./planets.js"
+import { create_scene_content, SysOrbitalMovement, SysRenderPlanetsUnshaded } from "./planets.js"
 
 
 async function load_resources(regl) {
@@ -30,22 +30,22 @@ async function load_resources(regl) {
 
 	// Start downloads in parallel
 	const resource_promises = {}
-	
+
 	const textures_to_load = [
-		'sun.jpg', 'moon.jpg', 'mars.jpg', 
+		'sun.jpg', 'moon.jpg', 'mars.jpg',
 		'earth_day.jpg', 'earth_night.jpg', 'earth_gloss.jpg',
 	]
-	for(const tex_name of textures_to_load) {
+	for (const tex_name of textures_to_load) {
 		resource_promises[tex_name] = load_texture(regl, `./textures/${tex_name}`)
 	}
-	resource_promises['earth_clouds.jpg'] =  load_texture(regl, `./textures/earth_clouds.jpg`, {wrapS: 'repeat'})
+	resource_promises['earth_clouds.jpg'] = load_texture(regl, `./textures/earth_clouds.jpg`, { wrapS: 'repeat' })
 
 
 	const shaders_to_load = [
 		'unshaded.vert.glsl', 'unshaded.frag.glsl',
 		'earth.frag.glsl', 'sun.vert.glsl',
 	]
-	for(const shader_name of shaders_to_load) {
+	for (const shader_name of shaders_to_load) {
 		resource_promises[shader_name] = load_text(`./src/shaders/${shader_name}`)
 	}
 
@@ -55,7 +55,7 @@ async function load_resources(regl) {
 	// UV sphere https://docs.blender.org/manual/en/latest/modeling/meshes/primitives.html#uv-sphere
 	// we create it in code instead of loading from a file
 	resources['mesh_uvsphere'] = icg_mesh_make_uv_sphere(15)
-	
+
 	// Wait for all downloads to complete
 	for (const [key, promise] of Object.entries(resource_promises)) {
 		resources[key] = await promise
@@ -82,7 +82,7 @@ async function main() {
 	/*---------------------------------------------------------------
 		Scene and systems
 	---------------------------------------------------------------*/
-	const resources = await load_resources(regl)	
+	const resources = await load_resources(regl)
 
 	const scene_info = create_scene_content()
 
@@ -94,7 +94,7 @@ async function main() {
 
 	const sys_render_frame = new SystemRenderFrame(regl, resources)
 
-	
+
 
 	/*---------------------------------------------------------------
 		Frame info
@@ -124,7 +124,7 @@ async function main() {
 	const cam_distance_base = 15.
 
 	function update_cam_transform(frame_info) {
-		const {cam_angle_z, cam_angle_y, cam_distance_factor} = frame_info
+		const { cam_angle_z, cam_angle_y, cam_distance_factor } = frame_info
 
 		/* TODO GL1.2.2
 		Calculate the world-to-camera transformation matrix for turntable camera.
@@ -133,16 +133,24 @@ async function main() {
 		* cam_angle_z - camera ray's angle around the Z axis
 		* cam_angle_y - camera ray's angle around the Y axis
 		*/
+		const cam_distance = cam_distance_base * cam_distance_factor
 
-		// Example camera matrix, looking along forward-X, edit this
-		const look_at = mat4.lookAt(mat4.create(), 
-			[-5, 0, 0], // camera position in world coord
+		const eye = [
+			-cam_distance * Math.cos(-cam_angle_y) * Math.cos(cam_angle_z),  // Note the negative sign
+			cam_distance * Math.cos(-cam_angle_y) * Math.sin(cam_angle_z),
+			cam_distance * Math.sin(-cam_angle_y)
+		]
+
+		const look_at = mat4.lookAt(
+			mat4.create(),
+			eye,       // camera position in world coord
 			[0, 0, 0], // view target point
 			[0, 0, 1], // up vector
 		)
+
 		// Define proper rotation matrices to compute the final camera position.
 		// Store the transform in mat_turntable.
-		// frame_info.mat_turntable = A * B * ...  // Note: you can use mat4_matmul_many
+		frame_info.mat_turntable = look_at
 	}
 
 	update_cam_transform(frame_info)
@@ -151,8 +159,8 @@ async function main() {
 	canvas_elem.addEventListener('mousemove', (event) => {
 		// if left or middle button is pressed
 		if (event.buttons & 1 || event.buttons & 4) {
-			frame_info.cam_angle_z += event.movementX*0.005
-			frame_info.cam_angle_y += -event.movementY*0.005
+			frame_info.cam_angle_z += event.movementX * 0.005
+			frame_info.cam_angle_y += -event.movementY * 0.005
 
 			update_cam_transform(frame_info)
 		}
@@ -161,7 +169,7 @@ async function main() {
 	canvas_elem.addEventListener('wheel', (event) => {
 		// scroll wheel to zoom in or out
 		const factor_mul_base = 1.08
-		const factor_mul = (event.deltaY > 0) ? factor_mul_base : 1./factor_mul_base
+		const factor_mul = (event.deltaY > 0) ? factor_mul_base : 1. / factor_mul_base
 		frame_info.cam_distance_factor *= factor_mul
 		frame_info.cam_distance_factor = Math.max(0.02, Math.min(frame_info.cam_distance_factor, 4))
 		// console.log('wheel', event.deltaY, event.deltaMode);
@@ -176,7 +184,7 @@ async function main() {
 	const debug_overlay = document.getElementById('debug-overlay')
 	const debug_text = document.getElementById('debug-text')
 	register_keyboard_action('h', () => debug_overlay.classList.toggle('hidden'))
-	
+
 	// Pause
 	let is_paused = false;
 	register_keyboard_action('p', () => is_paused = !is_paused);
@@ -196,7 +204,7 @@ async function main() {
 	function set_selected_planet(name) {
 		console.log('Selecting', name);
 		selected_planet_name = name;
-		frame_info.cam_distance_factor = 3*scene_info.actors_by_name[name].size / cam_distance_base;
+		frame_info.cam_distance_factor = 3 * scene_info.actors_by_name[name].size / cam_distance_base;
 		update_cam_transform(frame_info)
 	}
 
@@ -266,23 +274,23 @@ async function main() {
 
 	regl.frame((frame) => {
 
-		const {mat_view, mat_projection, mat_turntable, light_position_cam, light_position_world, camera_position} = frame_info
+		const { mat_view, mat_projection, mat_turntable, light_position_cam, light_position_world, camera_position } = frame_info
 
-		if (! is_paused) {
+		if (!is_paused) {
 			const dt = frame.time - prev_regl_time
 			scene_info.sim_time += dt
 		}
 		frame_info.sim_time = scene_info.sim_time
 		prev_regl_time = frame.time;
 
-	
+
 		// Update planet transforms
 		sys_orbital_movement.simulate(scene_info)
 
 
 		// Calculate view matrix, view centered on chosen planet
 		{
-			mat4.perspective(mat_projection, 
+			mat4.perspective(mat_projection,
 				deg_to_rad * 60, // fov y
 				frame.framebufferWidth / frame.framebufferHeight, // aspect ratio
 				0.01, // near
@@ -317,22 +325,22 @@ async function main() {
 		}
 
 		// Set the whole image to black
-		regl.clear({color: [0, 0, 0, 1]});
+		regl.clear({ color: [0, 0, 0, 1] });
 
 		sys_render_unshaded.render(frame_info, scene_info)
 
-		if ( grid_on ) {
+		if (grid_on) {
 			sys_render_grid.render(frame_info, scene_info)
 		}
 
-		if ( frame_on ) {
+		if (frame_on) {
 			sys_render_frame.render(frame_info, scene_info)
 		}
 
 
 		debug_text.textContent = `
 Hello! Sim time is ${scene_info.sim_time.toFixed(2)} s
-Camera: angle_z ${(frame_info.cam_angle_z / deg_to_rad).toFixed(1)}, angle_y ${(frame_info.cam_angle_y / deg_to_rad).toFixed(1)}, distance ${(frame_info.cam_distance_factor*cam_distance_base).toFixed(1)}
+Camera: angle_z ${(frame_info.cam_angle_z / deg_to_rad).toFixed(1)}, angle_y ${(frame_info.cam_angle_y / deg_to_rad).toFixed(1)}, distance ${(frame_info.cam_distance_factor * cam_distance_base).toFixed(1)}
 cam pos ${vec_to_string(camera_position)}
 `;
 	})
