@@ -11,11 +11,11 @@ export function create_scene_content() {
 			name: 'sun',
 			size: 2.5,
 			rotation_speed: 0.1,
-			
+
 			movement_type: 'planet',
 			orbit: null,
 
-			shader_type: 'unshaded', 
+			shader_type: 'unshaded',
 			texture_name: 'sun.jpg',
 		},
 		{
@@ -89,49 +89,43 @@ export class SysOrbitalMovement {
 	}
 
 	calculate_model_matrix(actor, sim_time, actors_by_name) {
-		/*
-		#TODO GL1.2.3
-		Construct the model matrix for the current planet (actor) and store it in actor.mat_model_to_world.
-		
-		Orbit (if the parent actor.orbit is not null)
-			* find the parent planet 
-				parent = actors_by_name[actor.orbit]
-			* Parent's transform is stored in
-				parent.mat_model_to_world
-			* Radius of orbit: 
-				radius = actor.orbit_radius
-			* Angle of orbit:
-				angle = sim_time * actor.orbit_speed + actor.orbit_phase
 
-		Spin around the planet's Z axis
-			angle = sim_time * actor.rotation_speed (radians)
-		
-		Scale the unit sphere to match the desired size
-			scale = actor.size
-			mat4.fromScaling takes a 3D vector!
-		*/
+		// #TODO GL1.2.3
+		// Construct the model matrix for the current planet (actor) and store it in actor.mat_model_to_world.
 
-		//const M_orbit = mat4.create();
+		const M_orbit = mat4.create();
+		const M_spin = mat4.create();
+		const M_scale = mat4.create();
 
-		if(actor.orbit !== null) {
-			// Parent's translation
+		if (actor.orbit === null) {
+			mat4.identity(M_orbit)
+		} else {
 			const parent = actors_by_name[actor.orbit]
 			const parent_translation_v = mat4.getTranslation([0, 0, 0], parent.mat_model_to_world)
+			const radius = actor.orbit_radius
+			const angle = sim_time * actor.orbit_speed + actor.orbit_phase
+			const x = radius * Math.cos(angle)
+			const y = radius * Math.sin(angle)
+			mat4.fromTranslation(M_orbit, [x, y, 0])
+			mat4.translate(M_orbit, M_orbit, parent_translation_v)
+		}
 
-			// Orbit around the parent
-		} 
-		
+		mat4.fromZRotation(M_spin, sim_time * actor.rotation_speed);
+
+		const scale = actor.size
+		mat4.fromScaling(M_scale, [scale, scale, scale]);
+
 		// Store the combined transform in actor.mat_model_to_world
-		//mat4_matmul_many(actor.mat_model_to_world, ...);
+		mat4_matmul_many(actor.mat_model_to_world, M_orbit, M_spin, M_scale);
 	}
 
 	simulate(scene_info) {
 
-		const {sim_time, actors, actors_by_name} = scene_info
+		const { sim_time, actors, actors_by_name } = scene_info
 
 		// Iterate over actors which have planet movement type
-		for(const actor of actors) {
-			if ( actor.movement_type === 'planet' ) {
+		for (const actor of actors) {
+			if (actor.movement_type === 'planet') {
 				this.calculate_model_matrix(actor, sim_time, actors_by_name)
 			}
 		}
@@ -155,13 +149,13 @@ export class SysRenderPlanetsUnshaded {
 			},
 			// Faces, as triplets of vertex indices
 			elements: mesh_uvsphere.faces,
-	
+
 			// Uniforms: global data available to the shader
 			uniforms: {
 				mat_mvp: regl.prop('mat_mvp'),
 				texture_base_color: regl.prop('tex_base_color'),
-			},	
-	
+			},
+
 			vert: resources['unshaded.vert.glsl'],
 			frag: resources['unshaded.frag.glsl'],
 		})
@@ -180,7 +174,7 @@ export class SysRenderPlanetsUnshaded {
 
 		// Read frame info
 		const { mat_projection, mat_view } = frame_info
-	
+
 		// For each planet, construct information needed to draw it using the pipeline
 		for (const actor of scene_info.actors) {
 
