@@ -1,5 +1,5 @@
-import {vec2, vec3, vec4, mat3, mat4} from "../lib/gl-matrix_3.3.0/esm/index.js"
-import {mat4_matmul_many} from "./icg_math.js"
+import { vec2, vec3, vec4, mat3, mat4 } from "../lib/gl-matrix_3.3.0/esm/index.js"
+import { mat4_matmul_many } from "./icg_math.js"
 
 /*
 	Construct the scene!
@@ -64,7 +64,7 @@ export function create_scene_content() {
 	]
 
 	// In each planet, allocate its transformation matrix
-	for(const actor of actors) {
+	for (const actor of actors) {
 		actor.mat_model_to_world = mat4.create()
 	}
 
@@ -179,10 +179,10 @@ export class SysRenderPlanetsUnshaded {
 		const entries_to_draw = []
 
 		// Read frame info
-		const {mat_projection, mat_view} = frame_info
+		const { mat_projection, mat_view } = frame_info
 	
 		// For each planet, construct information needed to draw it using the pipeline
-		for( const actor of scene_info.actors ) {
+		for (const actor of scene_info.actors) {
 
 			// Choose only planet using this shader
 			if (actor.shader_type === 'unshaded') {
@@ -191,7 +191,7 @@ export class SysRenderPlanetsUnshaded {
 
 				// #TODO GL1.2.1.2
 				// Calculate mat_mvp: model-view-projection matrix	
-				//mat4_matmul_many(mat_mvp, ...)
+				mat4_matmul_many(mat_mvp, mat_projection, mat_view, actor.mat_model_to_world)
 
 				entries_to_draw.push({
 					mat_mvp: mat_mvp,
