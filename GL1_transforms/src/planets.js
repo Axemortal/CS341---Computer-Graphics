@@ -112,14 +112,34 @@ export class SysOrbitalMovement {
 		*/
 
 		//const M_orbit = mat4.create();
+		// Create the local transformation: spin then scale
+		const M_local = mat4.create();
+		mat4.identity(M_local);
+		// Spin around Z: angle = sim_time * actor.rotation_speed
+		mat4.rotateZ(M_local, M_local, sim_time * actor.rotation_speed);
+		// Scale the unit sphere to desired size
+		mat4.scale(M_local, M_local, [actor.size, actor.size, actor.size]);
 
-		if(actor.orbit !== null) {
-			// Parent's translation
-			const parent = actors_by_name[actor.orbit]
-			const parent_translation_v = mat4.getTranslation([0, 0, 0], parent.mat_model_to_world)
-
-			// Orbit around the parent
-		} 
+		if (actor.orbit !== null) {
+			// Retrieve parent's model matrix
+			const parent = actors_by_name[actor.orbit];
+			// Orbit angle: sim_time * actor.orbit_speed + actor.orbit_phase
+			const orbit_angle = sim_time * actor.orbit_speed + actor.orbit_phase;
+			// Orbit translation in the XY plane
+			const T_orbit = mat4.fromTranslation(mat4.create(), [
+				actor.orbit_radius * Math.cos(orbit_angle),
+				actor.orbit_radius * Math.sin(orbit_angle),
+				0
+			]);
+			// Model matrix: parent's model * T_orbit * local spin-and-scale
+			const M = mat4.create();
+			mat4.multiply(M, parent.mat_model_to_world, T_orbit);
+			mat4.multiply(M, M, M_local);
+			mat4.copy(actor.mat_model_to_world, M);
+		} else {
+			// No orbit: model matrix is just the local spin and scale
+			mat4.copy(actor.mat_model_to_world, M_local);
+		}
 		
 		// Store the combined transform in actor.mat_model_to_world
 		//mat4_matmul_many(actor.mat_model_to_world, ...);
@@ -191,12 +211,13 @@ export class SysRenderPlanetsUnshaded {
 
 				// #TODO GL1.2.1.2
 				// Calculate mat_mvp: model-view-projection matrix	
-				//mat4_matmul_many(mat_mvp, ...)
+				mat4.multiply(mat_mvp, mat_view, actor.mat_model_to_world);
+				mat4.multiply(mat_mvp, mat_projection, mat_mvp);
 
 				entries_to_draw.push({
 					mat_mvp: mat_mvp,
 					tex_base_color: this.resources[actor.texture_name],
-				})
+				});
 			}
 		}
 

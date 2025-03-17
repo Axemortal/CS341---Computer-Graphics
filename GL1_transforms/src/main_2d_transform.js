@@ -79,7 +79,7 @@ async function main() {
 		void main() {
 			// #TODO GL1.1.1.1 Edit the vertex shader to apply mouse_offset translation to the vertex position.
 			// We have to return a vec4, because homogenous coordinates are being used.
-			gl_Position = vec4(position, 0, 1);
+			gl_Position = vec4(position + mouse_offset, 0, 1);
 		}`,
 			
 		/* 
@@ -122,7 +122,7 @@ async function main() {
 
 		void main() {
 			// #TODO GL1.1.2.1 Edit the vertex shader to apply mat_transform to the vertex position.
-			gl_Position = vec4(position, 0, 1);
+			gl_Position = mat_transform * vec4(position, 0, 1);
 		}`,
 		
 		frag: /*glsl*/`
@@ -192,8 +192,8 @@ async function main() {
 		// #TODO GL1.1.1.2 Draw the blue triangle translated by mouse_offset
 		
 		draw_triangle_with_offset({
-			mouse_offset: [0, 0],
-			color: [0.5, 0.5, 0.5],
+			mouse_offset: mouse_offset,
+			color: color_blue,
 		});
 
 		/*
@@ -205,16 +205,31 @@ async function main() {
 				* a red triangle spinning at [0.5, 0, 0]
 			You do not have to apply the mouse_offset to them.
 		*/
-		//draw_triangle_with_transform({
-		//	mat_transform: mat_transform,
-		//	color: [0.5, 0.5, 0.5],
-		//});
 
-		//draw_triangle_with_transform({
-		//	mat_transform: mat_transform,
-		//	color: [0.5, 0.5, 0.5],
-		//});
+		// Construct a translation matrix for vector [0.5, 0, 0]
+		mat4.fromTranslation(mat_translation, [0.5, 0, 0]);
+		// Construct a rotation matrix around Z for angle (time * 30 deg)
+		mat4.fromZRotation(mat_rotation, deg_to_rad * sim_time * 30);
 
+		// Green triangle: Orbiting motion (rotate, then translate)
+		const mat_orbit = mat4.create();
+		mat4.multiply(mat_orbit, mat_rotation, mat_translation);
+
+		// Red triangle: Spins at offset (translate, then rotate)
+		const mat_spin = mat4.create();
+		mat4.multiply(mat_spin, mat_translation, mat_rotation);
+
+		// Draw the green triangle (orbiting)
+		draw_triangle_with_transform({
+			mat_transform: mat_orbit,
+			color: color_green,
+		});
+
+		// Draw the red triangle (spinning)
+		draw_triangle_with_transform({
+			mat_transform: mat_spin,
+			color: color_red,
+		});
 		// You can write whatever you need in the debug box
 		debug_text.textContent = `
 Hello! Sim time: ${sim_time.toFixed(2)} s | Mouse offset: ${vec_to_string(mouse_offset, 2)}
