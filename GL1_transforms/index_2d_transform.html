@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>2D Transforms on the GPU</title>
+	<meta name="author" content="Krzysztof Lis">
+
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- import mat4 in console for the practice task -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script> 
+<!-- <script src="src/icg_math.js" type="module"></script> -->
+
+<script src="src/main_2d_transform.js" type="module" ></script>
+
+<main>
+<div id="debug-overlay">
+	<p>
+	2D Transforms on the GPU
+	<!-- <a href="src/main.js">source</a>  -->
+	⁙⁙ docs: 
+		<a href="https://github.com/regl-project/regl/blob/gh-pages/API.md">regl</a>,
+		<a href="http://glmatrix.net/docs/">gl-matrix</a>,
+		<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript">MDN</a>
+	⁙⁙ click and drag with mouse
+	</p>
+	<pre id="debug-text"></pre>
+</div>
+
+<canvas></canvas>
+</main>
+
+</body>
+</html>
