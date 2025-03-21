@@ -1,0 +1,1132 @@
+<!DOCTYPE html><html lang="en"><head>
+	<meta charset="utf-8">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title> CG GL2 - Meshes in the GPU Pipeline </title>
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    padding: 0;
+    padding-bottom: 10rem;
+    margin: 0;
+    border: 0;
+
+    max-width: 55rem;
+    margin-left: auto;
+    margin-right: auto;
+
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 1.2rem;
+    line-height: 1.6;
+
+    text-align: justify;
+    background-color: hsla(0, 0%, 100%, 0.8); 
+}
+
+h1, h2, h3, h4, h5, h6, a {
+    margin-top: 4rem;
+    color: hsl(204, 80%, 28%);
+}
+
+h6 {
+    font-weight: normal;
+}
+
+p, ul {
+    margin-left: 1.5em;
+    margin-right: 1.5em;
+}
+
+h3, h4, h5, h6 {
+    margin-left: 1em;
+}
+
+ul {
+    padding-left: 1.5em;
+}
+
+h2 {
+    margin-top: 5em;
+    padding: 1em;
+
+    width: 100%;
+
+    background: hsla(0, 0%, 97%, 0.2); 
+    border: solid 2px hsla(236, 18%, 81%, 0.5);
+    border-radius: 0.3rem;
+}
+
+h1 { font-size: 2em; }
+h2 { font-size: 1.75em; }
+h3 { font-size: 1.4em; }
+h4 { font-size: 1.05em; }
+h5 { 
+    font-size: 1.05em; 
+    font-style: italic;
+}
+
+body > img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+code {
+    color: hsl(210, 10%, 35%);
+}
+
+figure {
+    margin-bottom: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+    
+    width: 100%;
+    max-width: 100%;
+
+    display: flex;
+    flex-flow: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+figure.captioned {
+    flex-flow: column;
+}
+
+figcaption {
+    margin: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+
+    max-height: 30rem;
+
+    text-align: center;
+
+    font-style: italic;
+}
+
+figure img, video {
+    object-fit: contain;
+    max-width: inherit;
+    max-height: inherit;
+}
+
+figure.col2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 1rem;
+}
+
+figure.col3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-column-gap: 1rem;
+}
+
+.box {
+    margin-left: 1rem;
+    border: 0.1rem solid;
+    border-top: 0.3rem solid;
+    border-radius: 0.3rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.box.practice {
+    border-color: hsl(204, 100%, 40%, 0.5);
+    background: hsla(204, 100%, 90%, 0.2); 
+}
+
+.box.task {
+    border-color: hsla(29, 100%, 50%, 0.5);
+    background: hsla(32, 100%, 90%, 0.2); 
+}
+
+.box.hint {
+    border-color: hsla(21, 100%, 50%, 0.702);
+    background: hsla(26, 100%, 90%, 0.248); 
+}
+
+.box.project {
+    border-color: hsla(294, 79%, 26%, 0.702);
+    background: hsla(294, 46%, 92%, 0.588); 
+}
+
+.box.grade {
+    border-color: hsla(29, 93%, 57%, 0.5);
+    background: hsla(12, 100%, 90%, 0.2); 
+}
+
+.box h2,
+.box h3,
+.box h4,
+.box h5 {
+    color: black;
+    margin-top: 1rem;
+}
+
+pre {
+    background: hsla(0, 0%, 0%, 0.05);
+    border-radius: 0.5rem;
+}
+
+pre {
+    font-size: 0.9rem;
+    margin-left: 2rem;
+}
+
+.sourceCode a {
+    color: black;
+    pointer-events: none;
+    text-decoration: none;
+}
+
+
+</style>
+
+<!-- <link rel="stylesheet" href="3rdparty/pseudocode.min.css">
+<script src="3rdparty/pseudocode.min.js"></script>
+<script src="3rdparty/katex/katex.min.js"></script> -->
+<style type="text/css">
+                            .mjpage .MJX-monospace {
+                            font-family: monospace
+                            }
+
+                            .mjpage .MJX-sans-serif {
+                            font-family: sans-serif
+                            }
+
+                            .mjpage {
+                            display: inline;
+                            font-style: normal;
+                            font-weight: normal;
+                            line-height: normal;
+                            font-size: 100%;
+                            font-size-adjust: none;
+                            text-indent: 0;
+                            text-align: left;
+                            text-transform: none;
+                            letter-spacing: normal;
+                            word-spacing: normal;
+                            word-wrap: normal;
+                            white-space: nowrap;
+                            float: none;
+                            direction: ltr;
+                            max-width: none;
+                            max-height: none;
+                            min-width: 0;
+                            min-height: 0;
+                            border: 0;
+                            padding: 0;
+                            margin: 0
+                            }
+
+                            .mjpage * {
+                            transition: none;
+                            -webkit-transition: none;
+                            -moz-transition: none;
+                            -ms-transition: none;
+                            -o-transition: none
+                            }
+
+                            .mjx-svg-href {
+                            fill: blue;
+                            stroke: blue
+                            }
+
+                            .MathJax_SVG_LineBox {
+                            display: table!important
+                            }
+
+                            .MathJax_SVG_LineBox span {
+                            display: table-cell!important;
+                            width: 10000em!important;
+                            min-width: 0;
+                            max-width: none;
+                            padding: 0;
+                            border: 0;
+                            margin: 0
+                            }
+
+                            .mjpage__block {
+                            text-align: center;
+                            margin: 1em 0em;
+                            position: relative;
+                            display: block!important;
+                            text-indent: 0;
+                            max-width: none;
+                            max-height: none;
+                            min-width: 0;
+                            min-height: 0;
+                            width: 100%
+                            }</style></head>
+
+<body>
+
+<h1>CG GL2 - Meshes in the GPU Pipeline</h1>
+
+<ul>
+<li><a href="#computing-vertex-normals-in-a-triangle-mesh" id="toc-computing-vertex-normals-in-a-triangle-mesh">Computing Vertex
+Normals in a Triangle Mesh</a>
+<ul>
+<li><a href="#vec3-methods-in-glmatrix" id="toc-vec3-methods-in-glmatrix"><code>vec3</code> Methods in
+<code>glMatrix</code></a></li>
+<li><a href="#notation" id="toc-notation">Notation</a></li>
+</ul></li>
+<li><a href="#visualizing-normals" id="toc-visualizing-normals">Visualizing Normals</a>
+<ul>
+<li><a href="#normals-in-the-fragment-shader" id="toc-normals-in-the-fragment-shader">Normals in the Fragment
+Shader</a></li>
+<li><a href="#transforming-the-normals" id="toc-transforming-the-normals">Transforming the Normals</a></li>
+</ul></li>
+<li><a href="#lighting" id="toc-lighting">Lighting</a>
+<ul>
+<li><a href="#per-vertex-gouraud-shading" id="toc-per-vertex-gouraud-shading">Per-Vertex (Gouraud)
+Shading</a></li>
+<li><a href="#per-pixel-phong-shading" id="toc-per-pixel-phong-shading">Per-Pixel (Phong) Shading</a></li>
+</ul></li>
+<li><a href="#grading" id="toc-grading">Grading</a></li>
+<li><a href="#what-to-submit" id="toc-what-to-submit">What to
+Submit</a></li>
+</ul>
+
+<figure id="teaser" class="captioned" style="width: 90%;">
+<img src="doc/teaser.png">
+<figcaption>
+This week’s scene rendered with Phong shading.
+</figcaption>
+</figure>
+<p>In this homework, you will focus on two steps of the rasterization
+pipeline: normal computation and shading. You will start by computing
+the normals for each triangle in the scene. The triangle normals will
+then be used to compute the vertex normals. In turn, vertex normals will
+determine the appearance of the rendered objects, which differs
+depending on the shading strategy used. You will implement Gouraud and
+Phong shading, and explore their differences.</p>
+<h2 id="computing-vertex-normals-in-a-triangle-mesh">Computing Vertex
+Normals in a Triangle Mesh</h2>
+<p>The starting point of this assignment are the functions in
+<code>normal_computation.js</code>. All these computations are done
+once, when the pipeline is built, and thus happen outside the shader.
+You will then be coding in JS and using <code>glMatrix</code>.</p>
+<h3 id="vec3-methods-in-glmatrix"><code>vec3</code> Methods in
+<code>glMatrix</code></h3>
+<p>When computing normals, you will handle arrays of length 3 which
+benefit from functions defined for <code>vec3</code>. A list of
+available methods can be found in the <a href="https://glmatrix.net/docs/module-vec3.html">docs</a>. As an
+example, here is how you can compute a cross product between two arrays
+of length 3:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> a <span class="op">=</span> [<span class="fl">1.</span><span class="op">,</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">0.</span>]</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> b <span class="op">=</span> [<span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">,</span> <span class="fl">0.</span>]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> c <span class="op">=</span> vec3<span class="op">.</span><span class="fu">cross</span>([<span class="fl">0.</span><span class="op">,</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">0.</span>]<span class="op">,</span> a<span class="op">,</span> b)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">// c is equal to [0., 0., 1.]</span></span></code></pre></div>
+<p>Notice that we need to provide an array as first (output) parameter
+to <code>vec3.cross()</code>. More generally, for the functions listed
+in the above website, the <code>out</code> argument can be replaced by
+<code>[0., 0., 0.]</code>, which serves as a placeholder.</p>
+<h3 id="notation">Notation</h3>
+<p>A triangle of the mesh is denoted by <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.157ex" height="2.509ex" style="vertical-align: -0.671ex;" viewBox="0 -791.3 928.8 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">T_i</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+</svg></span></span>, and it has 3 vertices <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.986ex" height="2.843ex" style="vertical-align: -1.005ex;" viewBox="0 -791.3 1285.8 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-2-Title">
+<title id="MathJax-SVG-2-Title">V_{i_1}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-56" x="0" y="0"></use>
+<g transform="translate(583,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMAIN-31" x="425" y="-243"></use>
+</g>
+</g>
+</svg></span></span>, <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.986ex" height="2.843ex" style="vertical-align: -1.005ex;" viewBox="0 -791.3 1285.8 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-3-Title">
+<title id="MathJax-SVG-3-Title">V_{i_2}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-56" x="0" y="0"></use>
+<g transform="translate(583,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMAIN-32" x="425" y="-243"></use>
+</g>
+</g>
+</svg></span></span>, and <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.986ex" height="2.843ex" style="vertical-align: -1.005ex;" viewBox="0 -791.3 1285.8 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-4-Title">
+<title id="MathJax-SVG-4-Title">V_{i_3}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-56" x="0" y="0"></use>
+<g transform="translate(583,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMAIN-33" x="425" y="-242"></use>
+</g>
+</g>
+</svg></span></span>, with spatial coordinates <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="6.281ex" height="3.009ex" style="vertical-align: -1.005ex;" viewBox="0 -863.1 2704.3 1295.7" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-5-Title">
+<title id="MathJax-SVG-5-Title">\mathbf{p}(V_{i_1})</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-70" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="639" y="0"></use>
+<g transform="translate(1029,0)">
+ <use xlink:href="#MJMATHI-56" x="0" y="0"></use>
+<g transform="translate(583,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMAIN-31" x="425" y="-243"></use>
+</g>
+</g>
+ <use xlink:href="#MJMAIN-29" x="2314" y="0"></use>
+</g>
+</svg></span></span>, <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="6.281ex" height="3.009ex" style="vertical-align: -1.005ex;" viewBox="0 -863.1 2704.3 1295.7" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-6-Title">
+<title id="MathJax-SVG-6-Title">\mathbf{p}(V_{i_2})</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-70" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="639" y="0"></use>
+<g transform="translate(1029,0)">
+ <use xlink:href="#MJMATHI-56" x="0" y="0"></use>
+<g transform="translate(583,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMAIN-32" x="425" y="-243"></use>
+</g>
+</g>
+ <use xlink:href="#MJMAIN-29" x="2314" y="0"></use>
+</g>
+</svg></span></span>, and <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="6.281ex" height="3.009ex" style="vertical-align: -1.005ex;" viewBox="0 -863.1 2704.3 1295.7" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-7-Title">
+<title id="MathJax-SVG-7-Title">\mathbf{p}(V_{i_3})</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-70" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="639" y="0"></use>
+<g transform="translate(1029,0)">
+ <use xlink:href="#MJMATHI-56" x="0" y="0"></use>
+<g transform="translate(583,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMAIN-33" x="425" y="-242"></use>
+</g>
+</g>
+ <use xlink:href="#MJMAIN-29" x="2314" y="0"></use>
+</g>
+</svg></span></span>, respectively.</p>
+<figure id="fig-weights">
+<img height="250px" src="doc/triangle_weights_diagram.png">
+</figure>
+<p>The triangle normal is denoted by <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="5.452ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 2347.3 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-8-Title">
+<title id="MathJax-SVG-8-Title">\mathbf{n}(T_i)</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="639" y="0"></use>
+<g transform="translate(1029,0)">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="1957" y="0"></use>
+</g>
+</svg></span></span>, and the weights for the
+triangle’s vertices are <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="6.685ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 2878.2 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-9-Title">
+<title id="MathJax-SVG-9-Title">w_{1}(T_i)</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-77" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-31" x="1013" y="-213"></use>
+ <use xlink:href="#MJMAIN-28" x="1170" y="0"></use>
+<g transform="translate(1559,0)">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="2488" y="0"></use>
+</g>
+</svg></span></span>,
+<span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="6.685ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 2878.2 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-10-Title">
+<title id="MathJax-SVG-10-Title">w_{2}(T_i)</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-77" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-32" x="1013" y="-213"></use>
+ <use xlink:href="#MJMAIN-28" x="1170" y="0"></use>
+<g transform="translate(1559,0)">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="2488" y="0"></use>
+</g>
+</svg></span></span>, and <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="6.685ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 2878.2 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-11-Title">
+<title id="MathJax-SVG-11-Title">w_{3}(T_i)</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-77" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-33" x="1013" y="-213"></use>
+ <use xlink:href="#MJMAIN-28" x="1170" y="0"></use>
+<g transform="translate(1559,0)">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="2488" y="0"></use>
+</g>
+</svg></span></span>. These quantities are the ones
+you have to compute.</p>
+<section id="task-gl2.1.1-compute-triangle-normals-and-opening-angles" class="box task">
+<h4>Task GL2.1.1: Compute Triangle Normals and Opening Angles</h4>
+<ul>
+<li>Fill in the method
+<code>compute_triangle_normals_and_angle_weights()</code> in
+<code>normal_computation.js</code>.
+<ul>
+<li>Compute the normal vector to each triangle in the mesh.</li>
+<li>Push it into the array <code>tri_normals</code>.</li>
+<li>Compute the angle weights for <code>vert1</code>,
+<code>vert2</code>, then <code>vert3</code> and store it into an array
+<code>[w1, w2, w3]</code>.</li>
+<li>Push this array into <code>angle_weights</code>.</li>
+</ul></li>
+</ul>
+<div class="box hint">
+<p><strong>Hints</strong></p>
+<ul>
+<li>Note the orientation of the normal with respect to the 3 vertices in
+the sketch above.</li>
+<li>You can use <code>vec3</code> specific methods such as
+<code>normalize()</code>, <code>add()</code>, <code>cross()</code>,
+<code>angle()</code>, or <code>subtract()</code>. The absolute value of
+a float is given by <code>Math.abs()</code>.</li>
+<li>You do not have a way to visualize the normals yet: if you open
+<code>index.html</code> at this stage you will probably see a blue
+screen. It might be beneficial to continue the assignment and implement
+GL2.2 before debugging this task.</li>
+</ul>
+</div>
+</section>
+<p>You can now compute each vertex normal <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="6.309ex" height="3.009ex" style="vertical-align: -1.005ex;" viewBox="0 -863.1 2716.4 1295.7" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-12-Title">
+<title id="MathJax-SVG-12-Title">\mathbf{n}(V_{i_k})</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="639" y="0"></use>
+<g transform="translate(1029,0)">
+ <use xlink:href="#MJMATHI-56" x="0" y="0"></use>
+<g transform="translate(583,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMATHI-6B" x="425" y="-271"></use>
+</g>
+</g>
+ <use xlink:href="#MJMAIN-29" x="2326" y="0"></use>
+</g>
+</svg></span></span> as an average of
+incident triangles’ normals <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="5.452ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 2347.3 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-13-Title">
+<title id="MathJax-SVG-13-Title">\mathbf{n}(T_i)</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="639" y="0"></use>
+<g transform="translate(1029,0)">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="1957" y="0"></use>
+</g>
+</svg></span></span>, weighted by the opening
+angle <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="6.719ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 2893.1 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-14-Title">
+<title id="MathJax-SVG-14-Title">w_{k}(T_i)</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-77" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6B" x="1013" y="-213"></use>
+ <use xlink:href="#MJMAIN-28" x="1185" y="0"></use>
+<g transform="translate(1574,0)">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="2503" y="0"></use>
+</g>
+</svg></span></span>.</p>
+<div class="column-left">
+<p><span class="math display"><span class="mjpage mjpage__block"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="34.126ex" height="8.176ex" style="vertical-align: -3.505ex;" viewBox="0 -2011.3 14693.1 3520.2" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-15-Title">
+<title id="MathJax-SVG-15-Title">\mathbf{n}(V_{i_k}) = \dfrac{\sum_{T_i
+\ni V_{i_k}} w_{k}(T_i) \mathbf{n}(T_i)}{||\sum_{T_i \ni V_{i_k}}
+w_{i_k}(T_i) \mathbf{n}(T_i)||}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="639" y="0"></use>
+<g transform="translate(1029,0)">
+ <use xlink:href="#MJMATHI-56" x="0" y="0"></use>
+<g transform="translate(583,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMATHI-6B" x="425" y="-271"></use>
+</g>
+</g>
+ <use xlink:href="#MJMAIN-29" x="2326" y="0"></use>
+ <use xlink:href="#MJMAIN-3D" x="2994" y="0"></use>
+<g transform="translate(4050,0)">
+<g transform="translate(120,0)">
+<rect stroke="none" width="10402" height="60" x="0" y="220"></rect>
+<g transform="translate(823,1150)">
+ <use xlink:href="#MJSZ1-2211" x="0" y="0"></use>
+<g transform="translate(1056,-287)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMATHI-69" x="719" y="-238"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-220B" x="964" y="0"></use>
+<g transform="translate(1154,0)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-56" x="0" y="0"></use>
+<g transform="translate(412,-137)">
+ <use transform="scale(0.574)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMATHI-6B" x="345" y="-351"></use>
+</g>
+</g>
+</g>
+<g transform="translate(3515,0)">
+ <use xlink:href="#MJMATHI-77" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6B" x="1013" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-28" x="4701" y="0"></use>
+<g transform="translate(5090,0)">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="6019" y="0"></use>
+ <use xlink:href="#MJMAINB-6E" x="6409" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="7048" y="0"></use>
+<g transform="translate(7438,0)">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="8366" y="0"></use>
+</g>
+<g transform="translate(60,-771)">
+ <use xlink:href="#MJMAIN-7C" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-7C" x="278" y="0"></use>
+<g transform="translate(723,0)">
+ <use xlink:href="#MJSZ1-2211" x="0" y="0"></use>
+<g transform="translate(1056,-287)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMATHI-69" x="719" y="-238"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-220B" x="964" y="0"></use>
+<g transform="translate(1154,0)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-56" x="0" y="0"></use>
+<g transform="translate(412,-137)">
+ <use transform="scale(0.574)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMATHI-6B" x="345" y="-351"></use>
+</g>
+</g>
+</g>
+</g>
+<g transform="translate(4239,0)">
+ <use xlink:href="#MJMATHI-77" x="0" y="0"></use>
+<g transform="translate(716,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMATHI-6B" x="425" y="-271"></use>
+</g>
+</g>
+ <use xlink:href="#MJMAIN-28" x="5670" y="0"></use>
+<g transform="translate(6060,0)">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="6988" y="0"></use>
+ <use xlink:href="#MJMAINB-6E" x="7378" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="8017" y="0"></use>
+<g transform="translate(8407,0)">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="9336" y="0"></use>
+ <use xlink:href="#MJMAIN-7C" x="9725" y="0"></use>
+ <use xlink:href="#MJMAIN-7C" x="10004" y="0"></use>
+</g>
+</g>
+</g>
+</g>
+</svg></span></span></p>
+</div>
+<div class="column-right">
+<figure id="fig-vn">
+<img height="250px" src="doc/vertex_normal_diagram.png">
+</figure>
+</div>
+<p>To make your implementation more efficient, instead of traversing
+through all the neighboring triangles of each vertex, you should loop
+through all the triangles of the mesh, visiting each triangle <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.157ex" height="2.509ex" style="vertical-align: -0.671ex;" viewBox="0 -791.3 928.8 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-16-Title">
+<title id="MathJax-SVG-16-Title">T_i</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+</svg></span></span> only once. For each vertex <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="3.014ex" height="2.843ex" style="vertical-align: -1.005ex;" viewBox="0 -791.3 1297.9 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-17-Title">
+<title id="MathJax-SVG-17-Title">V_{i_k}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-56" x="0" y="0"></use>
+<g transform="translate(583,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMATHI-6B" x="425" y="-271"></use>
+</g>
+</g>
+</svg></span></span> of the triangle <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.157ex" height="2.509ex" style="vertical-align: -0.671ex;" viewBox="0 -791.3 928.8 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-18-Title">
+<title id="MathJax-SVG-18-Title">T_i</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+</svg></span></span>, add the contribution <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="12.171ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 5240.4 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-19-Title">
+<title id="MathJax-SVG-19-Title">w_{k}(T_i) \mathbf{n}(T_i)</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-77" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6B" x="1013" y="-213"></use>
+ <use xlink:href="#MJMAIN-28" x="1185" y="0"></use>
+<g transform="translate(1574,0)">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="2503" y="0"></use>
+ <use xlink:href="#MJMAINB-6E" x="2893" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="3532" y="0"></use>
+<g transform="translate(3922,0)">
+ <use xlink:href="#MJMATHI-54" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="826" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="4850" y="0"></use>
+</g>
+</svg></span></span> to the normal
+of the vertex <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="3.014ex" height="2.843ex" style="vertical-align: -1.005ex;" viewBox="0 -791.3 1297.9 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-20-Title">
+<title id="MathJax-SVG-20-Title">V_{i_k}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-56" x="0" y="0"></use>
+<g transform="translate(583,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-69" x="0" y="0"></use>
+ <use transform="scale(0.574)" xlink:href="#MJMATHI-6B" x="425" y="-271"></use>
+</g>
+</g>
+</svg></span></span>. Use the
+<code>angle_weights</code> array you computed in the previous task to
+get the weights <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.753ex" height="2.009ex" style="vertical-align: -0.671ex;" viewBox="0 -576.1 1185.3 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-21-Title">
+<title id="MathJax-SVG-21-Title">w_{k}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-77" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6B" x="1013" y="-213"></use>
+</g>
+</svg></span></span> for each
+triangle. After all triangles are visited, you should normalize all
+computed vertex normals.</p>
+<section id="task-gl2.1.2-compute-vertex-normals" class="box task">
+<h4>Task GL2.1.2: Compute Vertex Normals</h4>
+<ul>
+<li>Fill in the method <code>compute_vertex_normals()</code> in
+<code>normal_computation.js</code>.
+<ul>
+<li>Visit each triangle in the mesh.</li>
+<li>Add the contribution of the current triangle to its vertices’
+normal.</li>
+<li>Normalize the obtained vertex normals.</li>
+</ul></li>
+</ul>
+</section>
+<h2 id="visualizing-normals">Visualizing Normals</h2>
+<p>In the following tasks, you will build a simple GPU pipeline to
+visualize the normals. You will need to work on several aspects of the
+pipeline. In particular, you will need to have understood what is the
+difference between a vertex and a fragment shader, and the basic GLSL
+syntax required to define each of these variables, including the meaning
+of the <code>uniform</code>, <code>attribute</code>, and
+<code>varying</code> keywords. Last week’s tutorial covers the GPU
+pipeline basics and proposes a hands-on exercise to get familiar with
+these concepts. We strongly suggest you do that exercise and make sure
+your understanding of the pipeline is solid, also referring to the
+lecture slides, before moving on.</p>
+<p>We will use a turntable camera to navigate through the scene. Copy
+your camera code from homework 3 (GL1) into <code>main.js</code>. Make
+sure to review your code and fix any potential bug we pointed out in the
+comments to your GL1 submission.</p>
+<h3 id="normals-in-the-fragment-shader">Normals in the Fragment
+Shader</h3>
+<figure id="fig-gl221" class="captioned">
+<img src="doc/GL221_normals_unturned.png">
+<figcaption>
+Reference normals visualization for the predefined view when pressing
+“1”
+</figcaption>
+</figure>
+<p>In the vertex shader <code>normals.vert.glsl</code>, our computed
+normal are given as the attribute <code>vertex_normal</code>. We will
+store it in a <code>varying</code> variable to pass it on from vertex to
+fragment shader and finally draw it on screen.</p>
+<section id="task-gl2.2.1-passing-the-normals-to-fragment-shader" class="box task">
+<h4>Task GL2.2.1: Passing the Normals to Fragment Shader</h4>
+<ul>
+<li>Edit <code>mesh_render.js</code> to compute the
+model-view-projection matrix <code>mat_mvp</code>. This follows the last
+assignment’s solution.</li>
+<li>Edit <code>normals.vert.glsl</code> and
+<code>normals.frag.glsl</code>: in both files add the declaration of a
+<code>varying</code> variable which will contain the normal.</li>
+<li>In the vertex shader, set the <code>varying</code> value.</li>
+<li>In the fragment shader, use the value to draw false-color
+representation of normals. False color is calculated as
+<code>normal * 0.5 + 0.5</code>.</li>
+<li>Make sure the normal is valid. What could have happened to it during
+interpolation?</li>
+</ul>
+</section>
+<p>After completing this task, you should finally see the scene
+appearing on the screen. If the colors do not match the <a href="#fig-gl221">reference image</a>, go back and review your JS
+implementation of the normal computation, then look into potential bugs
+in the shader code.</p>
+<h3 id="transforming-the-normals">Transforming the Normals</h3>
+<figure id="fig-gl222" class="captioned">
+<img src="doc/GL222_normals_transformed.png">
+<figcaption>
+Reference normals visualization, now transformed to view space, for the
+predefined view “1”
+</figcaption>
+</figure>
+<p>We now need to transform the normals into our view space.</p>
+<p>The normal-transforming matrix is equal to <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="9.034ex" height="3.009ex" style="vertical-align: -0.838ex;" viewBox="0 -934.9 3889.6 1295.7" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-22-Title">
+<title id="MathJax-SVG-22-Title">(\mathbf{VM})^{-T}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAIN-28" x="0" y="0"></use>
+<g transform="translate(389,0)">
+ <use xlink:href="#MJMAINB-56" x="0" y="0"></use>
+ <use xlink:href="#MJMAINB-4D" x="869" y="0"></use>
+</g>
+<g transform="translate(2351,0)">
+ <use xlink:href="#MJMAIN-29" x="0" y="0"></use>
+<g transform="translate(389,362)">
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-2212" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-54" x="778" y="0"></use>
+</g>
+</g>
+</g>
+</svg></span></span>, that is the inverse
+of transpose of model-view matrix (see the lecture slides for more
+details).</p>
+<section id="task-gl2.2.2-transforming-the-normals" class="box task">
+<h4>Task GL2.2.2: Transforming the normals</h4>
+<ul>
+<li>Edit <code>mesh_render.js</code> and calculate <code>mat_mvp</code>,
+<code>mat_model_view</code>, and <code>mat_normals_to_view</code>.
+Normals-to-view is equal to <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="9.034ex" height="3.009ex" style="vertical-align: -0.838ex;" viewBox="0 -934.9 3889.6 1295.7" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-23-Title">
+<title id="MathJax-SVG-23-Title">(\mathbf{VM})^{-T}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAIN-28" x="0" y="0"></use>
+<g transform="translate(389,0)">
+ <use xlink:href="#MJMAINB-56" x="0" y="0"></use>
+ <use xlink:href="#MJMAINB-4D" x="869" y="0"></use>
+</g>
+<g transform="translate(2351,0)">
+ <use xlink:href="#MJMAIN-29" x="0" y="0"></use>
+<g transform="translate(389,362)">
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-2212" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-54" x="778" y="0"></use>
+</g>
+</g>
+</g>
+</svg></span></span>.</li>
+<li>Edit <code>normals.vert.glsl</code> and apply the transformation
+matrix to the normal vectors.</li>
+</ul>
+</section>
+<h2 id="lighting">Lighting</h2>
+<p>In this task, you will implement the Blinn-Phong lighting model and
+use it to illuminate the scene. Recall the general Phong lighting model
+definition:</p>
+<figure id="fig-BlinnPhong" class="captioned">
+<img src="doc/BlinnPhong_diagram.png">
+<figcaption>
+Half vector <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.485ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 639.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-24-Title">
+<title id="MathJax-SVG-24-Title">\mathbf{h}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-68" x="0" y="0"></use>
+</g>
+</svg></span></span> in
+Blinn-Phong lighting model.
+</figcaption>
+</figure>
+<p><span class="math display"><span class="mjpage mjpage__block"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="55.215ex" height="6.509ex" style="vertical-align: -4.005ex;" viewBox="0 -1078.4 23773 2802.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-25-Title">
+<title id="MathJax-SVG-25-Title">\mathbf{I}_{BP} =
+\mathbf{I}_a*\mathbf{m}_a +
+\sum_{\mbox{light}\; l} \left[
+    \mathbf{I}_l*(\mathbf{m}_d.(\mathbf{n}^T\mathbf{l}) +
+\mathbf{m}_s.(\mathbf{h}^T\mathbf{n})^s)
+\right]</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+<g transform="translate(436,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-42" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-50" x="759" y="0"></use>
+</g>
+ <use xlink:href="#MJMAIN-3D" x="1882" y="0"></use>
+<g transform="translate(2938,0)">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-61" x="617" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2217" x="4072" y="0"></use>
+<g transform="translate(4794,0)">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-61" x="1355" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2B" x="6449" y="0"></use>
+<g transform="translate(7450,0)">
+ <use xlink:href="#MJSZ2-2211" x="523" y="0"></use>
+<g transform="translate(0,-1314)">
+ <use xlink:href="#MJMAIN-6C"></use>
+ <use xlink:href="#MJMAIN-69" x="278" y="0"></use>
+ <use xlink:href="#MJMAIN-67" x="557" y="0"></use>
+ <use xlink:href="#MJMAIN-68" x="1057" y="0"></use>
+ <use xlink:href="#MJMAIN-74" x="1614" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6C" x="3226" y="0"></use>
+</g>
+</g>
+<g transform="translate(10109,0)">
+ <use xlink:href="#MJSZ1-5B"></use>
+<g transform="translate(417,0)">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6C" x="617" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2217" x="1387" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="2110" y="0"></use>
+<g transform="translate(2499,0)">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-64" x="1355" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2E" x="3928" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="4373" y="0"></use>
+<g transform="translate(4762,0)">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-54" x="904" y="583"></use>
+</g>
+ <use xlink:href="#MJMAINB-6C" x="6000" y="0"></use>
+ <use xlink:href="#MJMAIN-29" x="6320" y="0"></use>
+ <use xlink:href="#MJMAIN-2B" x="6931" y="0"></use>
+<g transform="translate(7932,0)">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-73" x="1355" y="-213"></use>
+</g>
+ <use xlink:href="#MJMAIN-2E" x="9322" y="0"></use>
+ <use xlink:href="#MJMAIN-28" x="9768" y="0"></use>
+<g transform="translate(10157,0)">
+ <use xlink:href="#MJMAINB-68" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-54" x="904" y="596"></use>
+</g>
+ <use xlink:href="#MJMAINB-6E" x="11395" y="0"></use>
+<g transform="translate(12034,0)">
+ <use xlink:href="#MJMAIN-29" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-73" x="550" y="583"></use>
+</g>
+ <use xlink:href="#MJMAIN-29" x="12856" y="0"></use>
+ <use xlink:href="#MJSZ1-5D" x="13245" y="-1"></use>
+</g>
+</g>
+</svg></span></span></p>
+<p>where <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="3.728ex" height="2.509ex" style="vertical-align: -0.671ex;" viewBox="0 -791.3 1604.9 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-26-Title">
+<title id="MathJax-SVG-26-Title">\mathbf{I}_{BP}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+<g transform="translate(436,-150)">
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-42" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-50" x="759" y="0"></use>
+</g>
+</g>
+</svg></span></span> is the
+final fragment’s intensity, <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.116ex" height="2.509ex" style="vertical-align: -0.671ex;" viewBox="0 -791.3 910.9 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-27-Title">
+<title id="MathJax-SVG-27-Title">\mathbf{I}_{a}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-61" x="617" y="-213"></use>
+</g>
+</svg></span></span> is the ambient component
+of the light source, <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.736ex" height="2.509ex" style="vertical-align: -0.671ex;" viewBox="0 -791.3 747.6 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-28-Title">
+<title id="MathJax-SVG-28-Title">\mathbf{I}_{l}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6C" x="617" y="-213"></use>
+</g>
+</svg></span></span>
+is the diffuse/specular component, <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="6.788ex" height="2.509ex" style="vertical-align: -1.171ex;" viewBox="0 -576.1 2922.8 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-29-Title">
+<title id="MathJax-SVG-29-Title">\mathbf{m}_{[a|d|s]}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+<g transform="translate(958,-187)">
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-5B" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-61" x="278" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-7C" x="808" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-64" x="1086" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-7C" x="1610" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-73" x="1888" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-5D" x="2358" y="0"></use>
+</g>
+</g>
+</svg></span></span> is the
+ambient/diffuse/specular coefficient of the material, <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.09ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 469.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-30-Title">
+<title id="MathJax-SVG-30-Title">s</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMATHI-73" x="0" y="0"></use>
+</g>
+</svg></span></span> is the shininess, and <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="8.225ex" height="2.509ex" style="vertical-align: -0.671ex;" viewBox="0 -791.3 3541.5 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-31-Title">
+<title id="MathJax-SVG-31-Title">\mathbf{n}, \mathbf{l}, \mathbf{h},
+\mathbf{v}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-2C" x="639" y="0"></use>
+ <use xlink:href="#MJMAINB-6C" x="1084" y="0"></use>
+ <use xlink:href="#MJMAIN-2C" x="1404" y="0"></use>
+ <use xlink:href="#MJMAINB-68" x="1849" y="0"></use>
+ <use xlink:href="#MJMAIN-2C" x="2488" y="0"></use>
+ <use xlink:href="#MJMAINB-76" x="2934" y="0"></use>
+</g>
+</svg></span></span> are the normal, light, half-vector, and view
+vectors, respectively. Recall that the diffuse component is only added
+if <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="8.167ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 3516.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-32-Title">
+<title id="MathJax-SVG-32-Title">\mathbf{n} \cdot \mathbf{l} &gt;
+0</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-22C5" x="861" y="0"></use>
+ <use xlink:href="#MJMAINB-6C" x="1362" y="0"></use>
+ <use xlink:href="#MJMAIN-3E" x="1959" y="0"></use>
+ <use xlink:href="#MJMAIN-30" x="3016" y="0"></use>
+</g>
+</svg></span></span> and the specular component is only added if both <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="8.167ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 3516.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-33-Title">
+<title id="MathJax-SVG-33-Title">\mathbf{n} \cdot \mathbf{l} &gt; 0</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-22C5" x="861" y="0"></use>
+ <use xlink:href="#MJMAINB-6C" x="1362" y="0"></use>
+ <use xlink:href="#MJMAIN-3E" x="1959" y="0"></use>
+ <use xlink:href="#MJMAIN-30" x="3016" y="0"></use>
+</g>
+</svg></span></span> and
+<span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="8.911ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 3836.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-34-Title">
+<title id="MathJax-SVG-34-Title">\mathbf{n} \cdot \mathbf{h} &gt;
+0</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6E" x="0" y="0"></use>
+ <use xlink:href="#MJMAIN-22C5" x="861" y="0"></use>
+ <use xlink:href="#MJMAINB-68" x="1362" y="0"></use>
+ <use xlink:href="#MJMAIN-3E" x="2279" y="0"></use>
+ <use xlink:href="#MJMAIN-30" x="3336" y="0"></use>
+</g>
+</svg></span></span>.</p>
+<p>In our scene, we consider a single point light source (see
+<code>light_position_world</code> and <code>light_color</code> variables
+defined in <code>main.js</code>) which provides the <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.736ex" height="2.509ex" style="vertical-align: -0.671ex;" viewBox="0 -791.3 747.6 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-35-Title">
+<title id="MathJax-SVG-35-Title">\mathbf{I}_{l}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-6C" x="617" y="-213"></use>
+</g>
+</svg></span></span> component. We’ll assume
+the material components <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="5.461ex" height="2.509ex" style="vertical-align: -1.171ex;" viewBox="0 -576.1 2351.4 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-36-Title">
+<title id="MathJax-SVG-36-Title">\mathbf{m}_{[d|s]}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+<g transform="translate(958,-187)">
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-5B" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-64" x="278" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-7C" x="802" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-73" x="1080" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMAIN-5D" x="1549" y="0"></use>
+</g>
+</g>
+</svg></span></span> are both just equal to
+the RGB color of the object stored in the variable
+<code>material_color</code>, without a scalar weight (i.e., in terms of
+the notation used in assignment RT2, we have
+<code>material.diffuse = material.specular = 1.0</code>). <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.116ex" height="2.509ex" style="vertical-align: -0.671ex;" viewBox="0 -791.3 910.9 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-37-Title">
+<title id="MathJax-SVG-37-Title">\mathbf{I}_{a}</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-49" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-61" x="617" y="-213"></use>
+</g>
+</svg></span></span> is usually thought of as
+the combined dispersed contribution of all the light sources in the
+scene. We set the ambient component <span class="math inline"><span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="3.328ex" height="2.009ex" style="vertical-align: -0.671ex;" viewBox="0 -576.1 1432.9 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-38-Title">
+<title id="MathJax-SVG-38-Title">\mathbf{m}_a</title>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#MJMAINB-6D" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#MJMATHI-61" x="1355" y="-213"></use>
+</g>
+</svg></span></span> equal to
+<code>material_color * material_ambient</code>, where
+<code>material_ambient = 0.1</code>.</p>
+<h3 id="per-vertex-gouraud-shading">Per-Vertex (Gouraud) Shading</h3>
+<figure id="fig-gl23" class="captioned">
+<img src="doc/GL23_Gouraud.png">
+<figcaption>
+Reference Gouraud shading for the predefined view when pressing “1”
+</figcaption>
+</figure>
+<p>In the Gouraud shading model, we compute the lighting value for each
+vertex in the vertex shader, store the resulting color and interpolate
+it over the drawn triangle.</p>
+<section id="task-gl2.3-gouraud-shading" class="box task">
+<h4>Task GL2.3: Gouraud Shading</h4>
+<ul>
+<li>Edit <code>shade_pervertex.vert.glsl</code> to compute the lighting
+value per-vertex.</li>
+<li>Store the color in a <code>varying</code> variable (like with
+normals visualization).</li>
+<li>Edit <code>shade_pervertex.frag.glsl</code> to display the resulting
+color.</li>
+</ul>
+<div class="box hint">
+<p><strong>Hint</strong></p>
+<p>These calculations happen in view-space. To put the vertex position
+into view space, we apply the model-view matrix. This is different from
+the model-view-projection, which goes to screen coordinates,
+instead.</p>
+</div>
+</section>
+<h3 id="per-pixel-phong-shading">Per-Pixel (Phong) Shading</h3>
+<figure id="fig-gl24" class="captioned">
+<img src="doc/GL24_Phong.png">
+<figcaption>
+Reference Phong shading for the predefined view when pressing “1”
+</figcaption>
+</figure>
+<p>Gouraud shading can be inaccurate. In the example above we can see
+that the floor is dark. This is because the floor is composed of large
+triangles. The light values at the far-away corners do not correspond at
+all to the correct light in the middle of the plane. Therefore for
+better accuracy we will compute the shading per pixel, not per
+vertex.</p>
+<section id="task-gl2.4-phong-shading" class="box task">
+<h4>Task GL2.4: Phong Shading</h4>
+<ul>
+<li>Edit <code>shade_perpixel.vert.glsl</code>:
+<ul>
+<li>Setup the <code>varying</code> values to pass on to the fragment
+shader: surface normal, view vector, light vector.</li>
+<li>Compute the surface normal, view vector, light vector in the vertex
+shader.</li>
+</ul></li>
+<li>Edit <code>shade_perpixel.frag.glsl</code>:
+<ul>
+<li>Implement the Blinn-Phong formula using the passed on values.</li>
+<li>Make sure to normalize vectors which might have been affected by
+interpolation.</li>
+<li>Display the resulting color.</li>
+</ul></li>
+</ul>
+</section>
+<h2 id="grading">Grading</h2>
+<ul>
+<li><strong>20%</strong> Task 1.1: Compute triangle normals and opening
+angles</li>
+<li><strong>20%</strong> Task 1.2: Compute vertex normals</li>
+<li><strong>15%</strong> Task 2.1: Pass normals to fragment shader</li>
+<li><strong>5%</strong> Task 2.2: Transform the normals</li>
+<li><strong>20%</strong> Task 3: Gouraud shading</li>
+<li><strong>20%</strong> Task 4: Phong shading</li>
+</ul>
+<h2 id="what-to-submit">What to Submit</h2>
+<p>Please edit the file <code>readme.md</code> adding a brief
+description (approximately 10 to 20 lines) of how you solved the
+proposed exercises. In the same file, report individual contributions
+following this scheme (sciper in parentheses):</p>
+<pre><code>Name1 Surname1 (000001): 1/3
+Name2 Surname2 (000002): 1/3
+Name3 Surname3 (000003): 1/3</code></pre>
+<p>We ask you to only report global contributions, there is no need to
+provide additional details for each sub-task. The three contributions
+should add up to 1.</p>
+<p>Compress the directory with all the files it contains – the source
+code with your solution, the source code you did not modify, the
+libraries, the readme, etc. – into a <code>.zip</code> archive. Rename
+the zipped file into <code>Exercise4-Group&lt;GX&gt;.zip</code>, where
+<code>&lt;GX&gt;</code> is your group number, according to the group you
+enrolled in on Moodle.</p>
+<p>Note that it is your responsibility to check that all the components
+necessary to run the code are included. We will run your web app to
+generate the results. These results will determine your grade.</p>
+
+ 
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;"><defs id="MathJax_SVG_glyphs"><path stroke-width="1" id="MJMATHI-54" d="M40 437Q21 437 21 445Q21 450 37 501T71 602L88 651Q93 669 101 677H569H659Q691 677 697 676T704 667Q704 661 687 553T668 444Q668 437 649 437Q640 437 637 437T631 442L629 445Q629 451 635 490T641 551Q641 586 628 604T573 629Q568 630 515 631Q469 631 457 630T439 622Q438 621 368 343T298 60Q298 48 386 46Q418 46 427 45T436 36Q436 31 433 22Q429 4 424 1L422 0Q419 0 415 0Q410 0 363 1T228 2Q99 2 64 0H49Q43 6 43 9T45 27Q49 40 55 46H83H94Q174 46 189 55Q190 56 191 56Q196 59 201 76T241 233Q258 301 269 344Q339 619 339 625Q339 630 310 630H279Q212 630 191 624Q146 614 121 583T67 467Q60 445 57 441T43 437H40Z"></path><path stroke-width="1" id="MJMATHI-69" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"></path><path stroke-width="1" id="MJMATHI-56" d="M52 648Q52 670 65 683H76Q118 680 181 680Q299 680 320 683H330Q336 677 336 674T334 656Q329 641 325 637H304Q282 635 274 635Q245 630 242 620Q242 618 271 369T301 118L374 235Q447 352 520 471T595 594Q599 601 599 609Q599 633 555 637Q537 637 537 648Q537 649 539 661Q542 675 545 679T558 683Q560 683 570 683T604 682T668 681Q737 681 755 683H762Q769 676 769 672Q769 655 760 640Q757 637 743 637Q730 636 719 635T698 630T682 623T670 615T660 608T652 599T645 592L452 282Q272 -9 266 -16Q263 -18 259 -21L241 -22H234Q216 -22 216 -15Q213 -9 177 305Q139 623 138 626Q133 637 76 637H59Q52 642 52 648Z"></path><path stroke-width="1" id="MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path><path stroke-width="1" id="MJMAIN-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"></path><path stroke-width="1" id="MJMAIN-33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"></path><path stroke-width="1" id="MJMAINB-70" d="M32 442L123 446Q214 450 215 450H221V409Q222 409 229 413T251 423T284 436T328 446T382 450Q480 450 540 388T600 223Q600 128 539 61T361 -6H354Q292 -6 236 28L227 34V-132H296V-194H287Q269 -191 163 -191Q56 -191 38 -194H29V-132H98V113V284Q98 330 97 348T93 370T83 376Q69 380 42 380H29V442H32ZM457 224Q457 303 427 349T350 395Q282 395 235 352L227 345V104L233 97Q274 45 337 45Q383 45 420 86T457 224Z"></path><path stroke-width="1" id="MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path><path stroke-width="1" id="MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path><path stroke-width="1" id="MJMAINB-6E" d="M40 442Q217 450 218 450H224V407L225 365Q233 378 245 391T289 422T362 448Q374 450 398 450Q428 450 448 447T491 434T529 402T551 346Q553 335 554 198V62H623V0H614Q596 3 489 3Q374 3 365 0H356V62H425V194V275Q425 348 416 373T371 399Q326 399 288 370T238 290Q236 281 235 171V62H304V0H295Q277 3 171 3Q64 3 46 0H37V62H106V210V303Q106 353 104 363T91 376Q77 380 50 380H37V442H40Z"></path><path stroke-width="1" id="MJMATHI-77" d="M580 385Q580 406 599 424T641 443Q659 443 674 425T690 368Q690 339 671 253Q656 197 644 161T609 80T554 12T482 -11Q438 -11 404 5T355 48Q354 47 352 44Q311 -11 252 -11Q226 -11 202 -5T155 14T118 53T104 116Q104 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Q21 293 29 315T52 366T96 418T161 441Q204 441 227 416T250 358Q250 340 217 250T184 111Q184 65 205 46T258 26Q301 26 334 87L339 96V119Q339 122 339 128T340 136T341 143T342 152T345 165T348 182T354 206T362 238T373 281Q402 395 406 404Q419 431 449 431Q468 431 475 421T483 402Q483 389 454 274T422 142Q420 131 420 107V100Q420 85 423 71T442 42T487 26Q558 26 600 148Q609 171 620 213T632 273Q632 306 619 325T593 357T580 385Z"></path><path stroke-width="1" id="MJMATHI-6B" d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"></path><path stroke-width="1" id="MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path><path stroke-width="1" id="MJSZ1-2211" d="M61 748Q64 750 489 750H913L954 640Q965 609 976 579T993 533T999 516H979L959 517Q936 579 886 621T777 682Q724 700 655 705T436 710H319Q183 710 183 709Q186 706 348 484T511 259Q517 250 513 244L490 216Q466 188 420 134T330 27L149 -187Q149 -188 362 -188Q388 -188 436 -188T506 -189Q679 -189 778 -162T936 -43Q946 -27 959 6H999L913 -249L489 -250Q65 -250 62 -248Q56 -246 56 -239Q56 -234 118 -161Q186 -81 245 -11L428 206Q428 207 242 462L57 717L56 728Q56 744 61 748Z"></path><path stroke-width="1" id="MJMAIN-220B" d="M83 520Q83 532 98 540H195Q202 540 220 540T249 541Q404 541 494 455Q582 374 582 250Q582 165 539 99T434 0T304 -39Q297 -40 195 -40H98Q83 -32 83 -20Q83 -10 96 0H200Q311 1 337 6Q369 14 401 28Q422 39 445 55Q484 85 508 127T537 191T542 228V230H98Q84 237 84 250T98 270H542V272Q542 280 539 295T527 336T497 391T445 445Q422 461 401 472Q386 479 374 483T347 491T325 495T298 498T273 499T239 500T200 500L96 501Q83 511 83 520Z"></path><path stroke-width="1" id="MJMAIN-7C" d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"></path><path stroke-width="1" id="MJMAINB-56" d="M592 686H604Q615 685 631 685T666 684T700 684T724 683Q829 683 835 686H843V624H744L611 315Q584 254 546 165Q492 40 482 19T461 -6L460 -7H409Q398 -4 391 9Q385 20 257 315L124 624H25V686H36Q57 683 190 683Q340 683 364 686H377V624H289L384 403L480 185L492 212Q504 240 529 298T575 405L670 624H582V686H592Z"></path><path stroke-width="1" id="MJMAINB-4D" d="M314 0Q296 3 181 3T48 0H39V62H147V624H39V686H305Q316 679 323 667Q330 653 434 414L546 157L658 414Q766 662 773 674Q778 681 788 686H1052V624H944V62H1052V0H1040Q1016 3 874 3T708 0H696V62H804V341L803 618L786 580Q770 543 735 462T671 315Q540 13 536 9Q528 1 507 1Q485 1 477 9Q472 14 408 162T281 457T217 603Q215 603 215 334V62H323V0H314Z"></path><path stroke-width="1" id="MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path><path stroke-width="1" id="MJMAINB-68" d="M40 686L131 690Q222 694 223 694H229V533L230 372L238 381Q248 394 264 407T317 435T398 450Q428 450 448 447T491 434T529 402T551 346Q553 335 554 198V62H623V0H614Q596 3 489 3Q374 3 365 0H356V62H425V194V275Q425 348 416 373T371 399Q326 399 288 370T238 290Q236 281 235 171V62H304V0H295Q277 3 171 3Q64 3 46 0H37V62H106V332Q106 387 106 453T107 534Q107 593 105 605T91 620Q77 624 50 624H37V686H40Z"></path><path stroke-width="1" id="MJMAINB-49" d="M397 0Q370 3 218 3Q65 3 38 0H25V62H139V624H25V686H38Q65 683 218 683Q370 683 397 686H410V624H296V62H410V0H397Z"></path><path stroke-width="1" id="MJMATHI-42" d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"></path><path stroke-width="1" id="MJMATHI-50" d="M287 628Q287 635 230 637Q206 637 199 638T192 648Q192 649 194 659Q200 679 203 681T397 683Q587 682 600 680Q664 669 707 631T751 530Q751 453 685 389Q616 321 507 303Q500 302 402 301H307L277 182Q247 66 247 59Q247 55 248 54T255 50T272 48T305 46H336Q342 37 342 35Q342 19 335 5Q330 0 319 0Q316 0 282 1T182 2Q120 2 87 2T51 1Q33 1 33 11Q33 13 36 25Q40 41 44 43T67 46Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628ZM645 554Q645 567 643 575T634 597T609 619T560 635Q553 636 480 637Q463 637 445 637T416 636T404 636Q391 635 386 627Q384 621 367 550T332 412T314 344Q314 342 395 342H407H430Q542 342 590 392Q617 419 631 471T645 554Z"></path><path stroke-width="1" id="MJMATHI-61" d="M33 157Q33 258 109 349T280 441Q331 441 370 392Q386 422 416 422Q429 422 439 414T449 394Q449 381 412 234T374 68Q374 43 381 35T402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487Q506 153 506 144Q506 138 501 117T481 63T449 13Q436 0 417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157ZM351 328Q351 334 346 350T323 385T277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q217 26 254 59T298 110Q300 114 325 217T351 328Z"></path><path stroke-width="1" id="MJMAIN-2217" d="M229 286Q216 420 216 436Q216 454 240 464Q241 464 245 464T251 465Q263 464 273 456T283 436Q283 419 277 356T270 286L328 328Q384 369 389 372T399 375Q412 375 423 365T435 338Q435 325 425 315Q420 312 357 282T289 250L355 219L425 184Q434 175 434 161Q434 146 425 136T401 125Q393 125 383 131T328 171L270 213Q283 79 283 63Q283 53 276 44T250 35Q231 35 224 44T216 63Q216 80 222 143T229 213L171 171Q115 130 110 127Q106 124 100 124Q87 124 76 134T64 161Q64 166 64 169T67 175T72 181T81 188T94 195T113 204T138 215T170 230T210 250L74 315Q65 324 65 338Q65 353 74 363T98 374Q106 374 116 368T171 328L229 286Z"></path><path stroke-width="1" id="MJMAINB-6D" d="M40 442Q217 450 218 450H224V365Q226 367 235 378T254 397T278 416T314 435T362 448Q376 450 400 450H406Q503 450 534 393Q545 376 545 370Q545 368 555 379Q611 450 716 450Q774 450 809 434Q850 414 861 379T873 276V213V198V62H942V0H933Q915 3 809 3Q702 3 684 0H675V62H744V194V275Q744 348 735 373T690 399Q645 399 607 370T557 290Q555 281 554 171V62H623V0H614Q596 3 489 3Q374 3 365 0H356V62H425V194V275Q425 348 416 373T371 399Q326 399 288 370T238 290Q236 281 235 171V62H304V0H295Q277 3 171 3Q64 3 46 0H37V62H106V210V303Q106 353 104 363T91 376Q77 380 50 380H37V442H40Z"></path><path stroke-width="1" id="MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path><path stroke-width="1" id="MJSZ2-2211" d="M60 948Q63 950 665 950H1267L1325 815Q1384 677 1388 669H1348L1341 683Q1320 724 1285 761Q1235 809 1174 838T1033 881T882 898T699 902H574H543H251L259 891Q722 258 724 252Q725 250 724 246Q721 243 460 -56L196 -356Q196 -357 407 -357Q459 -357 548 -357T676 -358Q812 -358 896 -353T1063 -332T1204 -283T1307 -196Q1328 -170 1348 -124H1388Q1388 -125 1381 -145T1356 -210T1325 -294L1267 -449L666 -450Q64 -450 61 -448Q55 -446 55 -439Q55 -437 57 -433L590 177Q590 178 557 222T452 366T322 544L56 909L55 924Q55 945 60 948Z"></path><path stroke-width="1" id="MJMAIN-6C" d="M42 46H56Q95 46 103 60V68Q103 77 103 91T103 124T104 167T104 217T104 272T104 329Q104 366 104 407T104 482T104 542T103 586T103 603Q100 622 89 628T44 637H26V660Q26 683 28 683L38 684Q48 685 67 686T104 688Q121 689 141 690T171 693T182 694H185V379Q185 62 186 60Q190 52 198 49Q219 46 247 46H263V0H255L232 1Q209 2 183 2T145 3T107 3T57 1L34 0H26V46H42Z"></path><path stroke-width="1" id="MJMAIN-69" d="M69 609Q69 637 87 653T131 669Q154 667 171 652T188 609Q188 579 171 564T129 549Q104 549 87 564T69 609ZM247 0Q232 3 143 3Q132 3 106 3T56 1L34 0H26V46H42Q70 46 91 49Q100 53 102 60T104 102V205V293Q104 345 102 359T88 378Q74 385 41 385H30V408Q30 431 32 431L42 432Q52 433 70 434T106 436Q123 437 142 438T171 441T182 442H185V62Q190 52 197 50T232 46H255V0H247Z"></path><path stroke-width="1" id="MJMAIN-67" d="M329 409Q373 453 429 453Q459 453 472 434T485 396Q485 382 476 371T449 360Q416 360 412 390Q410 404 415 411Q415 412 416 414V415Q388 412 363 393Q355 388 355 386Q355 385 359 381T368 369T379 351T388 325T392 292Q392 230 343 187T222 143Q172 143 123 171Q112 153 112 133Q112 98 138 81Q147 75 155 75T227 73Q311 72 335 67Q396 58 431 26Q470 -13 470 -72Q470 -139 392 -175Q332 -206 250 -206Q167 -206 107 -175Q29 -140 29 -75Q29 -39 50 -15T92 18L103 24Q67 55 67 108Q67 155 96 193Q52 237 52 292Q52 355 102 398T223 442Q274 442 318 416L329 409ZM299 343Q294 371 273 387T221 404Q192 404 171 388T145 343Q142 326 142 292Q142 248 149 227T179 192Q196 182 222 182Q244 182 260 189T283 207T294 227T299 242Q302 258 302 292T299 343ZM403 -75Q403 -50 389 -34T348 -11T299 -2T245 0H218Q151 0 138 -6Q118 -15 107 -34T95 -74Q95 -84 101 -97T122 -127T170 -155T250 -167Q319 -167 361 -139T403 -75Z"></path><path stroke-width="1" id="MJMAIN-68" d="M41 46H55Q94 46 102 60V68Q102 77 102 91T102 124T102 167T103 217T103 272T103 329Q103 366 103 407T103 482T102 542T102 586T102 603Q99 622 88 628T43 637H25V660Q25 683 27 683L37 684Q47 685 66 686T103 688Q120 689 140 690T170 693T181 694H184V367Q244 442 328 442Q451 442 463 329Q464 322 464 190V104Q464 66 466 59T477 49Q498 46 526 46H542V0H534L510 1Q487 2 460 2T422 3Q319 3 310 0H302V46H318Q379 46 379 62Q380 64 380 200Q379 335 378 343Q372 371 358 385T334 402T308 404Q263 404 229 370Q202 343 195 315T187 232V168V108Q187 78 188 68T191 55T200 49Q221 46 249 46H265V0H257L234 1Q210 2 183 2T145 3Q42 3 33 0H25V46H41Z"></path><path stroke-width="1" id="MJMAIN-74" d="M27 422Q80 426 109 478T141 600V615H181V431H316V385H181V241Q182 116 182 100T189 68Q203 29 238 29Q282 29 292 100Q293 108 293 146V181H333V146V134Q333 57 291 17Q264 -10 221 -10Q187 -10 162 2T124 33T105 68T98 100Q97 107 97 248V385H18V422H27Z"></path><path stroke-width="1" id="MJMATHI-6C" d="M117 59Q117 26 142 26Q179 26 205 131Q211 151 215 152Q217 153 225 153H229Q238 153 241 153T246 151T248 144Q247 138 245 128T234 90T214 43T183 6T137 -11Q101 -11 70 11T38 85Q38 97 39 102L104 360Q167 615 167 623Q167 626 166 628T162 632T157 634T149 635T141 636T132 637T122 637Q112 637 109 637T101 638T95 641T94 647Q94 649 96 661Q101 680 107 682T179 688Q194 689 213 690T243 693T254 694Q266 694 266 686Q266 675 193 386T118 83Q118 81 118 75T117 65V59Z"></path><path stroke-width="1" id="MJMAIN-5B" d="M118 -250V750H255V710H158V-210H255V-250H118Z"></path><path stroke-width="1" id="MJMATHI-64" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"></path><path stroke-width="1" id="MJMAIN-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"></path><path stroke-width="1" id="MJMAINB-6C" d="M43 686L134 690Q225 694 226 694H232V62H301V0H292Q274 3 170 3Q67 3 49 0H40V62H109V332Q109 387 109 453T110 534Q110 593 108 605T94 620Q80 624 53 624H40V686H43Z"></path><path stroke-width="1" id="MJMATHI-73" d="M131 289Q131 321 147 354T203 415T300 442Q362 442 390 415T419 355Q419 323 402 308T364 292Q351 292 340 300T328 326Q328 342 337 354T354 372T367 378Q368 378 368 379Q368 382 361 388T336 399T297 405Q249 405 227 379T204 326Q204 301 223 291T278 274T330 259Q396 230 396 163Q396 135 385 107T352 51T289 7T195 -10Q118 -10 86 19T53 87Q53 126 74 143T118 160Q133 160 146 151T160 120Q160 94 142 76T111 58Q109 57 108 57T107 55Q108 52 115 47T146 34T201 27Q237 27 263 38T301 66T318 97T323 122Q323 150 302 164T254 181T195 196T148 231Q131 256 131 289Z"></path><path stroke-width="1" id="MJMAIN-5D" d="M22 710V750H159V-250H22V-210H119V710H22Z"></path><path stroke-width="1" id="MJSZ1-5B" d="M202 -349V850H394V810H242V-309H394V-349H202Z"></path><path stroke-width="1" id="MJSZ1-5D" d="M22 810V850H214V-349H22V-309H174V810H22Z"></path><path stroke-width="1" id="MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path><path stroke-width="1" id="MJMAINB-76" d="M401 444Q413 441 495 441Q568 441 574 444H580V382H510L409 156Q348 18 339 6Q331 -4 320 -4Q318 -4 313 -4T303 -3H288Q273 -3 264 12T221 102Q206 135 197 156L96 382H26V444H34Q49 441 145 441Q252 441 270 444H279V382H231L284 264Q335 149 338 149Q338 150 389 264T442 381Q442 382 418 382H394V444H401Z"></path><path stroke-width="1" id="MJMAIN-22C5" d="M78 250Q78 274 95 292T138 310Q162 310 180 294T199 251Q199 226 182 208T139 190T96 207T78 250Z"></path><path stroke-width="1" id="MJMAIN-3E" d="M84 520Q84 528 88 533T96 539L99 540Q106 540 253 471T544 334L687 265Q694 260 694 250T687 235Q685 233 395 96L107 -40H101Q83 -38 83 -20Q83 -19 83 -17Q82 -10 98 -1Q117 9 248 71Q326 108 378 132L626 250L378 368Q90 504 86 509Q84 513 84 520Z"></path><path stroke-width="1" id="MJMAIN-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"></path></defs></svg></body></html>
