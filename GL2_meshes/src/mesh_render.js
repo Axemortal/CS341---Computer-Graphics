@@ -1,4 +1,6 @@
 import {vec2, vec3, vec4, mat3, mat4} from "../lib/gl-matrix_3.3.0/esm/index.js"
+import { transpose } from "../lib/gl-matrix_3.3.0/esm/mat2.js"
+import { inverse } from "../lib/gl-matrix_3.3.0/esm/vec3.js"
 import {mat4_matmul_many} from "./icg_math.js"
 
 /*
@@ -205,8 +207,8 @@ class SysRenderMeshes {
 			mat3.identity(mat_normals_to_view)
 
 			/* #TODO GL2.2.1 Setup the model-view-projection matrix mat_mvp */
-			//mat4_matmul_many(mat_model_view, ...)
-			//mat4_matmul_many(mat_mvp, ...)
+			mat4_matmul_many(mat_model_view, mat_view, actor.mat_model_to_world)
+			mat4_matmul_many(mat_mvp, mat_projection, mat_model_view)
 
 			/* #TODO GL2.2.2 
 				Calculate mat_mvp like in previous exercise
@@ -214,6 +216,10 @@ class SysRenderMeshes {
 					inverse(transpose( mat view * mat model ))
 			*/
 			// calculate mat_normals_to_view 
+			const mat_model_view_transpose = mat4.create()
+			mat4.transpose(mat_model_view_transpose, mat_model_view)
+			mat3.fromMat4(mat_normals_to_view, mat_model_view_transpose)
+			mat3.invert(mat_normals_to_view, mat_normals_to_view)
 
 
 			entries_to_draw.push({
