@@ -115,31 +115,39 @@ export class SysOrbitalMovement {
 		// Create the local transformation: spin then scale
 		const M_local = mat4.create();
 		mat4.identity(M_local);
-		// Spin around Z: angle = sim_time * actor.rotation_speed
-		mat4.rotateZ(M_local, M_local, sim_time * actor.rotation_speed);
-		// Scale the unit sphere to desired size
+		// Scale the unit sphere to desired size first
 		mat4.scale(M_local, M_local, [actor.size, actor.size, actor.size]);
+		// Then apply spin around Z: angle = sim_time * actor.rotation_speed
+		mat4.rotateZ(M_local, M_local, sim_time * actor.rotation_speed);
 
 		if (actor.orbit !== null) {
-			// Retrieve parent's model matrix
+			// Retrieve parent's model matrix from which we extract its translation
 			const parent = actors_by_name[actor.orbit];
+			const parentTranslation = vec3.create();
+			mat4.getTranslation(parentTranslation, parent.mat_model_to_world);
+			// Create a translation matrix from the parent's translation
+			const T_parent = mat4.fromTranslation(mat4.create(), parentTranslation);
+		
+			// Compute orbit parameters:
 			// Orbit angle: sim_time * actor.orbit_speed + actor.orbit_phase
 			const orbit_angle = sim_time * actor.orbit_speed + actor.orbit_phase;
-			// Orbit translation in the XY plane
+			// Create the orbit translation matrix in the XY plane
 			const T_orbit = mat4.fromTranslation(mat4.create(), [
-				actor.orbit_radius * Math.cos(orbit_angle),
-				actor.orbit_radius * Math.sin(orbit_angle),
-				0
+			  actor.orbit_radius * Math.cos(orbit_angle),
+			  actor.orbit_radius * Math.sin(orbit_angle),
+			  0
 			]);
-			// Model matrix: parent's model * T_orbit * local spin-and-scale
+		
+			// Compose the final model matrix as:
+			// actor.mat_model_to_world = T_parent * T_orbit * M_local
 			const M = mat4.create();
-			mat4.multiply(M, parent.mat_model_to_world, T_orbit);
-			mat4.multiply(M, M, M_local);
+			mat4.multiply(M, T_parent, T_orbit); // first apply parent's translation then orbit translation
+			mat4.multiply(M, M, M_local);         // then apply the local (scale and spin) transformation
 			mat4.copy(actor.mat_model_to_world, M);
-		} else {
-			// No orbit: model matrix is just the local spin and scale
+		  } else {
+			// If there's no parent, the model matrix is just the local transformation
 			mat4.copy(actor.mat_model_to_world, M_local);
-		}
+		  }
 		
 		// Store the combined transform in actor.mat_model_to_world
 		//mat4_matmul_many(actor.mat_model_to_world, ...);
