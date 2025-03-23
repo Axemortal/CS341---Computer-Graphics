@@ -185,6 +185,7 @@ async function main() {
 
 	function update_cam_transform(frame_info) {
 		const {cam_angle_z, cam_angle_y, cam_distance_factor} = frame_info
+		const r = cam_distance_base * cam_distance_factor; // distance from (0,0,0)
 
 		/* TODO GL1.2.2
 		Calculate the world-to-camera transformation matrix for turntable camera.
@@ -194,15 +195,22 @@ async function main() {
 		* cam_angle_y - camera ray's angle around the Y axis
 		*/
 
+		const eye = [
+			r * Math.cos(cam_angle_y) * Math.cos(cam_angle_z),
+			r * Math.cos(cam_angle_y) * Math.sin(cam_angle_z),
+			r * Math.sin(cam_angle_y)
+		  ];
+
 		// Example camera matrix, looking along forward-X, edit this
-		const look_at = mat4.lookAt(mat4.create(), 
-			[-5, 0, 0], // camera position in world coord
-			[0, 0, 0], // view target point
-			[0, 0, 1], // up vector
-		)
-		// Store the combined transform in mat_turntable
-		// frame_info.mat_turntable = A * B * ...
-		mat4_matmul_many(frame_info.mat_turntable, look_at) // edit this
+		// const look_at = mat4.lookAt(mat4.create(), 
+		// 	[-5, 0, 0], // camera position in world coord
+		// 	[0, 0, 0], // view target point
+		// 	[0, 0, 1], // up vector
+		// )
+		// Define proper rotation matrices to compute the final camera position.
+		// Store the transform in mat_turntable.
+		// frame_info.mat_turntable = A * B * ...  // Note: you can use mat4_matmul_many
+		mat4.lookAt(frame_info.mat_turntable, eye, [0, 0, 0], [0, 0, 1]);
 	}
 
 	update_cam_transform(frame_info)

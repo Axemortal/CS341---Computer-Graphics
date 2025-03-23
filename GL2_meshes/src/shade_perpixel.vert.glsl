@@ -10,9 +10,9 @@ attribute vec3 vertex_normal;
 	* lighting vector: direction to light
 	* view vector: direction to camera
 */
-//varying ...
-//varying ...
-//varying ...
+varying vec3 v_normal;
+varying vec3 v_lightDir;
+varying vec3 v_viewDir;
 
 // Global variables specified in "uniforms" entry of the pipeline
 uniform mat4 mat_mvp;
@@ -40,5 +40,14 @@ void main() {
 	// transform normal to camera coordinates
 	//v2f_normal = normal; // TODO apply normal transformation
 	
-	gl_Position = vec4(vertex_position, 1);
+	gl_Position = mat_mvp * vec4(vertex_position, 1);
+
+	// Compute the vertex position in view space:
+	vec3 pos_view = (mat_model_view * vec4(vertex_position, 1.0)).xyz;
+	// Transform the vertex normal into view space:
+	v_normal = normalize(mat_normals_to_view * vertex_normal);
+	// Compute the light direction (from the vertex to the light; light_position is already in view space):
+	v_lightDir = normalize(light_position - pos_view);
+	// Compute the view direction (from the vertex toward the camera; camera is at the origin in view space):
+	v_viewDir = normalize(-pos_view);
 }
