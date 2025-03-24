@@ -124,34 +124,40 @@ async function main() {
 	const cam_distance_base = 15.
 
 	function update_cam_transform(frame_info) {
-		const {cam_angle_z, cam_angle_y, cam_distance_factor} = frame_info
+		const { cam_angle_z, cam_angle_y, cam_distance_factor } = frame_info;
+
+		// Clamp the pitch angle to avoid a sudden flip on the initial click.
+		
 		const r = cam_distance_base * cam_distance_factor; // distance from (0,0,0)
-
+	  
 		/* TODO GL1.2.2
-		Calculate the world-to-camera transformation matrix for turntable camera.
-		The camera orbits the scene 
-		* cam_distance_base * cam_distance_factor = distance of the camera from the (0, 0, 0) point
-		* cam_angle_z - camera ray's angle around the Z axis
-		* cam_angle_y - camera ray's angle around the Y axis
+		  Calculate the world-to-camera transformation matrix for turntable camera.
+		  The camera orbits the scene 
+		  * cam_distance_base * cam_distance_factor = distance of the camera from the (0, 0, 0) point
+		  * cam_angle_z - camera ray's angle around the Z axis
+		  * cam_angle_y - camera ray's angle around the Y axis
 		*/
-
+	  
 		const eye = [
-			r * Math.cos(cam_angle_y) * Math.cos(cam_angle_z),
-			r * Math.cos(cam_angle_y) * Math.sin(cam_angle_z),
-			r * Math.sin(cam_angle_y)
-		  ];
-
-		// Example camera matrix, looking along forward-X, edit this
-		// const look_at = mat4.lookAt(mat4.create(), 
-		// 	[-5, 0, 0], // camera position in world coord
-		// 	[0, 0, 0], // view target point
-		// 	[0, 0, 1], // up vector
-		// )
-		// Define proper rotation matrices to compute the final camera position.
-		// Store the transform in mat_turntable.
-		// frame_info.mat_turntable = A * B * ...  // Note: you can use mat4_matmul_many
-		mat4.lookAt(frame_info.mat_turntable, eye, [0, 0, 0], [0, 0, 1]);
-	}
+		  -r * Math.cos(-cam_angle_y) * Math.cos(cam_angle_z),
+		  r * Math.cos(-cam_angle_y) * Math.sin(cam_angle_z),
+		  r * Math.sin(-cam_angle_y)
+		];
+		
+		let forward = vec3.normalize([], vec3.negate([], eye));
+		let up_reference = [0,0, -Math.cos(-cam_angle_y)];
+		let right = vec3.normalize([], vec3.cross([],up_reference, forward));
+		let up = vec3.normalize([], vec3.cross([], right, forward));
+		// Use lookAt to compute the view matrix.
+		// The target is fixed at [0,0,0] and the up vector remains [0,0,1].
+		const look_at = mat4.lookAt(
+			mat4.create(),
+			eye,
+			[0, 0, 0],
+			up
+		)
+		frame_info.mat_turntable = look_at;
+	  }
 
 	update_cam_transform(frame_info)
 
