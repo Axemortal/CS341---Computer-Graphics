@@ -378,8 +378,9 @@ vec3 lighting(
 	float col_distance;
 	vec3 col_normal = vec3(0., 0., 0.);
 	int mat_id = 0;
+	float EPSILON = 0.001;
 	// We add a constant in the direction of the light to avoid self-intersection and shadow acne
-	if(ray_intersection(object_point + 0.005 * light_direction, light_direction, col_distance, col_normal, mat_id) && col_distance < length(light.position - object_point)) {
+	if(ray_intersection(object_point + EPSILON * object_normal, light_direction, col_distance, col_normal, mat_id) && col_distance < length(light.position - (object_point + EPSILON * object_normal))) {
 		return vec3(0., 0., 0.);
 	}
 
