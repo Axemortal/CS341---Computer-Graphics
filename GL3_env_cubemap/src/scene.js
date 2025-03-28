@@ -125,9 +125,9 @@ function meshes_construct(regl, resources) {
 		*/
 		vertex_tex_coords: [
 			[0, 0],
-			[1, 0],
-			[1, 1],
-			[0, 1],
+			[4, 0],
+			[4, 4],
+			[0, 4],
 		],
 		faces: [
 			[0, 1, 2],
@@ -171,7 +171,7 @@ export async function load_resources(regl) {
 		https://github.com/regl-project/regl/blob/master/API.md#textures
 	*/
 	const tex_load_options = {
-		// wrap: ...
+		wrap: ['repeat', 'repeat']
 	}
 	resource_promises[floor_tex_name] = load_texture(regl, `./textures/${floor_tex_name}`, tex_load_options)
 

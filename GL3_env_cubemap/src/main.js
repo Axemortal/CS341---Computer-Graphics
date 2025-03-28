@@ -167,15 +167,35 @@ async function main() {
 		Copy turntable camera from GL2
 		*/
 
-		// Example camera matrix, looking along forward-X, edit this
-		const look_at = mat4.lookAt(mat4.create(), 
-			[-5, 0, 0], // camera position in world coord
-			[0, 0, 0], // view target point
-			[0, 0, 1], // up vector
-		)
-		// Store the combined transform in mat_turntable
-		// frame_info.mat_turntable = A * B * ...
-		mat4_matmul_many(frame_info.mat_turntable, look_at) // edit this
+		const r = cam_distance_base * cam_distance_factor
+		
+		const eye = [
+			-r*Math.cos(-cam_angle_y)*Math.cos(cam_angle_z),
+			r*Math.cos(-cam_angle_y)*Math.sin(cam_angle_z),
+			r*Math.sin(-cam_angle_y)
+		] 
+		// Compute the "forward" vector (view direction)
+		let forward = vec3.normalize([], vec3.negate([], eye));
+
+		// Choose a reference up vector that works for all angles
+		let up_reference = [0, 0, -Math.cos(-cam_angle_y)]; 
+	
+		// Compute the "right" vector
+		let right = vec3.normalize([], vec3.cross([], up_reference, forward));
+	
+		// Compute the "up" vector dynamically
+		let up = vec3.normalize([], vec3.cross([], right, forward));
+	
+		// Compute the final look-at matrix
+		const look_at = mat4.lookAt(mat4.create(),
+			eye,       // Camera position
+			[0, 0, 0], // Look-at target
+			up         // Dynamic "up" vector
+		);
+	
+		// Define proper rotation matrices to compute the final camera position.
+		// Store the transform in mat_turntable.
+		frame_info.mat_turntable = look_at  // Note: you can use mat4_matmul_many
 	}
 
 	update_cam_transform(frame_info)

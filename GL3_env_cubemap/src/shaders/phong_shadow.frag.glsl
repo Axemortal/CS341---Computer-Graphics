@@ -1,8 +1,8 @@
 precision highp float;
 
 /* #TODO GL3.3.1: Pass on the normals and fragment position in camera coordinates */
-//varying ...
-//varying ...
+varying vec3 v2f_normal;
+varying vec3 v2f_frag_position;
 varying vec2 v2f_uv;
 
 
@@ -19,7 +19,7 @@ void main() {
 	/* #TODO GL3.1.1
 	Sample texture tex_color at UV coordinates and display the resulting color.
 	*/
-	vec3 material_color = vec3(v2f_uv, 0.);
+	vec3 material_color = texture2D(tex_color, v2f_uv).rgb;
 	
 	/*
 	#TODO GL3.3.1: Blinn-Phong with shadows and attenuation
@@ -50,6 +50,21 @@ void main() {
 
 	Make sure to normalize values which may have been affected by interpolation!
 	*/
-	vec3 color = light_color * material_color;
+	vec3 normal = normalize(v2f_normal);
+	vec3 light_dir = normalize(light_position - v2f_frag_position);
+	vec3 view_dir = normalize(-v2f_frag_position);
+	vec3 ambient = material_ambient*light_color;
+	vec3 halfway_dir = normalize(light_dir + view_dir);
+	float diff = max(dot(normal, light_dir), 0.0);
+    vec3 diffuse = diff * light_color;
+	float spec = pow(max(dot(normal, halfway_dir), 0.0), material_shininess);
+    vec3 specular = spec * light_color;
+	float distance_to_light = length(light_position - v2f_frag_position);
+	float attenuation = 1.0 / (distance_to_light * distance_to_light);
+	float shadow_bias = 1.01;
+    float shadow_depth = textureCube(cube_shadowmap, normalize(v2f_frag_position - light_position)).r;
+    float fragment_depth = distance_to_light;
+    float shadow_factor = fragment_depth < shadow_depth * shadow_bias  ? 1.0 : 0.0;
+	vec3 color = (ambient + shadow_factor * attenuation * (diffuse + specular)) * material_color;
 	gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range
 }
