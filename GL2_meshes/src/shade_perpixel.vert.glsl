@@ -21,7 +21,6 @@ uniform mat3 mat_normals_to_view;
 
 uniform vec3 light_position; //in camera space coordinates already
 
-
 void main() {
 	/** #TODO GL2.4:
 	Setup all outgoing variables so that you can compute in the fragment shader
@@ -33,13 +32,14 @@ void main() {
     
 	Hint: Compute the vertex position, normal and light_position in view space. 
     */
-	vec4 vertex_position_camera = mat_model_view * vec4(vertex_position, 1);
+
+	vec3 vertex_position_view = (mat_model_view * vec4(vertex_position, 1)).xyz;
 	// viewing vector (from camera to vertex in view coordinates), camera is at vec3(0, 0, 0) in cam coords
-	v2f_dir_from_view = normalize(-vertex_position_camera.xyz); // TODO calculate
+	v2f_dir_from_view = normalize(-vertex_position_view);
 	// direction to light source
-	v2f_dir_to_light = normalize(light_position - vertex_position_camera.xyz); // TODO calculate
+	v2f_dir_to_light = normalize(light_position - vertex_position_view);
 	// transform normal to camera coordinates
-	v2f_normal = normalize(mat_normals_to_view * vertex_normal); // TODO apply normal transformation
-	
+	v2f_normal = normalize(mat_normals_to_view * vertex_normal);
+
 	gl_Position = mat_mvp * vec4(vertex_position, 1);
 }

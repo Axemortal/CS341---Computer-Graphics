@@ -1,15 +1,15 @@
 
-import {createREGL} from "../lib/regljs_2.1.0/regl.module.js"
-import {vec2, vec3, vec4, mat3, mat4} from "../lib/gl-matrix_3.3.0/esm/index.js"
+import { createREGL } from "../lib/regljs_2.1.0/regl.module.js"
+import { vec2, vec3, vec4, mat3, mat4 } from "../lib/gl-matrix_3.3.0/esm/index.js"
 
-import {DOM_loaded_promise, load_text, register_keyboard_action} from "./icg_web.js"
-import {icg_mesh_load_obj} from "./icg_mesh.js"
-import {deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many} from "./icg_math.js"
-import {icg_mesh_make_uv_sphere} from "./icg_mesh.js"
+import { DOM_loaded_promise, load_text, register_keyboard_action } from "./icg_web.js"
+import { icg_mesh_load_obj } from "./icg_mesh.js"
+import { deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many } from "./icg_math.js"
+import { icg_mesh_make_uv_sphere } from "./icg_mesh.js"
 
-import {create_scene_content, SysRenderNormals, SysRenderShadePervertex, SysRenderShadePerpixel} from "./mesh_render.js"
+import { create_scene_content, SysRenderNormals, SysRenderShadePervertex, SysRenderShadePerpixel } from "./mesh_render.js"
 
-import {create_choice_menu} from "./menu.js"
+import { create_choice_menu } from "./menu.js"
 import { mesh_preprocess } from "./normal_computation.js"
 
 async function load_resources(regl) {
@@ -31,20 +31,20 @@ async function load_resources(regl) {
 
 	// Start downloads in parallel
 	const resource_promises = {}
-	
+
 	const shaders_to_load = [
 		'normals.vert.glsl', 'normals.frag.glsl',
 		'shade_pervertex.vert.glsl', 'shade_pervertex.frag.glsl',
 		'shade_perpixel.vert.glsl', 'shade_perpixel.frag.glsl',
 	]
-	for(const shader_name of shaders_to_load) {
+	for (const shader_name of shaders_to_load) {
 		resource_promises[shader_name] = load_text(`./src/${shader_name}`)
 	}
 
 	const meshes_to_load = [
 		"vase1.obj", "cup2.obj", "table.obj", "shadow_scene__terrain.obj", "shadow_scene__wheel.obj",
 	]
-	for(const mesh_name of meshes_to_load) {
+	for (const mesh_name of meshes_to_load) {
 		resource_promises[mesh_name] = icg_mesh_load_obj(`./meshes/${mesh_name}`)
 	}
 
@@ -55,7 +55,7 @@ async function load_resources(regl) {
 	}
 
 	// Compute normals for meshes
-	for(const mesh_name of meshes_to_load) {
+	for (const mesh_name of meshes_to_load) {
 		resources[mesh_name] = mesh_preprocess(regl, resources[mesh_name])
 	}
 
@@ -77,15 +77,15 @@ async function main() {
 	const canvas_elem = document.getElementsByTagName('canvas')[0]
 
 
-/*---------------------------------------------------------------
-		UI
-	---------------------------------------------------------------*/
+	/*---------------------------------------------------------------
+			UI
+		---------------------------------------------------------------*/
 
 	// Debug overlay
 	const debug_overlay = document.getElementById('debug-overlay')
 	const debug_text = document.getElementById('debug-text')
 	register_keyboard_action('h', () => debug_overlay.classList.toggle('hidden'))
-	
+
 	// Pause
 	let is_paused = false;
 	register_keyboard_action('p', () => is_paused = !is_paused);
@@ -112,7 +112,7 @@ async function main() {
 		frame_info.cam_angle_z = -2.1485987755982956
 		frame_info.cam_angle_y = -0.608598775598299
 		frame_info.cam_distance_factor = 0.9259259259259242
-		
+
 		mat4.set(frame_info.mat_turntable, 0.8376649398689581, -0.31226369034322593, 0.4481169894208038, 0, 0.5461844455074997, 0.4789084485032733, -0.6872621402622531, 0, 0, 0.8204499287862834, 0.5717183872804709, 0, 0, 0, -13.888888888888863, 1)
 	}
 	register_keyboard_action('1', set_predef_view_1)
@@ -123,10 +123,10 @@ async function main() {
 		frame_info.cam_angle_y = -0.8785987755983002
 		frame_info.cam_distance_factor = 1.1664
 
-		mat4.set(frame_info.mat_turntable,-0.6961989976147306, -0.5526325769705245, 0.4581530209342307, 0, 0.7178488390463861, -0.5359655476314885, 0.4443354318888313, 0, 0, 0.6382304964689449, 0.7698453308145761, 0, 0, 0, -17.496000000000002, 1)
+		mat4.set(frame_info.mat_turntable, -0.6961989976147306, -0.5526325769705245, 0.4581530209342307, 0, 0.7178488390463861, -0.5359655476314885, 0.4443354318888313, 0, 0, 0.6382304964689449, 0.7698453308145761, 0, 0, 0, -17.496000000000002, 1)
 	})
 	register_keyboard_action('3', () => {
-		
+
 		frame_info.cam_angle_z = -5.7766814692820505
 		frame_info.cam_angle_y = -1.0585987755983004
 		frame_info.cam_distance_factor = 1.
@@ -139,11 +139,7 @@ async function main() {
 	/*---------------------------------------------------------------
 		Scene and systems
 	---------------------------------------------------------------*/
-	const resources = await load_resources(regl)	
-
-
-
-
+	const resources = await load_resources(regl)
 
 	const scene_info = create_scene_content()
 
@@ -151,10 +147,8 @@ async function main() {
 	sys_render_normals.check_scene(scene_info)
 
 	const sys_render_gouraud = new SysRenderShadePervertex(regl, resources)
-	
+
 	const sys_render_phong = new SysRenderShadePerpixel(regl, resources)
-
-
 
 	/*---------------------------------------------------------------
 		Frame info
@@ -184,7 +178,7 @@ async function main() {
 	const cam_distance_base = 15.
 
 	function update_cam_transform(frame_info) {
-		const {cam_angle_z, cam_angle_y, cam_distance_factor} = frame_info
+		const { cam_angle_z, cam_angle_y, cam_distance_factor } = frame_info
 
 		/* TODO GL1.2.2
 		Calculate the world-to-camera transformation matrix for turntable camera.
@@ -194,35 +188,18 @@ async function main() {
 		* cam_angle_y - camera ray's angle around the Y axis
 		*/
 
-		const r = cam_distance_base * cam_distance_factor
-		
-		const eye = [
-			-r*Math.cos(-cam_angle_y)*Math.cos(cam_angle_z),
-			r*Math.cos(-cam_angle_y)*Math.sin(cam_angle_z),
-			r*Math.sin(-cam_angle_y)
-		] 
-		// Compute the "forward" vector (view direction)
-		let forward = vec3.normalize([], vec3.negate([], eye));
+		const cam_distance = cam_distance_base * cam_distance_factor
 
-		// Choose a reference up vector that works for all angles
-		let up_reference = [0, 0, -Math.cos(-cam_angle_y)]; 
-	
-		// Compute the "right" vector
-		let right = vec3.normalize([], vec3.cross([], up_reference, forward));
-	
-		// Compute the "up" vector dynamically
-		let up = vec3.normalize([], vec3.cross([], right, forward));
-	
-		// Compute the final look-at matrix
+		const rotateY = mat4.fromYRotation(mat4.create(), cam_angle_y);
+		const rotateZ = mat4.fromZRotation(mat4.create(), cam_angle_z);
+
 		const look_at = mat4.lookAt(mat4.create(),
-			eye,       // Camera position
-			[0, 0, 0], // Look-at target
-			up         // Dynamic "up" vector
+			[-cam_distance, 0, 0],
+			[0, 0, 0],
+			[0, 0, 1]
 		);
-	
-		// Define proper rotation matrices to compute the final camera position.
-		// Store the transform in mat_turntable.
-		frame_info.mat_turntable = look_at  // Note: you can use mat4_matmul_many
+
+		mat4_matmul_many(frame_info.mat_turntable, look_at, rotateY, rotateZ)
 	}
 
 	update_cam_transform(frame_info)
@@ -231,8 +208,8 @@ async function main() {
 	canvas_elem.addEventListener('mousemove', (event) => {
 		// if left or middle button is pressed
 		if (event.buttons & 1 || event.buttons & 4) {
-			frame_info.cam_angle_z += event.movementX*0.005
-			frame_info.cam_angle_y += -event.movementY*0.005
+			frame_info.cam_angle_z += event.movementX * 0.005
+			frame_info.cam_angle_y += -event.movementY * 0.005
 
 			update_cam_transform(frame_info)
 		}
@@ -241,7 +218,7 @@ async function main() {
 	canvas_elem.addEventListener('wheel', (event) => {
 		// scroll wheel to zoom in or out
 		const factor_mul_base = 1.08
-		const factor_mul = (event.deltaY > 0) ? factor_mul_base : 1./factor_mul_base
+		const factor_mul = (event.deltaY > 0) ? factor_mul_base : 1. / factor_mul_base
 		frame_info.cam_distance_factor *= factor_mul
 		frame_info.cam_distance_factor = Math.max(0.02, Math.min(frame_info.cam_distance_factor, 4))
 		// console.log('wheel', event.deltaY, event.deltaMode);
@@ -258,9 +235,9 @@ async function main() {
 
 	regl.frame((frame) => {
 
-		const {mat_view, mat_projection, mat_turntable, light_position_cam, light_position_world, camera_position} = frame_info
+		const { mat_view, mat_projection, mat_turntable, light_position_cam, light_position_world, camera_position } = frame_info
 
-		if (! is_paused) {
+		if (!is_paused) {
 			const dt = frame.time - prev_regl_time
 			scene_info.sim_time += dt
 		}
@@ -268,7 +245,7 @@ async function main() {
 		prev_regl_time = frame.time;
 
 		// Calculate view matrix, view centered on chosen planet
-		mat4.perspective(mat_projection, 
+		mat4.perspective(mat_projection,
 			deg_to_rad * 60, // fov y
 			frame.framebufferWidth / frame.framebufferHeight, // aspect ratio
 			0.01, // near
@@ -280,13 +257,13 @@ async function main() {
 		vec3.transformMat4(light_position_cam, light_position_world, mat_view)
 
 		// Set the whole image to black
-		regl.clear({color: [0, 0, 0, 1]});
+		regl.clear({ color: [0, 0, 0, 1] });
 
-		if( render_mode === 'Normals' ) {
+		if (render_mode === 'Normals') {
 			sys_render_normals.render(frame_info, scene_info)
-		} else if ( render_mode === 'Gouraud' ) {
+		} else if (render_mode === 'Gouraud') {
 			sys_render_gouraud.render(frame_info, scene_info)
-		} else if ( render_mode === 'Phong' ) {
+		} else if (render_mode === 'Phong') {
 			sys_render_phong.render(frame_info, scene_info)
 		}
 

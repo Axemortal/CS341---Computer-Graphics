@@ -7,7 +7,7 @@ attribute vec3 vertex_normal;
 /* #TODO GL2.3
 	Pass the values needed for per-pixel illumination by creating a varying vertex-to-fragment variable.
 */
-varying vec3 frag_color;  // This will store the final color for per-pixel illumination
+varying vec3 vertex_color;
 
 // Global variables specified in "uniforms" entry of the pipeline
 uniform mat4 mat_mvp;
@@ -28,21 +28,18 @@ void main() {
 
 	Hint: Compute the vertex position, normal and light_position in view space. 
 	*/
-	vec4 vertex_position_camera = mat_model_view * vec4(vertex_position, 1);
-	vec3 normal_camera = normalize(mat_normals_to_view * vertex_normal);
-	vec3 light_direction = normalize(light_position - vertex_position_camera.xyz);
-	vec3 ambient = material_ambient*material_color*light_color;
-	vec3 diffuse = max(dot(normal_camera, light_direction), 0.0)*material_color*light_color;
 
-    // Compute the specular component (Blinn-Phong)
-    vec3 view_direction = normalize(-vertex_position_camera.xyz);  
-    vec3 half_vector = normalize(light_direction + view_direction);
-    vec3 specular = pow(max(dot(normal_camera, half_vector), 0.0), material_shininess)*material_color*light_color;
+	vec3 vertex_position_view = (mat_model_view * vec4(vertex_position, 1)).xyz;
+	vec3 vertex_normal_view = normalize(mat_normals_to_view * vertex_normal);
+	vec3 light_vector = normalize(light_position - vertex_position_view);
+	vec3 view_vector = normalize(-vertex_position_view);
+	vec3 half_vector = normalize(light_vector + view_vector);
 
-    // Combine all components to get the final color
+	vec3 ambient_color = material_ambient * material_color * light_color;
+	vec3 diffuse_color = max(dot(vertex_normal_view, light_vector), 0.) * material_color * light_color;
+	vec3 specular_color = pow(max(dot(half_vector, vertex_normal_view), 0.), material_shininess) * material_color * light_color;
 
-    // Pass the final color (with light color applied) to the fragment shader
-    frag_color = ambient + diffuse + specular;
+	vertex_color = ambient_color + diffuse_color + specular_color;
 
 	gl_Position = mat_mvp * vec4(vertex_position, 1);
 }

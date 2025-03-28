@@ -135,22 +135,18 @@ async function main() {
 		*/
 		const cam_distance = cam_distance_base * cam_distance_factor
 
-		const eye = [
-			-cam_distance * Math.cos(-cam_angle_y) * Math.cos(cam_angle_z),  // Note the negative sign
-			cam_distance * Math.cos(-cam_angle_y) * Math.sin(cam_angle_z),
-			cam_distance * Math.sin(-cam_angle_y)
-		]
+		const rotateY = mat4.fromYRotation(mat4.create(), cam_angle_y);
+		const rotateZ = mat4.fromZRotation(mat4.create(), cam_angle_z);
 
-		const look_at = mat4.lookAt(
-			mat4.create(),
-			eye,       // camera position in world coord
-			[0, 0, 0], // view target point
-			[0, 0, 1], // up vector
-		)
+		const look_at = mat4.lookAt(mat4.create(),
+			[-cam_distance, 0, 0],
+			[0, 0, 0],
+			[0, 0, 1]
+		);
 
-		// Define proper rotation matrices to compute the final camera position.
-		// Store the transform in mat_turntable.
-		frame_info.mat_turntable = look_at
+		const mat_turntable = mat4.create()
+		mat4_matmul_many(mat_turntable, look_at, rotateY, rotateZ)
+		frame_info.mat_turntable = mat_turntable
 	}
 
 	update_cam_transform(frame_info)

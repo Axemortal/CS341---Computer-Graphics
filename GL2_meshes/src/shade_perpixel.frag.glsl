@@ -14,8 +14,7 @@ uniform vec3 material_color;
 uniform float material_shininess;
 uniform vec3 light_color;
 
-void main()
-{
+void main() {
 	float material_ambient = 0.1;
 
 	/*
@@ -26,17 +25,16 @@ void main()
 
 	Make sure to normalize values which may have been affected by interpolation!
 	*/
+
 	vec3 normal = normalize(v2f_normal);
-    vec3 light_dir = normalize(v2f_dir_to_light);
-    vec3 view_dir = normalize(v2f_dir_from_view);
-
-	vec3 ambient = material_ambient * material_color * light_color;
-
-	vec3 diffuse = max(dot(normal, light_dir), 0.0) * material_color * light_color;
-
+	vec3 light_dir = normalize(v2f_dir_to_light);
+	vec3 view_dir = normalize(v2f_dir_from_view);
 	vec3 half_vector = normalize(light_dir + view_dir);
-    vec3 specular = pow(max(dot(normal, half_vector), 0.0), material_shininess) * material_color * light_color;
 
-	vec3 color = ambient + diffuse + specular;
+	vec3 ambient_color = material_ambient * material_color * light_color;
+	vec3 diffuse_color = max(dot(normal, light_dir), 0.) * material_color * light_color;
+	vec3 specular_color = pow(max(dot(half_vector, normal), 0.), material_shininess) * material_color * light_color;
+
+	vec3 color = ambient_color + diffuse_color + specular_color;
 	gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range
 }
