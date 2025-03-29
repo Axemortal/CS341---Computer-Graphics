@@ -37,7 +37,7 @@ class SysRenderMeshes {
 			light_color: regl.prop('light_color'),
 
 			tex_color: regl.prop('material.texture'),
-			
+
 			color_factor: 1.,
 		}
 	}
@@ -55,10 +55,10 @@ class SysRenderMeshes {
 			},
 			// Faces, as triplets of vertex indices
 			elements: regl.prop('mesh.faces'),
-	
+
 			// Uniforms: global data available to the shader
-			uniforms: this.pipeline_uniforms(regl),	
-	
+			uniforms: this.pipeline_uniforms(regl),
+
 			cull: { enable: true }, // don't draw back faces
 
 			vert: this.get_resource_checked(`${shader_name}.vert.glsl`),
@@ -82,7 +82,7 @@ class SysRenderMeshes {
 		// If we wanted to have a rotation too, we'd use mat4.fromRotationTranslationScale
 		mat4.fromScaling(actor.mat_model_to_world, actor.scale)
 		mat4.translate(actor.mat_model_to_world, actor.mat_model_to_world, actor.translation)
-		
+
 		const mat_model_view = mat4.create()
 		const mat_mvp = mat4.create()
 		const mat_normals_to_view = mat3.create()
@@ -171,13 +171,13 @@ export class SysRenderMirror extends SysRenderMeshes {
 
 	render(frame_info, scene_info, render_scene_func) {
 		const { mat_projection, mat_view, light_position_cam, light_color } = frame_info
-		
+
 		for (const actor of scene_info.actors) {
 			// skip objects with no reflections
 			if (!actor.mesh || !actor.material.mirror) {
 				continue
 			}
-			
+
 			const { mat_model_view, mat_mvp, mat_normals_to_view } = this.make_transformation_matrices(frame_info, actor)
 
 			// capture the environment from this actor's point of view
@@ -239,10 +239,10 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 			},
 			// Faces, as triplets of vertex indices
 			elements: regl.prop('mesh.faces'),
-	
+
 			// Uniforms: global data available to the shader
-			uniforms: this.pipeline_uniforms(regl),	
-	
+			uniforms: this.pipeline_uniforms(regl),
+
 			cull: { enable: true }, // don't draw back faces
 
 			// blend mode
@@ -260,8 +260,13 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 				change the blend options
 			*/
 			blend: {
+				enable: true,
+				func: {
+					src: (1, 1, 1, 1),
+					dst: (1, 1, 1, 1),
+				},
 			},
-			
+
 
 			vert: this.get_resource_checked(`${shader_name}.vert.glsl`),
 			frag: this.get_resource_checked(`${shader_name}.frag.glsl`),
@@ -274,19 +279,19 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 			},
 			// Faces, as triplets of vertex indices
 			elements: regl.prop('mesh.faces'),
-	
+
 			// Uniforms: global data available to the shader
 			uniforms: {
 				mat_mvp: regl.prop('mat_mvp'),
 				mat_model_view: regl.prop('mat_model_view'),
 			},
-	
+
 			cull: { enable: true }, // don't draw back faces
 
 			vert: this.get_resource_checked(`shadowmap_gen.vert.glsl`),
 			frag: this.get_resource_checked(`shadowmap_gen.frag.glsl`),
 		})
-			
+
 	}
 
 	render_shadowmap(frame_info, scene_info) {
@@ -348,7 +353,7 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 
 	render(frame_info, scene_info) {
 		const { mat_projection, mat_view } = frame_info
-		
+
 		// draw ambient pass without shading
 		super.render(frame_info, scene_info)
 

@@ -1,4 +1,3 @@
-
 attribute vec3 vertex_position;
 
 varying vec3 v2f_position_view;
