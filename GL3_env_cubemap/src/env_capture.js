@@ -1,13 +1,13 @@
-import {vec3, vec4, mat3, mat4} from "../lib/gl-matrix_3.3.0/esm/index.js"
+import { vec3, vec4, mat3, mat4 } from "../lib/gl-matrix_3.3.0/esm/index.js"
 // import {icg_mesh_make_cube} from "./icg_mesh.js"
-import {deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many} from "./icg_math.js"
+import { deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many } from "./icg_math.js"
 
 
 /*
 Captures the environment into a cubemap.
 */
 export class EnvironmentCapture {
-	
+
 	visualization_color_factor = 1.0
 
 	constructor(regl, resources) {
@@ -19,7 +19,7 @@ export class EnvironmentCapture {
 			colorFormat: 'rgba', // GLES 2.0 doesn't support single channel textures : (
 			colorType: 'float',
 		})
-	
+
 		const faces = [0, 1, 2, 3, 4, 5].map(side_idx => this.get_resource_checked(`cube_side_${side_idx}.png`))
 
 		this.annotation_cubemap = regl.cube(...faces)
@@ -27,7 +27,7 @@ export class EnvironmentCapture {
 		this.init_capture(regl)
 		this.init_visualization(regl)
 	}
-	
+
 	get_resource_checked(resource_name) {
 		const shader_text = this.resources[resource_name]
 		if (shader_text === undefined) {
@@ -53,12 +53,12 @@ export class EnvironmentCapture {
 			uniforms: {
 				cubemap_to_show: this.env_cubemap,
 				cubemap_annotation: this.annotation_cubemap,
-				preview_rect_scale: ({viewportWidth, viewportHeight}) => {
+				preview_rect_scale: ({ viewportWidth, viewportHeight }) => {
 					const aspect_ratio = viewportWidth / viewportHeight;
-	
+
 					const width_in_viewport_units = 0.8;
 					const heigh_in_viewport_units = 0.4 * aspect_ratio;
-	
+
 					return [
 						width_in_viewport_units / 3.,
 						heigh_in_viewport_units / 2.,
@@ -82,8 +82,12 @@ export class EnvironmentCapture {
 			please use the function perspective, see https://stackoverflow.com/questions/28286057/trying-to-understand-the-math-behind-the-perspective-matrix-in-webgl
 			Note: this is the same for all point lights/cube faces!
 		*/
-		// please use mat4.perspective(mat4.create(), fovy, aspect, near, far);
-		this.cube_camera_projection = mat4.create()
+		const near = 0.1
+		const far = 200.
+		const fovy = deg_to_rad * 90.0
+		const aspect = 1.0
+
+		this.cube_camera_projection = mat4.perspective(mat4.create(), fovy, aspect, near, far);
 
 		this.run_with_output_framebuffer = regl({
 			framebuffer: regl.prop('out_buffer'),
@@ -91,12 +95,12 @@ export class EnvironmentCapture {
 	}
 
 	static CUBE_FACE_DIR = [
-		[1,   0,  0], // +x
-		[-1,  0,  0], // -x
-		[0,   1,  0], // +y
-		[0,  -1,  0], // -y
-		[0,   0,  1], // +z
-		[0,   0, -1], // -z
+		[1, 0, 0], // +x
+		[-1, 0, 0], // -x
+		[0, 1, 0], // +y
+		[0, -1, 0], // -y
+		[0, 0, 1], // +z
+		[0, 0, -1], // -z
 	]
 
 	/*
@@ -108,29 +112,29 @@ export class EnvironmentCapture {
 	*/
 
 	static CUBE_FACE_UP = [
+		[0, -1, 0],
+		[0, -1, 0],
 		[0, 0, 1],
-		[0, 0, 1],
-		[0, 0, 1],
-		[0, 0, 1],
-		[0, 0, 1],
-		[0, 0, 1],
+		[0, 0, -1],
+		[0, -1, 0],
+		[0, -1, 0],
 	]
 
 	cube_camera_view(side_idx, center, mat_view_camera) {
-		
+
 		const center_position_view = vec3.transformMat4([0., 0., 0.], center, mat_view_camera)
 
 		const dir = this.constructor.CUBE_FACE_DIR[side_idx]
 		const up = this.constructor.CUBE_FACE_UP[side_idx]
 
 		const target = vec3.add(vec3.create(), center_position_view, dir);
-		return mat4.multiply(mat4.create(), 
-			mat4.lookAt(mat4.create(), center_position_view, target, up), 
+		return mat4.multiply(mat4.create(),
+			mat4.lookAt(mat4.create(), center_position_view, target, up),
 			mat_view_camera,
 		)
 	}
 
-	
+
 
 	/*
 	Capture scene into a cube map:
@@ -140,7 +144,7 @@ export class EnvironmentCapture {
 		- scene_render_func: function, the function to render the rest of the scene
 	*/
 	capture_scene_cubemap(frame_info, scene_info, capture_center, scene_render_func) {
-	
+
 		// const actors = scene_info.actors
 		const scene_mat_view = frame_info.mat_view
 
@@ -150,7 +154,7 @@ export class EnvironmentCapture {
 			mat_projection: this.cube_camera_projection,
 		})
 
-		for(let side_idx = 0; side_idx < 6; side_idx ++) {
+		for (let side_idx = 0; side_idx < 6; side_idx++) {
 			const out_buffer = this.env_cubemap.faces[side_idx]
 
 			// override the view matrix for the cube camera
@@ -168,7 +172,7 @@ export class EnvironmentCapture {
 				})
 
 				scene_render_func(frame_info_with_cubemap, scene_info)
-			})	
+			})
 		}
 	}
 }
