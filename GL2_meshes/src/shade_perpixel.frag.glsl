@@ -28,7 +28,7 @@ void main() {
 
 	vec3 normal = normalize(v2f_normal);
 	vec3 light_dir = normalize(v2f_dir_to_light);
-	vec3 view_dir = normalize(v2f_dir_from_view);
+	vec3 view_dir = normalize(-v2f_dir_from_view);
 	vec3 half_vector = normalize(light_dir + view_dir);
 
 	vec3 ambient_color = material_ambient * material_color * light_color;
