@@ -1,5 +1,5 @@
-import {vec2, vec3, vec4, mat3, mat4} from "../lib/gl-matrix_3.3.0/esm/index.js"
-import {mat4_matmul_many} from "./icg_math.js"
+import { vec2, vec3, vec4, mat3, mat4 } from "../lib/gl-matrix_3.3.0/esm/index.js"
+import { mat4_matmul_many } from "./icg_math.js"
 import { EnvironmentCapture } from "./env_capture.js"
 
 /*
@@ -59,7 +59,7 @@ class SysRenderMeshes {
 			// Uniforms: global data available to the shader
 			uniforms: this.pipeline_uniforms(regl),	
 	
-			cull: {enable: true}, // don't draw back faces
+			cull: { enable: true }, // don't draw back faces
 
 			vert: this.get_resource_checked(`${shader_name}.vert.glsl`),
 			frag: this.get_resource_checked(`${shader_name}.frag.glsl`),
@@ -68,15 +68,15 @@ class SysRenderMeshes {
 
 	check_scene(scene_info) {
 		// check if all meshes are loaded
-		for( const actor of scene_info.actors ) {
-			if(actor.mesh) {
+		for (const actor of scene_info.actors) {
+			if (actor.mesh) {
 				this.get_resource_checked(actor.material.texture)
 			}
 		}
 	}
 
 	make_transformation_matrices(frame_info, actor) {
-		const {mat_projection, mat_view} = frame_info
+		const { mat_projection, mat_view } = frame_info
 
 		// Construct mat_model_to_world from translation and sclae
 		// If we wanted to have a rotation too, we'd use mat4.fromRotationTranslationScale
@@ -91,7 +91,12 @@ class SysRenderMeshes {
 		/* #TODO GL3.0 Copy mat_model_view, mat_mvp, mat_normals_to_view from GL2.2.2*/
 		// calculate mat_model_view, mat_mvp, mat_normals_to_view 
 
-		return {mat_model_view, mat_mvp, mat_normals_to_view}
+		mat4_matmul_many(mat_model_view, mat_view, actor.mat_model_to_world)
+		mat4_matmul_many(mat_mvp, mat_projection, mat_model_view)
+		mat3.fromMat4(mat_normals_to_view, mat_model_view)
+		mat3.invert(mat_normals_to_view, mat3.transpose([], mat_normals_to_view))
+
+		return { mat_model_view, mat_mvp, mat_normals_to_view }
 	}
 
 	render(frame_info, scene_info) {
@@ -103,17 +108,17 @@ class SysRenderMeshes {
 		const entries_to_draw = []
 
 		// Read frame info
-		const {mat_projection, mat_view, light_position_cam, light_color} = frame_info
+		const { mat_projection, mat_view, light_position_cam, light_color } = frame_info
 
 		// For each planet, construct information needed to draw it using the pipeline
-		for( const actor of scene_info.actors ) {
+		for (const actor of scene_info.actors) {
 
 			// skip objects with reflections
-			if(!actor.mesh || actor.material.mirror) {
+			if (!actor.mesh || actor.material.mirror) {
 				continue
 			}
 
-			const {mat_model_view, mat_mvp, mat_normals_to_view} = this.make_transformation_matrices(frame_info, actor)
+			const { mat_model_view, mat_mvp, mat_normals_to_view } = this.make_transformation_matrices(frame_info, actor)
 
 			entries_to_draw.push({
 				mesh: this.resources[actor.mesh],
@@ -165,15 +170,15 @@ export class SysRenderMirror extends SysRenderMeshes {
 	}
 
 	render(frame_info, scene_info, render_scene_func) {
-		const {mat_projection, mat_view, light_position_cam, light_color} = frame_info
+		const { mat_projection, mat_view, light_position_cam, light_color } = frame_info
 		
-		for( const actor of scene_info.actors ) {
+		for (const actor of scene_info.actors) {
 			// skip objects with no reflections
-			if(!actor.mesh || !actor.material.mirror) {
+			if (!actor.mesh || !actor.material.mirror) {
 				continue
 			}
 			
-			const {mat_model_view, mat_mvp, mat_normals_to_view} = this.make_transformation_matrices(frame_info, actor)
+			const { mat_model_view, mat_mvp, mat_normals_to_view } = this.make_transformation_matrices(frame_info, actor)
 
 			// capture the environment from this actor's point of view
 			this.env_capture.capture_scene_cubemap(frame_info, scene_info, actor.translation, render_scene_func)
@@ -238,7 +243,7 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 			// Uniforms: global data available to the shader
 			uniforms: this.pipeline_uniforms(regl),	
 	
-			cull: {enable: true}, // don't draw back faces
+			cull: { enable: true }, // don't draw back faces
 
 			// blend mode
 			// The depth buffer needs to be filled before calling this pipeline,
@@ -276,7 +281,7 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 				mat_model_view: regl.prop('mat_model_view'),
 			},
 	
-			cull: {enable: true}, // don't draw back faces
+			cull: { enable: true }, // don't draw back faces
 
 			vert: this.get_resource_checked(`shadowmap_gen.vert.glsl`),
 			frag: this.get_resource_checked(`shadowmap_gen.frag.glsl`),
@@ -288,14 +293,14 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 
 		const entries_to_draw = []
 
-		for( const actor of scene_info.actors ) {
+		for (const actor of scene_info.actors) {
 
 			// skip objects with no mesh or no reflections
-			if(!actor.mesh || actor.material.mirror) {
+			if (!actor.mesh || actor.material.mirror) {
 				continue
 			}
 
-			const {mat_model_view, mat_mvp, mat_normals_to_view} = this.make_transformation_matrices(frame_info, actor)
+			const { mat_model_view, mat_mvp, mat_normals_to_view } = this.make_transformation_matrices(frame_info, actor)
 
 			entries_to_draw.push({
 				mesh: this.resources[actor.mesh],
@@ -313,14 +318,14 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 		// Read frame info
 
 		// For each planet, construct information needed to draw it using the pipeline
-		for( const actor of scene_info.actors ) {
+		for (const actor of scene_info.actors) {
 
 			// skip objects with reflections
-			if(!actor.mesh || actor.material.mirror) {
+			if (!actor.mesh || actor.material.mirror) {
 				continue
 			}
 
-			const {mat_model_view, mat_mvp, mat_normals_to_view} = this.make_transformation_matrices(frame_info, actor)
+			const { mat_model_view, mat_mvp, mat_normals_to_view } = this.make_transformation_matrices(frame_info, actor)
 
 			entries_to_draw.push({
 				mesh: this.resources[actor.mesh],
@@ -342,14 +347,14 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 	}
 
 	render(frame_info, scene_info) {
-		const {mat_projection, mat_view} = frame_info
+		const { mat_projection, mat_view } = frame_info
 		
 		// draw ambient pass without shading
 		super.render(frame_info, scene_info)
 
-		for( const light_actor of scene_info.actors ) {
+		for (const light_actor of scene_info.actors) {
 			// skip objects with no light
-			if(! light_actor.light) {
+			if (!light_actor.light) {
 				continue
 			}
 
