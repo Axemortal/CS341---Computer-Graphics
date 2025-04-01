@@ -125,9 +125,9 @@ function meshes_construct(regl, resources) {
 		*/
 		vertex_tex_coords: [
 			[0, 0],
-			[2, 0],
-			[2, 2],
-			[0, 2],
+			[4, 0],
+			[4, 4],
+			[0, 4],
 		],
 		faces: [
 			[0, 1, 2],

@@ -9,8 +9,8 @@ RT1.2.2 is relatively easy to implement since the mathematical groundwork was al
 
 # Contributions
 
-Yifan Wu (000001): 1/3
+Yifan Wu (402391): 1/3
 
-Eunice Lee (000002): 1/3
+Eunice Lee (402359): 1/3
 
-Howell Chan (000003): 1/3
+Howell Chan (402360): 1/3
