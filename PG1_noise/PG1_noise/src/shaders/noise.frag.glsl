@@ -261,7 +261,12 @@ vec3 tex_map(vec2 point) {
 	Implement your map texture evaluation routine as described in the handout. 
 	You will need to use your perlin_fbm routine and the terrain color constants described above.
 	*/
-	return vec3(0.);
+	float s = perlin_fbm(point);
+	if(s < terrain_water_level) {
+		return terrain_color_water;
+	} else {
+		return mix(terrain_color_grass, terrain_color_mountain, (s - terrain_water_level));
+	}
 }
 
 // ==============================================================
@@ -275,7 +280,8 @@ vec3 tex_wood(vec2 point) {
 	Implement your wood texture evaluation routine as described in thE handout. 
 	You will need to use your 2d turbulence routine and the wood color constants described above.
 	*/
-	return vec3(0.);
+	float weight = 0.5 * (1. + sin(100. * (length(point) + 0.15 * turbulence(point))));
+	return mix(brown_dark, brown_light, weight);
 }
 
 // ==============================================================
@@ -288,5 +294,7 @@ vec3 tex_marble(vec2 point) {
 	Implement your marble texture evaluation routine as described in the handout.
 	You will need to use your 2d fbm routine and the marble color constants described above.
 	*/
-	return vec3(0.);
+	vec2 q = vec2(perlin_fbm(point), perlin_fbm(point + vec2(1.7, 4.6)));
+	float weight = 0.5 * (1. + perlin_fbm(point + 4. * q));
+	return mix(white, brown_dark, weight);
 }
