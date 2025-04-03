@@ -11,23 +11,35 @@ precision highp float;
 
 // -- Gradient table --
 vec2 gradients(int i) {
-	if (i ==  0) return vec2( 1,  1);
-	if (i ==  1) return vec2(-1,  1);
-	if (i ==  2) return vec2( 1, -1);
-	if (i ==  3) return vec2(-1, -1);
-	if (i ==  4) return vec2( 1,  0);
-	if (i ==  5) return vec2(-1,  0);
-	if (i ==  6) return vec2( 1,  0);
-	if (i ==  7) return vec2(-1,  0);
-	if (i ==  8) return vec2( 0,  1);
-	if (i ==  9) return vec2( 0, -1);
-	if (i == 10) return vec2( 0,  1);
-	if (i == 11) return vec2( 0, -1);
+	if(i == 0)
+		return vec2(1, 1);
+	if(i == 1)
+		return vec2(-1, 1);
+	if(i == 2)
+		return vec2(1, -1);
+	if(i == 3)
+		return vec2(-1, -1);
+	if(i == 4)
+		return vec2(1, 0);
+	if(i == 5)
+		return vec2(-1, 0);
+	if(i == 6)
+		return vec2(1, 0);
+	if(i == 7)
+		return vec2(-1, 0);
+	if(i == 8)
+		return vec2(0, 1);
+	if(i == 9)
+		return vec2(0, -1);
+	if(i == 10)
+		return vec2(0, 1);
+	if(i == 11)
+		return vec2(0, -1);
 	return vec2(0, 0);
 }
 
 float hash_poly(float x) {
-	return mod(((x*34.0)+1.0)*x, 289.0);
+	return mod(((x * 34.0) + 1.0) * x, 289.0);
 }
 
 // -- Hash function --
@@ -39,9 +51,8 @@ int hash_func(vec2 grid_point) {
 // -- Smooth interpolation polynomial --
 // Use mix(a, b, blending_weight_poly(t))
 float blending_weight_poly(float t) {
-	return t*t*t*(t*(t*6.0 - 15.0)+10.0);
+	return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
-
 
 // Constants for FBM
 const float freq_multiplier = 2.17;
@@ -64,7 +75,21 @@ float perlin_noise_1d(float x) {
 	and interpolate these values 
 	using the smooth interolation polygnomial blending_weight_poly.
 	*/
-	return 0.;
+	float x0 = floor(x);
+	float x1 = x0 + 1.0;
+
+	vec2 g0 = gradients(hash_func(vec2(x0, 0.0)));
+	vec2 g1 = gradients(hash_func(vec2(x1, 0.0)));
+
+	float dx0 = x - x0;
+	float dx1 = x - x1;
+
+	float n0 = g0.x * dx0;
+	float n1 = g1.x * dx1;
+
+	float weight = blending_weight_poly(dx0);
+
+	return mix(n0, n1, weight);
 }
 
 float perlin_fbm_1d(float x) {
@@ -85,7 +110,7 @@ const vec3 plot_foreground = vec3(0.5, 0.8, 0.5);
 const vec3 plot_background = vec3(0.2, 0.2, 0.2);
 
 vec3 plot_value(float func_value, float coord_within_plot) {
-	return (func_value < ((coord_within_plot - 0.5)*2.0)) ? plot_foreground : plot_background;
+	return (func_value < ((coord_within_plot - 0.5) * 2.0)) ? plot_foreground : plot_background;
 }
 
 vec3 plots(vec2 point) {
@@ -106,15 +131,9 @@ vec3 plots(vec2 point) {
 
 	vec3 result;
 	if(which_plot < 4) {
-		result = plot_value(
- 			perlin_noise_1d(point.x * pow(freq_multiplier, float(which_plot))),
-			coord_within_plot
-		);
+		result = plot_value(perlin_noise_1d(point.x * pow(freq_multiplier, float(which_plot))), coord_within_plot);
 	} else {
-		result = plot_value(
-			perlin_fbm_1d(point.x) * 1.5,
-			coord_within_plot
-		);
+		result = plot_value(perlin_fbm_1d(point.x) * 1.5, coord_within_plot);
 	}
 
 	return result;
@@ -122,7 +141,6 @@ vec3 plots(vec2 point) {
 
 // ==============================================================
 // 2D Perlin noise evaluation
-
 
 float perlin_noise(vec2 point) {
 	/* #TODO PG1.4.1
@@ -135,7 +153,7 @@ float perlin_noise(vec2 point) {
 vec3 tex_perlin(vec2 point) {
 	// Visualize noise as a vec3 color
 	float freq = 23.15;
- 	float noise_val = perlin_noise(point * freq) + 0.5;
+	float noise_val = perlin_noise(point * freq) + 0.5;
 	return vec3(noise_val);
 }
 
@@ -199,8 +217,8 @@ vec3 tex_map(vec2 point) {
 // ==============================================================
 // Procedural "wood" texture
 
-const vec3 brown_dark 	= vec3(0.48, 0.29, 0.00);
-const vec3 brown_light 	= vec3(0.90, 0.82, 0.62);
+const vec3 brown_dark = vec3(0.48, 0.29, 0.00);
+const vec3 brown_light = vec3(0.90, 0.82, 0.62);
 
 vec3 tex_wood(vec2 point) {
 	/* #TODO PG1.5.1.2
@@ -210,11 +228,10 @@ vec3 tex_wood(vec2 point) {
 	return vec3(0.);
 }
 
-
 // ==============================================================
 // Procedural "marble" texture
 
-const vec3 white 			= vec3(0.95, 0.95, 0.95);
+const vec3 white = vec3(0.95, 0.95, 0.95);
 
 vec3 tex_marble(vec2 point) {
 	/* #TODO PG1.5.1.3
@@ -223,5 +240,3 @@ vec3 tex_marble(vec2 point) {
 	*/
 	return vec3(0.);
 }
-
-
