@@ -1,11 +1,11 @@
-import {createREGL} from "../lib/regljs_2.1.0/regl.module.js"
-import {vec2, vec3, vec4, mat2, mat3, mat4} from "../lib/gl-matrix_3.3.0/esm/index.js"
+import { createREGL } from "../lib/regljs_2.1.0/regl.module.js"
+import { vec2, vec3, vec4, mat2, mat3, mat4 } from "../lib/gl-matrix_3.3.0/esm/index.js"
 
-import {DOM_loaded_promise, load_text, register_button_with_hotkey, register_keyboard_action} from "./icg_web.js"
-import {deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many} from "./icg_math.js"
+import { DOM_loaded_promise, load_text, register_button_with_hotkey, register_keyboard_action } from "./icg_web.js"
+import { deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many } from "./icg_math.js"
 
-import {init_noise} from "./noise.js"
-import {init_terrain} from "./terrain.js"
+import { init_noise } from "./noise.js"
+import { init_terrain } from "./terrain.js"
 
 
 async function main() {
@@ -109,15 +109,18 @@ async function main() {
 		* cam_target - the point we orbit around
 		*/
 
-		// Example camera matrix, looking along forward-X, edit this
+		const cam_distance = cam_distance_base * cam_distance_factor
+
+		const rotateY = mat4.fromYRotation(mat4.create(), cam_angle_y);
+		const rotateZ = mat4.fromZRotation(mat4.create(), cam_angle_z);
+
 		const look_at = mat4.lookAt(mat4.create(),
-			[-5, 0, 0], // camera position in world coord
-			[0, 0, 0], // view target point
-			[0, 0, 1], // up vector
-		)
-		// Store the combined transform in mat_turntable
-		// mat_turntable = A * B * ...
-		mat4_matmul_many(mat_turntable, look_at) // edit this
+			[-cam_distance, 0, 0],
+			cam_target,
+			[0, 0, 1]
+		);
+
+		mat4_matmul_many(mat_turntable, look_at, rotateY, rotateZ)
 	}
 
 	update_cam_transform()
@@ -136,8 +139,8 @@ async function main() {
 				cam_target[0] += offset[0]
 				cam_target[1] += offset[1]
 			} else {
-				cam_angle_z += event.movementX*0.005
-				cam_angle_y += -event.movementY*0.005
+				cam_angle_z += event.movementX * 0.005
+				cam_angle_y += -event.movementY * 0.005
 			}
 			update_cam_transform()
 			update_needed = true
@@ -148,7 +151,7 @@ async function main() {
 	window.addEventListener('wheel', (event) => {
 		// scroll wheel to zoom in or out
 		const factor_mul_base = 1.08
-		const factor_mul = (event.deltaY > 0) ? factor_mul_base : 1./factor_mul_base
+		const factor_mul = (event.deltaY > 0) ? factor_mul_base : 1. / factor_mul_base
 		cam_distance_factor *= factor_mul
 		cam_distance_factor = Math.max(0.1, Math.min(cam_distance_factor, 4))
 		// console.log('wheel', event.deltaY, event.deltaMode)
@@ -164,15 +167,15 @@ async function main() {
 	const noise_textures = init_noise(regl, resources)
 
 	const texture_fbm = (() => {
-		for(const t of noise_textures) {
+		for (const t of noise_textures) {
 			//if(t.name === 'FBM') {
-			if(t.name === 'FBM_for_terrain') {
+			if (t.name === 'FBM_for_terrain') {
 				return t
 			}
 		}
 	})()
 
-	texture_fbm.draw_texture_to_buffer({width: 96, height: 96, mouse_offset: [-12.24, 8.15]})
+	texture_fbm.draw_texture_to_buffer({ width: 96, height: 96, mouse_offset: [-12.24, 8.15] })
 
 	const terrain_actor = init_terrain(regl, resources, texture_fbm.get_buffer())
 
@@ -189,7 +192,7 @@ async function main() {
 		cam_angle_y = -0.42
 		cam_distance_factor = 1.0
 		cam_target = [0, 0, 0]
-		
+
 		update_cam_transform()
 		update_needed = true
 	}
@@ -208,7 +211,7 @@ async function main() {
 	const light_position_cam = [0, 0, 0, 0]
 
 	regl.frame((frame) => {
-		if(update_needed) {
+		if (update_needed) {
 			update_needed = false // do this *before* running the drawing code so we don't keep updating if drawing throws an error.
 
 			mat4.perspective(mat_projection,
@@ -224,21 +227,21 @@ async function main() {
 			vec4.transformMat4(light_position_cam, light_position_world, mat_view)
 
 			const scene_info = {
-				mat_view:        mat_view,
-				mat_projection:  mat_projection,
+				mat_view: mat_view,
+				mat_projection: mat_projection,
 				light_position_cam: light_position_cam,
 			}
 
 			// Set the whole image to black
-			regl.clear({color: [0.9, 0.9, 1., 1]})
+			regl.clear({ color: [0.9, 0.9, 1., 1] })
 
 			terrain_actor.draw(scene_info)
 		}
 
-// 		debug_text.textContent = `
-// Hello! Sim time is ${sim_time.toFixed(2)} s
-// Camera: angle_z ${(cam_angle_z / deg_to_rad).toFixed(1)}, angle_y ${(cam_angle_y / deg_to_rad).toFixed(1)}, distance ${(cam_distance_factor*cam_distance_base).toFixed(1)}
-// `
+		// 		debug_text.textContent = `
+		// Hello! Sim time is ${sim_time.toFixed(2)} s
+		// Camera: angle_z ${(cam_angle_z / deg_to_rad).toFixed(1)}, angle_y ${(cam_angle_y / deg_to_rad).toFixed(1)}, distance ${(cam_distance_factor*cam_distance_base).toFixed(1)}
+		// `
 	})
 }
 
