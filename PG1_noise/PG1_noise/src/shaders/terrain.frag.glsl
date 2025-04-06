@@ -3,10 +3,9 @@ precision highp float;
 varying float v2f_height;
 
 /* #TODO PG1.6.1: Copy Blinn-Phong shader setup from previous exercises */
-//varying ...
-//varying ...
-//varying ...
-
+varying vec3 v2f_normal;
+varying vec3 v2f_dir_to_light;
+varying vec3 v2f_position;
 
 const vec3  light_color = vec3(1.0, 0.941, 0.898);
 // Small perturbation to prevent "z-fighting" on the water on some machines...
@@ -34,9 +33,27 @@ void main()
 	vec3 material_color = terrain_color_grass;
 	float shininess = 0.5;
 
+	if(height < terrain_water_level) {
+		material_color = terrain_color_water;
+		shininess = 30.;
+	} else {
+		float weight = (height - terrain_water_level) * 2.;
+		material_color = mix(terrain_color_grass, terrain_color_mountain, weight);
+		shininess = 2.;
+	}
+
 	/* #TODO PG1.6.1: apply the Blinn-Phong lighting model
     	Add the Blinn-Phong implementation from GL2 here.
 	*/
-	vec3 color = material_color * light_color;
+	vec3 normal = normalize(v2f_normal);
+	vec3 light_dir = normalize(v2f_dir_to_light);
+	vec3 view_dir = normalize(-v2f_position);
+	vec3 half_vector = normalize(light_dir + view_dir);
+
+	vec3 ambient_color = material_ambient * material_color;
+	vec3 diffuse_color = max(dot(normal, light_dir), 0.) * material_color;
+	vec3 specular_color = pow(max(dot(half_vector, normal), 0.), shininess) * material_color;
+
+	vec3 color = (ambient_color + diffuse_color + specular_color) * light_color;
 	gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range
 }

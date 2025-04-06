@@ -4,9 +4,9 @@ attribute vec3 normal;
 varying float v2f_height;
 
 /* #TODO PG1.6.1: Copy Blinn-Phong shader setup from previous exercises */
-//varying ...
-//varying ...
-//varying ...
+varying vec3 v2f_normal;
+varying vec3 v2f_position;
+varying vec3 v2f_dir_to_light;
 
 uniform mat4 mat_mvp;
 uniform mat4 mat_model_view;
@@ -28,6 +28,8 @@ void main()
     */
 	// Setup Blinn-Phong varying variables
 	//v2f_normal = normal; // TODO apply normal transformation
-	
+	v2f_normal = mat_normals * normal;
+    v2f_position = (mat_model_view * vec4(position, 1)).xyz;
+    v2f_dir_to_light = normalize(light_position.xyz - v2f_position);
 	gl_Position = mat_mvp * position_v4;
 }

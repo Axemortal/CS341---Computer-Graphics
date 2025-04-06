@@ -64,7 +64,22 @@ float perlin_noise_1d(float x) {
 	and interpolate these values 
 	using the smooth interolation polygnomial blending_weight_poly.
 	*/
-	return 0.;
+	float x0 = floor(x);
+	float x1 = x0 + 1.0;
+
+	float t = x - x0;
+
+	int g0_index = hash_func(vec2(x0, 0.0));
+	int g1_index = hash_func(vec2(x1, 0.0));
+
+	float g0 = gradients(g0_index).x;
+	float g1 = gradients(g1_index).x;
+
+	float v0 = g0 * t;
+	float v1 = g1 * (t - 1.0);
+
+	float w = blending_weight_poly(t);
+	return mix(v0, v1, w);
 }
 
 float perlin_fbm_1d(float x) {
@@ -76,7 +91,17 @@ float perlin_fbm_1d(float x) {
 	
 	Note: the GLSL `for` loop may be useful.
 	*/
-	return 0.;
+	float fbm = 0.0;
+	float amplitude = 1.0;
+	float frequency = 1.0;
+
+	for (int i = 0; i < num_octaves; ++i) {
+		fbm += amplitude * perlin_noise_1d(x * frequency);
+		frequency *= freq_multiplier;
+		amplitude *= ampl_multiplier;
+	}
+	
+	return fbm;
 }
 
 // ----- plotting -----
@@ -129,7 +154,37 @@ float perlin_noise(vec2 point) {
 	Implement 2D perlin noise as described in the handout.
 	You may find a glsl `for` loop useful here, but it's not necessary.
 	*/
-	return 0.;
+	// Identify grid cell corners
+	vec2 p0 = floor(point);           // Bottom-left corner
+	vec2 p1 = p0 + vec2(1.0, 0.0);    // Bottom-right
+	vec2 p2 = p0 + vec2(0.0, 1.0);    // Top-left
+	vec2 p3 = p0 + vec2(1.0, 1.0);    // Top-right
+
+	// Compute distance vectors from each corner to point
+	vec2 a = point - p0;
+	vec2 b = point - p1;
+	vec2 c = point - p2;
+	vec2 d = point - p3;
+
+	// Get gradient vectors using hash
+	vec2 g0 = gradients(hash_func(p0));
+	vec2 g1 = gradients(hash_func(p1));
+	vec2 g2 = gradients(hash_func(p2));
+	vec2 g3 = gradients(hash_func(p3));
+
+	// Compute dot products
+	float v0 = dot(g0, a);
+	float v1 = dot(g1, b);
+	float v2 = dot(g2, c);
+	float v3 = dot(g3, d);
+
+	float w_x = blending_weight_poly(a.x);
+	float w_y = blending_weight_poly(a.y);
+
+	float st = mix(v0, v1, w_x);
+	float uv = mix(v2, v3, w_x);
+	return mix(st, uv, w_y);
+	
 }
 
 vec3 tex_perlin(vec2 point) {
@@ -147,7 +202,17 @@ float perlin_fbm(vec2 point) {
 	Implement 2D fBm as described in the handout. Like in the 1D case, you
 	should use the constants num_octaves, freq_multiplier, and ampl_multiplier. 
 	*/
-	return 0.;
+	float fbm = 0.0;
+	float amplitude = 1.0;
+	float frequency = 1.0;
+
+	for (int i = 0; i < num_octaves; ++i) {
+		fbm += amplitude * perlin_noise(point * frequency);
+		frequency *= freq_multiplier;
+		amplitude *= ampl_multiplier;
+	}
+	
+	return fbm;
 }
 
 vec3 tex_fbm(vec2 point) {
@@ -171,7 +236,17 @@ float turbulence(vec2 point) {
 	Implement the 2D turbulence function as described in the handout.
 	Again, you should use num_octaves, freq_multiplier, and ampl_multiplier.
 	*/
-	return 0.;
+	float fbm = 0.0;
+	float amplitude = 1.0;
+	float frequency = 1.0;
+
+	for (int i = 0; i < num_octaves; ++i) {
+		fbm += amplitude * abs(perlin_noise(point * frequency));
+		frequency *= freq_multiplier;
+		amplitude *= ampl_multiplier;
+	}
+	
+	return fbm;
 }
 
 vec3 tex_turbulence(vec2 point) {
@@ -193,7 +268,13 @@ vec3 tex_map(vec2 point) {
 	Implement your map texture evaluation routine as described in the handout. 
 	You will need to use your perlin_fbm routine and the terrain color constants described above.
 	*/
-	return vec3(0.);
+	float s = perlin_fbm(point);
+	if (s < terrain_water_level) {
+		return terrain_color_water;
+	}else{
+		float a = (s - terrain_water_level);
+		return mix(terrain_color_grass, terrain_color_mountain, a);
+	}
 }
 
 // ==============================================================
@@ -207,7 +288,9 @@ vec3 tex_wood(vec2 point) {
 	Implement your wood texture evaluation routine as described in thE handout. 
 	You will need to use your 2d turbulence routine and the wood color constants described above.
 	*/
-	return vec3(0.);
+	float a = 0.5 * (1. + sin(100. * (length(point) + 0.15 * turbulence(point))));
+	return mix(brown_dark, brown_light, a);
+	
 }
 
 
@@ -221,7 +304,9 @@ vec3 tex_marble(vec2 point) {
 	Implement your marble texture evaluation routine as described in the handout.
 	You will need to use your 2d fbm routine and the marble color constants described above.
 	*/
-	return vec3(0.);
+	vec2 q = vec2(perlin_fbm(point), perlin_fbm(point + vec2(1.7, 4.6)));
+	float a = 0.5 * (1. + perlin_fbm(point + 4. * q));
+	return mix(white, brown_dark, a);
 }
 
 
