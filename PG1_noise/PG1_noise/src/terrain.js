@@ -1,17 +1,17 @@
-import {vec2, vec3, vec4, mat2, mat3, mat4} from "../lib/gl-matrix_3.3.0/esm/index.js"
-import {mat4_matmul_many} from "./icg_math.js"
+import { vec2, vec3, vec4, mat2, mat3, mat4 } from "../lib/gl-matrix_3.3.0/esm/index.js"
+import { mat4_matmul_many } from "./icg_math.js"
 
 class BufferData {
 
 	constructor(regl, buffer) {
 		this.width = buffer.width
 		this.height = buffer.height
-		this.data = regl.read({framebuffer: buffer})
+		this.data = regl.read({ framebuffer: buffer })
 
 		// this can read both float and uint8 buffers
 		if (this.data instanceof Uint8Array) {
 			// uint8 array is in range 0...255
-			this.scale = 1./255.
+			this.scale = 1. / 255.
 		} else {
 			this.scale = 1.
 		}
@@ -22,12 +22,13 @@ class BufferData {
 		x = Math.min(Math.max(x, 0), this.width - 1)
 		y = Math.min(Math.max(y, 0), this.height - 1)
 
-		return this.data[x + y*this.width << 2] * this.scale
+		return this.data[x + y * this.width << 2] * this.scale
 	}
 }
 
 
 function terrain_build_mesh(height_map) {
+	console.log(height_map)
 	const grid_width = height_map.width
 	const grid_height = height_map.height
 
@@ -39,19 +40,19 @@ function terrain_build_mesh(height_map) {
 
 	// Map a 2D grid index (x, y) into a 1D index into the output vertex array.
 	function xy_to_v_index(x, y) {
-		return x + y*grid_width
+		return x + y * grid_width
 	}
 
-	for(let gy = 0; gy < grid_height; gy++) {
-		for(let gx = 0; gx < grid_width; gx++) {
+	for (let gy = 0; gy < grid_height; gy++) {
+		for (let gx = 0; gx < grid_width; gx++) {
 			const idx = xy_to_v_index(gx, gy)
 			let elevation = height_map.get(gx, gy) - 0.5 // we put the value between 0...1 so that it could be stored in a non-float texture on older browsers/GLES3, the -0.5 brings it back to -0.5 ... 0.5
 
 			// normal as finite difference of the height map
 			// dz/dx = (h(x+dx) - h(x-dx)) / (2 dx)
 			normals[idx] = vec3.normalize([0, 0, 0], [
-				-(height_map.get(gx+1, gy) - height_map.get(gx-1, gy)) / (2. / grid_width),
-				-(height_map.get(gx, gy+1) - height_map.get(gx, gy-1)) / (2. / grid_height),
+				-(height_map.get(gx + 1, gy) - height_map.get(gx - 1, gy)) / (2. / grid_width),
+				-(height_map.get(gx, gy + 1) - height_map.get(gx, gy - 1)) / (2. / grid_height),
 				1.,
 			])
 
@@ -64,22 +65,23 @@ function terrain_build_mesh(height_map) {
 
 			The XY coordinates are calculated so that the full grid covers the square [-0.5, 0.5]^2 in the XY plane.
 			*/
-			let x = gx / (grid_width - 1) - 0.5;
-			let y = gy / (grid_height - 1) - 0.5;
-			if (elevation < WATER_LEVEL){
-				elevation = WATER_LEVEL;
-				normals[idx] = [0, 0, 1];
+			let x = (gx / (grid_width - 1)) - 0.5
+			let y = (gy / (grid_height - 1)) - 0.5
+			if (elevation < WATER_LEVEL) {
+				elevation = WATER_LEVEL
+				normals[idx] = vec3.fromValues(0, 0, 1)
 			}
-			vertices[idx] = [x, y, elevation]
+			vertices[idx] = vec3.fromValues(x, y, elevation)
 		}
 	}
 
-	for(let gy = 0; gy < grid_height - 1; gy++) {
-		for(let gx = 0; gx < grid_width - 1; gx++) {
+	for (let gy = 0; gy < grid_height - 1; gy++) {
+		for (let gx = 0; gx < grid_width - 1; gx++) {
 			/* #TODO PG1.6.1
 			Triangulate the grid cell whose lower lefthand corner is grid index (gx, gy).
 			You will need to create two triangles to fill each square.
 			*/
+
 			const v1 = xy_to_v_index(gx, gy)
 			const v2 = xy_to_v_index(gx + 1, gy)
 			const v3 = xy_to_v_index(gx, gy + 1)
@@ -87,8 +89,6 @@ function terrain_build_mesh(height_map) {
 
 			faces.push([v1, v2, v3])
 			faces.push([v2, v4, v3])
-
-			// faces.push([v1, v2, v3]) // adds a triangle on vertex indices v1, v2, v3
 		}
 	}
 
@@ -131,19 +131,19 @@ export function init_terrain(regl, resources, height_map_buffer) {
 			this.mat_model_to_world = mat4.create()
 		}
 
-		draw({mat_projection, mat_view, light_position_cam}) {
+		draw({ mat_projection, mat_view, light_position_cam }) {
 			mat4_matmul_many(this.mat_model_view, mat_view, this.mat_model_to_world)
 			mat4_matmul_many(this.mat_mvp, mat_projection, this.mat_model_view)
-	
+
 			mat3.fromMat4(this.mat_normals, this.mat_model_view)
 			mat3.transpose(this.mat_normals, this.mat_normals)
 			mat3.invert(this.mat_normals, this.mat_normals)
-	
+
 			pipeline_draw_terrain({
 				mat_mvp: this.mat_mvp,
 				mat_model_view: this.mat_model_view,
 				mat_normals: this.mat_normals,
-		
+
 				light_position: light_position_cam,
 			})
 		}
