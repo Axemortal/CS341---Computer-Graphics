@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>CG: Procedural Terrain</title>
+	<meta name="author" content="Krzysztof Lis">
+
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<script src="src/main_terrain.js" type="module"></script>
+
+<div id="debug-overlay">
+	<p>
+		CG PG1: <a href="PG1_noise.html#terrain">Terrain</a>
+		⁙⁙ docs:
+		<a href="https://github.com/regl-project/regl/blob/gh-pages/API.md">regl</a>,
+		<a href="http://glmatrix.net/docs/">gl-matrix</a>,
+		<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript">MDN</a>
+		⁙⁙ mouse: drag to rotate, shift+drag to move
+		⁙⁙ scroll to zoom
+		⁙⁙ show/hide <strong class="keyboard">z</strong>
+	</p>
+	<p id="view-options">
+		<span id="btn-preset-view" class="button">Preset view <strong class="keyboard">1</strong></span>
+	</p>
+	
+	<pre id="debug-text"></pre>
+</div>
+
+</body>
+</html>
