@@ -28,7 +28,6 @@ class BufferData {
 
 
 function terrain_build_mesh(height_map) {
-	console.log(height_map)
 	const grid_width = height_map.width
 	const grid_height = height_map.height
 
