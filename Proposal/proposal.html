@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="generator" content="pandoc">
+    <meta name="description" content="">
+
+    <title>Project Proposal CS-341 2025</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/dashboard.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style type="text/css">code{white-space: pre;}</style>
+    <style type="text/css">.sidebar ul{padding-left: 10px;}</style>
+    <link rel="stylesheet" href="css/cg_report.css" />
+  </head>
+
+  <body>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div id="sidebar" class="col-sm-3 col-md-2 sidebar">
+          <!--<ul class="nav nav-sidebar">
+            <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+          </ul>-->
+          <ul>
+          <li><a
+          href="#cyberpunk-city-a-dynamically-evolving-urban-landscape"
+          id="toc-cyberpunk-city-a-dynamically-evolving-urban-landscape">Cyberpunk
+          City: A Dynamically Evolving Urban Landscape</a>
+          <ul>
+          <li><a href="#abstract" id="toc-abstract">Abstract</a></li>
+          <li><a href="#technical-overview"
+          id="toc-technical-overview">Technical Overview</a>
+          <ul>
+          <li><a
+          href="#wave-function-collapse-wfc-for-procedural-3d-building-generation-howell"
+          id="toc-wave-function-collapse-wfc-for-procedural-3d-building-generation-howell">Wave
+          Function Collapse (WFC) for Procedural 3D Building Generation
+          (Howell)</a></li>
+          <li><a
+          href="#screen-space-reflections-ssr-for-water-based-reflections-yifan"
+          id="toc-screen-space-reflections-ssr-for-water-based-reflections-yifan">Screen-Space
+          Reflections (SSR) for Water-Based Reflections (Yifan)</a></li>
+          <li><a
+          href="#dynamic-procedural-textures-and-bloom-for-billboard-art-and-lighting-eunice"
+          id="toc-dynamic-procedural-textures-and-bloom-for-billboard-art-and-lighting-eunice">Dynamic
+          Procedural Textures and Bloom for Billboard Art and Lighting
+          (Eunice)</a></li>
+          </ul></li>
+          <li><a href="#features" id="toc-features">Features</a></li>
+          <li><a href="#schedule" id="toc-schedule">Schedule</a></li>
+          <li><a href="#resources" id="toc-resources">Resources</a></li>
+          </ul></li>
+          </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        
+<h1 id="cyberpunk-city-a-dynamically-evolving-urban-landscape">Cyberpunk
+City: A Dynamically Evolving Urban Landscape</h1>
+<figure>
+<img src="images/city_demo.jpg" alt="A representative image" />
+<figcaption aria-hidden="true">A representative image</figcaption>
+</figure>
+<h2 id="abstract">Abstract</h2>
+<p>This project aims to create an immersive, ever-changing cyberpunk
+city scene using advanced procedural content generation (PCG) and
+real-time rendering techniques. The city will evolve dynamically at
+runtime with procedurally generated 3D buildings and continuously
+changing billboard texture art. It is split across three main technical
+contributions:</p>
+<ul>
+<li><strong>Wave Function Collapse (WFC)</strong> algorithm for
+generating diverse, stylized 3D buildings (Howell),</li>
+<li><strong>Screen-Space Reflections (SSR)</strong> for realistic
+water-based reflections (Yifan),
+!(images/texture_demo1.jpg){width=“150px”}</li>
+<li><strong>Dynamic procedural textures and bloom effects</strong> for
+animated billboard visuals (Eunice).</li>
+</ul>
+<p>These components form a cohesive, visually rich urban environment
+that evolves on its own and reflects the vibrance of a futuristic
+city.</p>
+<h2 id="technical-overview">Technical Overview</h2>
+<h3
+id="wave-function-collapse-wfc-for-procedural-3d-building-generation-howell">Wave
+Function Collapse (WFC) for Procedural 3D Building Generation
+(Howell)</h3>
+<p><strong>Objective:</strong><br />
+Use the WFC algorithm to generate a diverse collection of 3D buildings
+with unique architectural details that fit within a cyberpunk style.</p>
+<p><strong>Technical Overview:</strong></p>
+<ul>
+<li>Develop a library of building tiles and modules (including windows,
+doors, balconies, neon panels, etc.) with defined connection rules to
+ensure coherent assembly.</li>
+<li>Implement the WFC algorithm to generate 2D grid layouts representing
+building facades through constraint propagation and iterative
+collapse.</li>
+<li>Map 2D layouts into 3D space by extruding the layouts into full
+building models, incorporating stochastic variations in height, floor
+count, and details.</li>
+<li>Implement a simple UI that allows real-time manipulation of seed
+parameters (such as randomization seeds and probability weights) to
+control and vary the generated city’s architectural style throughout
+runtime.</li>
+<li>The UI will immediately regenerate the layout based on new seed
+input, enabling experimentation and exploration of different urban
+aesthetics with minimal delay.</li>
+</ul>
+<figure>
+<img src="images/ssr_demo.jpg"
+alt="A Sample of What SSR for a Cyberpunk City Could Look Like" />
+<figcaption aria-hidden="true">A Sample of What SSR for a Cyberpunk City
+Could Look Like</figcaption>
+</figure>
+<h3
+id="screen-space-reflections-ssr-for-water-based-reflections-yifan">Screen-Space
+Reflections (SSR) for Water-Based Reflections (Yifan)</h3>
+<p><strong>Objective:</strong><br />
+Create a water body that produces realistic screen-space reflections of
+the surrounding buildings and environment, enriching the cyberpunk
+atmosphere.</p>
+<p><strong>Technical Overview:</strong></p>
+<ul>
+<li>Develop a reflective water surface using custom shaders that
+leverage the scene’s G-buffer containing depth and normal data.</li>
+<li>Implement a screen-space reflection technique based on ray marching,
+sampling the surroundings to generate accurate reflective effects on the
+water surface.</li>
+<li>Adjust reflection parameters based on water surface movement.</li>
+<li>Optimize the reflection shader for real-time performance, ensuring
+seamless integration with overall scene lighting and other
+post-processing effects.</li>
+</ul>
+<figure>
+<img src="images/texture_demo1.jpg"
+alt="A Sample of What a Procedural Texture of Art Could Look Like" />
+<figcaption aria-hidden="true">A Sample of What a Procedural Texture of
+Art Could Look Like</figcaption>
+</figure>
+<h3
+id="dynamic-procedural-textures-and-bloom-for-billboard-art-and-lighting-eunice">Dynamic
+Procedural Textures and Bloom for Billboard Art and Lighting
+(Eunice)</h3>
+<p><strong>Objective:</strong><br />
+Create dynamic procedural textures for billboard art that continuously
+evolve during runtime, and integrate bloom effects to enhance the neon
+glow on billboards without relying on manual slider adjustments.</p>
+<p><strong>Technical Overview:</strong></p>
+<ul>
+<li>Use noise algorithms such as Worley or Gabor noise to generate
+intricate, non-repeating procedural textures that simulate futuristic
+billboard art, including elements like neon circuitry, holographic
+patterns, and weathered surfaces.</li>
+<li>Instead of static slider controls, design the shader code to
+automatically and continuously modify noise parameters (frequency,
+amplitude, movement, etc.) over time. This produces ever-changing visual
+art on billboards, simulating a dynamic advertising environment in the
+city.</li>
+<li>Integrate an HDR-based bloom effect into the rendering pipeline.
+<ul>
+<li>Implement a bright pass filter to isolate the high-intensity areas
+on billboards.</li>
+<li>Apply multi-pass Gaussian blur to create a soft, luminous glow that
+is composited over the scene.</li>
+</ul></li>
+<li>Ensure that the dynamic changes in billboard textures, combined with
+the glowing bloom effect, enhance the overall ambiance by synchronizing
+with the urban lighting and reflective surfaces in the scene.</li>
+</ul>
+<h2 id="features">Features</h2>
+<table>
+<colgroup>
+<col style="width: 69%" />
+<col style="width: 10%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Points</th>
+<th>Adapted Points</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Procedural generation of 3D buildings via WFC</td>
+<td>20</td>
+<td>15</td>
+</tr>
+<tr>
+<td>Real-time screen-space reflections using SSR</td>
+<td>20</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Dynamic billboard texture generation with noise</td>
+<td>10</td>
+<td>10</td>
+</tr>
+<tr>
+<td>Runtime-evolving bloom effects on billboards</td>
+<td>5</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+<h2 id="schedule">Schedule</h2>
+<table>
+<tr>
+<th style="width: 20%">
+</th>
+<th>
+Howell
+</th>
+<th>
+Yifan
+</th>
+<th>
+Eunice
+</th>
+</tr>
+<tr>
+<td>
+Week 1
+</td>
+<td>
+Design building tile sets and rules; plan UI
+</td>
+<td>
+Set up water shader; prototype SSR basics
+</td>
+<td>
+Prototype procedural noise; start HDR pipeline
+</td>
+</tr>
+<tr>
+<td>
+Week 2 (Easter)
+</td>
+<td>
+Implement 2D WFC; build seed parameter UI
+</td>
+<td>
+Implement SSR using depth/normal maps
+</td>
+<td>
+Bright pass filter + Gaussian blur for bloom
+</td>
+</tr>
+<tr>
+<td>
+Week 3
+</td>
+<td>
+Map 2D layouts to 3D; refine seed UI
+</td>
+<td>
+Optimize SSR performance
+</td>
+<td>
+Enhance texture evolution; sync with bloom
+</td>
+</tr>
+<tr>
+<td>
+Week 4
+</td>
+<td>
+Integrate 3D buildings into city scene
+</td>
+<td>
+Fine-tune reflections and integration
+</td>
+<td>
+Finalize textures and smooth transitions
+</td>
+</tr>
+<tr>
+<td>
+Week 5
+</td>
+<td colspan="3">
+Full system integration, scene tuning, and bug fixing
+</td>
+</tr>
+<tr>
+<td>
+Week 6
+</td>
+<td colspan="3">
+UI polish and final testing; performance profiling
+</td>
+</tr>
+<tr>
+<td>
+Week 7
+</td>
+<td colspan="3">
+Final integration and QA; prepare presentation
+</td>
+</tr>
+</table>
+<h2 id="resources">Resources</h2>
+<ul>
+<li>https://github.com/Primarter/WaveFunctionCollapse</li>
+<li>https://github.com/whaoran0718/3dDungeonGeneration</li>
+<li>https://github.com/MaxHalford/procedural-art</li>
+<li>https://github.com/marian42/proceduralart</li>
+<li>https://medium.com/<span class="citation"
+data-cites="soham_saha/experimenting-with-procedural-art-c0ef91908f4d">@soham_saha/experimenting-with-procedural-art-c0ef91908f4d</span></li>
+<li>https://github.com/JyarlJung/GodotWaterShader</li>
+<li>https://lettier.github.io/3d-game-shaders-for-beginners/screen-space-refraction.html</li>
+<li>ShaderToy or GLSL/Unity Shader Graph references for SSR and
+bloom</li>
+<li>Research papers on Wave Function Collapse (e.g., Gumin’s model)</li>
+<li>High-resolution cyberpunk textures and modular building assets</li>
+<li>GitHub for version control and collaboration</li>
+</ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+    <script>
+        //document.getElementById('sidebar').getElementsByTagName('ul')[0].className += "nav nav-sidebar";
+        
+        /* ajust the height when click the toc
+           the code is from https://github.com/twbs/bootstrap/issues/1768
+        */
+        var shiftWindow = function() { scrollBy(0, -50) };
+        window.addEventListener("hashchange", shiftWindow);
+        function load() { if (window.location.hash) shiftWindow(); }
+        
+        /*add Bootstrap styles to tables*/
+        var tables = document.getElementsByTagName("table");
+        for(var i = 0; i < tables.length; ++i){
+            tables[i].className += "table table-bordered table-hover";
+        }
+    </script>
+  </body>
+</html>
