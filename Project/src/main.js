@@ -1,14 +1,14 @@
 import { createREGL } from "../lib/regljs_2.1.0/regl.module.js"
 
 // UI functions
-import { 
+import {
   DOM_loaded_promise,
-  create_button, 
-  create_slider, 
+  create_button,
+  create_slider,
   clear_overlay,
-  create_button_with_hotkey, 
-  create_hotkey_action, 
-  toggle_overlay_visibility 
+  create_button_with_hotkey,
+  create_hotkey_action,
+  toggle_overlay_visibility
 } from "./cg_libraries/cg_web.js"
 
 // Render
@@ -62,10 +62,10 @@ async function main() {
     is_paused: false,
   }
 
-  function initialize_ui_params(){
+  function initialize_ui_params() {
 
     // Bind a hotkey to hide the overlay
-    create_hotkey_action("Hide overlay", "h", ()=>{toggle_overlay_visibility()});
+    create_hotkey_action("Hide overlay", "h", () => { toggle_overlay_visibility() });
 
     // Create a pause button
     create_hotkey_action("Pause", "p", () => {
@@ -108,9 +108,10 @@ async function main() {
   // Instantiate scenes. Multiple different scenes can be set up here: 
   // which one is rendered depends on the value of the active_scene variable.
   const demo_scene = new DemoScene(resource_manager, procedural_texture_generator);
+  const tutorial_scene = new TutorialScene(resource_manager, procedural_texture_generator);
 
   const active_scene = demo_scene;   // Assign the scene to be rendered to active_scene
-  
+
   /*---------------------------------------------------------------
     5. UI Instantiation
   ---------------------------------------------------------------*/
@@ -132,7 +133,7 @@ async function main() {
     // Reset canvas
     const background_color = [0.0, 0.0, 0.0, 1];
     regl.clear({ color: background_color });
-    
+
     /*---------------------------------------------------------------
       Update the current frame data
     ---------------------------------------------------------------*/
@@ -142,8 +143,8 @@ async function main() {
     prev_regl_time = frame.time;
 
     // If the time is not paused, iterate over all actors and call their evolve function
-    if (!ui_global_params.is_paused){
-      for (const name in active_scene.actors){
+    if (!ui_global_params.is_paused) {
+      for (const name in active_scene.actors) {
         active_scene.actors[name].evolve(dt);
       }
     }

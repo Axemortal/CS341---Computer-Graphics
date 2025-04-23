@@ -1,19 +1,19 @@
 import { ResourceManager } from "../../scene_resources/resource_manager.js";
 
 /*---------------------------------------------------------------
-	SUPER CLASS OF ALL THE SHADER RENDERS
+    SUPER CLASS OF ALL THE SHADER RENDERS
 ---------------------------------------------------------------*/
 
 export class ShaderRenderer {
 
-   /**
-    * Init a pipeline for the shader in the arguments.
-    * @param {*} regl 
-    * @param {ResourceManager} resource_manager 
-    * @param {String} vert_shader the name of the vert shader (ex: blinn_phong.vert.glsl)
-    * @param {String} frag_shader the name of the frag shader (ex: blinn_phong.frag.glsl)
-    */
-    constructor(regl, resource_manager, vert_shader, frag_shader){
+    /**
+     * Init a pipeline for the shader in the arguments.
+     * @param {*} regl 
+     * @param {ResourceManager} resource_manager 
+     * @param {String} vert_shader the name of the vert shader (ex: blinn_phong.vert.glsl)
+     * @param {String} frag_shader the name of the frag shader (ex: blinn_phong.frag.glsl)
+     */
+    constructor(regl, resource_manager, vert_shader, frag_shader) {
         this.regl = regl;
         this.resource_manager = resource_manager;
 
@@ -29,7 +29,7 @@ export class ShaderRenderer {
      * Call this function to render a scene with this shader
      * @param {*} scene_state 
      */
-    render(scene_state){}
+    render(scene_state) { }
 
     /**
      * Define in this function the exclusion criteria 
@@ -37,7 +37,7 @@ export class ShaderRenderer {
      * @param {*} obj the object to check for exclusion
      * @returns when returning "true" the object is NOT rendered by this shader
      */
-    exclude_object(obj){
+    exclude_object(obj) {
         return false;
     }
 
@@ -46,11 +46,11 @@ export class ShaderRenderer {
      * @param {*} regl 
      * @returns the attributes (positions, normals & textures coordinates) of a mesh 
      */
-    attributes(regl){
+    attributes(regl) {
         return {
-            vertex_positions:    regl.prop('mesh.vertex_positions'),
-            vertex_normal:      regl.prop('mesh.vertex_normals'),
-            vertex_tex_coords:  regl.prop('mesh.vertex_tex_coords'),
+            vertex_positions: regl.prop('mesh.vertex_positions'),
+            vertex_normal: regl.prop('mesh.vertex_normals'),
+            vertex_tex_coords: regl.prop('mesh.vertex_tex_coords'),
         };
     }
 
@@ -58,7 +58,7 @@ export class ShaderRenderer {
      * https://github.com/regl-project/regl/blob/gh-pages/API.md#culling
      * @returns 
      */
-    cull(){
+    cull() {
         return { enable: false }; // draw back face
     }
 
@@ -66,7 +66,7 @@ export class ShaderRenderer {
      * https://github.com/regl-project/regl/blob/gh-pages/API.md#depth-buffer
      * @returns 
      */
-    depth(){
+    depth() {
         return { enable: true };
     }
 
@@ -74,8 +74,8 @@ export class ShaderRenderer {
      * https://github.com/regl-project/regl/blob/gh-pages/API.md#blending
      * @returns default blend mode
      */
-    blend(){
-        return {enable: false};
+    blend() {
+        return { enable: false };
     }
 
     /**
@@ -85,9 +85,9 @@ export class ShaderRenderer {
      * @param {*} regl 
      * @returns 
      */
-    uniforms(regl){
+    uniforms(regl) {
         return {
-            uniform_name_as_it_appears_in_the_glsl : regl.prop('uniform name as it is defined in the entries array passed to the pipeline')
+            uniform_name_as_it_appears_in_the_glsl: regl.prop('uniform name as it is defined in the entries array passed to the pipeline')
         };
     }
 
@@ -97,25 +97,25 @@ export class ShaderRenderer {
      * These functions can be overwritten in children class 
      * @returns 
      */
-    init_pipeline(){
+    init_pipeline() {
         const regl = this.regl;
 
         return regl({
-    
+
             attributes: this.attributes(regl),
 
             // Faces, as triplets of vertex indices
             elements: regl.prop('mesh.faces'),
-            
+
             depth: this.depth(),
 
             cull: this.cull(),
 
             blend: this.blend(),
-        
+
             // Uniforms: global data available to the shader
             uniforms: this.uniforms(regl),
-        
+
             // Shaders
             vert: this.vert_shader,
             frag: this.frag_shader,

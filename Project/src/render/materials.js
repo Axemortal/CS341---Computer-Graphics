@@ -1,11 +1,11 @@
 
-const default_texture = null; 
+const default_texture = null;
 const default_base_color = [1.0, 0.0, 1.0];  // magenta, used when no texture is provided
 const default_shininess = 0.1;
 
 
 /*---------------------------------------------------------------
-	Materials
+    Materials
 ---------------------------------------------------------------*/
 /**
  * Materials are defined by parameters that describe how 
@@ -19,7 +19,7 @@ const default_shininess = 0.1;
 
 class Material {
 
-    constructor(){
+    constructor() {
         this.texture = default_texture;
         this.color = default_base_color;
         this.shininess = default_shininess;
@@ -30,7 +30,7 @@ class Material {
 
 class BackgroundMaterial extends Material {
 
-    constructor({texture = default_texture}){
+    constructor({ texture = default_texture }) {
         super()
         this.texture = texture;
         this.properties.push("environment");
@@ -41,10 +41,10 @@ class BackgroundMaterial extends Material {
 class DiffuseMaterial extends Material {
 
     constructor({
-        texture = null, 
-        color = default_base_color, 
+        texture = null,
+        color = default_base_color,
         shininess = default_shininess
-    }){
+    }) {
         super()
         this.texture = texture;
         this.color = color;
@@ -53,8 +53,11 @@ class DiffuseMaterial extends Material {
 }
 
 class ReflectiveMaterial extends Material {
-    constructor(){
+    constructor({
+        texture = null
+    }) {
         super()
+        this.texture = texture;
         this.properties.push("reflective");
     }
 }
@@ -67,11 +70,11 @@ class TerrainMaterial extends Material {
         grass_shininess = 5.,
         peak_color = [0.9, 0.9, 0.9],
         peak_shininess = 10.
-    }){
+    }) {
         super()
         this.water_color = water_color;
         this.water_shininess = water_shininess;
-        this.grass_color = grass_color 
+        this.grass_color = grass_color;
         this.grass_shininess = grass_shininess;
         this.peak_color = peak_color;
         this.peak_shininess = peak_shininess;
@@ -82,7 +85,7 @@ class TerrainMaterial extends Material {
 }
 
 /*---------------------------------------------------------------
-	Material Instantiation
+    Material Instantiation
 ---------------------------------------------------------------*/
 /**
  * Here materials are defined to later be assigned to objects.
