@@ -1,128 +1,134 @@
-import { texture_data, light_to_cam_view } from "../../cg_libraries/cg_render_utils.js"
+import {
+  textureData,
+  lightToCamView,
+} from "../../cg_libraries/cg_render_utils.js";
 import { ResourceManager } from "../../scene_resources/resource_manager.js";
-import { ShaderRenderer } from "./shader_renderer.js"
-
+import { ShaderRenderer } from "./shader_renderer.js";
 
 export class BlinnPhongShaderRenderer extends ShaderRenderer {
+  /**
+   * Its render function can be used to render a scene with the blinn-phong model
+   * @param {*} regl
+   * @param {ResourceManager} resourceManager
+   */
+  constructor(regl, resourceManager) {
+    super(
+      regl,
+      resourceManager,
+      `blinn_phong.vert.glsl`,
+      `blinn_phong.frag.glsl`
+    );
+  }
 
-    /**
-     * Its render function can be used to render a scene with the blinn-phong model
-     * @param {*} regl 
-     * @param {ResourceManager} resource_manager 
-     */
-    constructor(regl, resource_manager){
-        super(
-            regl, 
-            resource_manager, 
-            `blinn_phong.vert.glsl`, 
-            `blinn_phong.frag.glsl`
+  /**
+   * Render the objects of the sceneState with its shader
+   * @param {*} sceneState
+   */
+  render(sceneState, { positionTexture, normalTexture }) {
+    const scene = sceneState.scene;
+
+    const texWidth = positionTexture._texture.width;
+    const texHeight = positionTexture._texture.height;
+    const texSize = [texWidth, texHeight];
+
+    let ambientFactor = scene.ambientFactor;
+
+    // For every light in the scene we render the blinn-phong contributions
+    // Results will be added on top of each other (see this.blend())
+    scene.lights.forEach((light) => {
+      const inputs = [];
+      // Transform light position into camera space
+      const lightPositionCam = lightToCamView(
+        light.position,
+        scene.camera.mat.view
+      );
+
+      for (const object of scene.objects) {
+        if (this.excludeObject(object)) continue;
+
+        const mesh = this.resourceManager.getMesh(object.meshReference);
+        const { texture, isTextured } = textureData(
+          object,
+          this.resourceManager
         );
-    }
-    
-    /**
-     * Render the objects of the scene_state with its shader
-     * @param {*} scene_state 
-     */
-    render(scene_state){
 
-        const scene = scene_state.scene;
-        const inputs = [];
+        const { matModelViewProjection } =
+          scene.camera.objectMatrices.get(object);
 
-        let ambient_factor = scene.ambient_factor;
+        // Data passed to the pipeline to be used by the shader
+        inputs.push({
+          mesh: mesh,
 
-        // For every light in the scene we render the blinn-phong contributions
-        // Results will be added on top of each other (see this.blend())
-        scene.lights.forEach(light => {
+          matModelViewProjection: matModelViewProjection,
 
-            // Transform light position into camera space
-            const light_position_cam = light_to_cam_view(light.position, scene.camera.mat.view);
+          materialTexture: texture,
+          isTextured: isTextured,
+          materialBaseColor: object.material.color,
+          materialShininess: object.material.shininess,
 
-            for (const obj of scene.objects) {
+          light_position: lightPositionCam,
+          light_color: light.color,
+          ambientFactor: ambientFactor,
 
-                // Check if object is Blinn-Phong shaded
-                if(this.exclude_object(obj)) continue;
-
-                const mesh = this.resource_manager.get_mesh(obj.mesh_reference);
-                const {texture, is_textured} = texture_data(obj, this.resource_manager);
-                
-                const { 
-                    mat_model_view, 
-                    mat_model_view_projection, 
-                    mat_normals_model_view 
-                } = scene.camera.object_matrices.get(obj);
-                
-                // Data passed to the pipeline to be used by the shader
-                inputs.push({
-                    mesh: mesh,
-
-                    mat_model_view_projection: mat_model_view_projection,
-                    mat_model_view: mat_model_view,
-                    mat_normals_model_view: mat_normals_model_view,
-
-                    light_position: light_position_cam,
-                    light_color: light.color,
-
-                    ambient_factor : ambient_factor,
-
-                    material_texture: texture,
-                    is_textured: is_textured,
-                    material_base_color: obj.material.color,
-                    material_shininess: obj.material.shininess
-                });
-
-            }
-            
-            this.pipeline(inputs);
-            // Set to 0 the ambient factor so it is only taken into account once during the first light render
-            ambient_factor = 0;
+          positionTexture: positionTexture,
+          normalTexture: normalTexture,
+          texSize: texSize,
         });
-    }
+      }
 
-    exclude_object(obj){
-        // Do not shade objects that use other dedicated shader
-        return obj.material.properties.includes('no_blinn_phong');
-    }
+      this.pipeline(inputs);
+      // Set the ambient factor to 0 so it is only taken into account once during the first light render
+      ambientFactor = 0;
+    });
+  }
 
-    depth(){
-        // Use z buffer
-        return {
-            enable: true,
-            mask: true,
-            func: '<=',
-        };
-    }
+  excludeObject(obj) {
+    // Do not shade objects that use other dedicated shader
+    return obj.material.properties.includes("no_blinn_phong");
+  }
 
-    blend(){
-        // Additive blend mode
-        return {
-            enable: true,
-            func: {
-                src: 1,
-                dst: 1,
-            },
-        };
-    }
+  depth() {
+    // Use z buffer
+    return {
+      enable: true,
+      mask: true,
+      func: "<=",
+    };
+  }
 
-    uniforms(regl){
-        return{
-            // View (camera) related matrix
-            mat_model_view_projection: regl.prop('mat_model_view_projection'),
-            mat_model_view: regl.prop('mat_model_view'),
-            mat_normals_model_view: regl.prop('mat_normals_model_view'),
-    
-            // Light data
-            light_position: regl.prop('light_position'),
-            light_color: regl.prop('light_color'),
+  blend() {
+    // Additive blend mode
+    return {
+      enable: true,
+      func: {
+        src: 1,
+        dst: 1,
+      },
+    };
+  }
 
-            // Ambient factor
-            ambient_factor: regl.prop('ambient_factor'),
-    
-            // Material data
-            material_texture: regl.prop('material_texture'),
-            is_textured: regl.prop('is_textured'),
-            material_base_color: regl.prop('material_base_color'),
-            material_shininess: regl.prop('material_shininess')
-        };
-    }
+  uniforms(regl) {
+    return {
+      // View (camera) related matrix
+      mat_model_view_projection: regl.prop("matModelViewProjection"),
+
+      // Light data
+      light_position: regl.prop("light_position"),
+      light_color: regl.prop("light_color"),
+
+      // Ambient factor
+      ambient_factor: regl.prop("ambientFactor"),
+
+      // Material data
+      material_texture: regl.prop("materialTexture"),
+      is_textured: regl.prop("isTextured"),
+      material_base_color: regl.prop("materialBaseColor"),
+      material_shininess: regl.prop("materialShininess"),
+
+      position_texture: regl.prop("positionTexture"),
+      normal_texture: regl.prop("normalTexture"),
+
+      tex_size: regl.prop("texSize"),
+    };
+  }
 }
-

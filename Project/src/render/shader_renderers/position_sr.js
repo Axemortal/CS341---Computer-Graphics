@@ -1,26 +1,17 @@
-import { ResourceManager } from "../../scene_resources/resource_manager.js";
 import { ShaderRenderer } from "./shader_renderer.js";
 
-export class ShadowMapShaderRenderer extends ShaderRenderer {
+export class PositionShaderRenderer extends ShaderRenderer {
   /**
-   * Used to compute distance of a fragment from the eyes
-   * of the camera. It has application in generating the
-   * shadows cube map.
+   * Its render function can be used to store the positions of the pixels in the z-buffer
    * @param {*} regl
    * @param {ResourceManager} resourceManager
    */
   constructor(regl, resourceManager) {
-    super(
-      regl,
-      resourceManager,
-      `shadow_map.vert.glsl`,
-      `shadow_map.frag.glsl`
-    );
+    super(regl, resourceManager, `position.vert.glsl`, `position.frag.glsl`);
   }
 
   /**
-   * Render the scene in greyscale using the distance between the camera and the fragment.
-   * From black (distance = 0) to white.
+   * Render the objects of the sceneState with its shader
    * @param {*} sceneState
    */
   render(sceneState) {
@@ -28,6 +19,8 @@ export class ShadowMapShaderRenderer extends ShaderRenderer {
     const inputs = [];
 
     for (const obj of scene.objects) {
+      if (this.excludeObject(obj)) continue;
+
       const mesh = this.resourceManager.getMesh(obj.meshReference);
 
       const { matModelView, matModelViewProjection } =
@@ -44,8 +37,17 @@ export class ShadowMapShaderRenderer extends ShaderRenderer {
     this.pipeline(inputs);
   }
 
-  cull() {
-    return { enable: true }; // don't draw back face
+  excludeObject(obj) {
+    return obj.material.properties.includes("environment");
+  }
+
+  depth() {
+    // Use z buffer
+    return {
+      enable: true,
+      mask: true,
+      func: "<=",
+    };
   }
 
   uniforms(regl) {
