@@ -7,6 +7,7 @@ import { MapMixerShaderRenderer } from "./shader_renderers/map_mixer_sr.js"
 import { TerrainShaderRenderer } from "./shader_renderers/terrain_sr.js"
 import { PreprocessingShaderRenderer } from "./shader_renderers/pre_processing_sr.js"
 import { ResourceManager } from "../scene_resources/resource_manager.js"
+import { NormalsShaderRenderer } from "./shader_renderers/normals_sr.js"
 
 export class SceneRenderer {
 
@@ -27,14 +28,15 @@ export class SceneRenderer {
         this.flat_color = new FlatColorShaderRenderer(regl, resource_manager);
         this.blinn_phong = new BlinnPhongShaderRenderer(regl, resource_manager);
         this.terrain = new TerrainShaderRenderer(regl, resource_manager);
+        this.normal = new NormalsShaderRenderer(regl, resource_manager);
 
         this.mirror = new MirrorShaderRenderer(regl, resource_manager);
         this.shadows = new ShadowsShaderRenderer(regl, resource_manager);
         this.map_mixer = new MapMixerShaderRenderer(regl, resource_manager);
 
         // Create textures & buffer to save some intermediate renders into a texture
-        this.create_texture_and_buffer("shadows", {}); 
-        this.create_texture_and_buffer("base", {}); 
+        this.create_texture_and_buffer("shadows", {});
+        this.create_texture_and_buffer("base", {});
     }
 
     /**
@@ -42,7 +44,7 @@ export class SceneRenderer {
      * @param {*} name the name for the texture (used to save & retrive data)
      * @param {*} parameters use if you need specific texture parameters
      */
-    create_texture_and_buffer(name, {wrap = 'clamp', format = 'rgba', type = 'float'}){
+    create_texture_and_buffer(name, { wrap = 'clamp', format = 'rgba', type = 'float' }) {
         const regl = this.regl;
         const framebuffer_width = window.innerWidth;
         const framebuffer_height = window.innerHeight;
@@ -50,8 +52,8 @@ export class SceneRenderer {
         // Create a regl texture and a regl buffer linked to the regl texture
         const text = regl.texture({ width: framebuffer_width, height: framebuffer_height, wrap: wrap, format: format, type: type })
         const buffer = regl.framebuffer({ color: [text], width: framebuffer_width, height: framebuffer_height, })
-        
-        this.textures_and_buffers[name] = [text, buffer]; 
+
+        this.textures_and_buffers[name] = [text, buffer];
     }
 
     /**
@@ -60,13 +62,13 @@ export class SceneRenderer {
      * @param {*} render_function that is used to render the result to be saved in the texture
      * @returns 
      */
-    render_in_texture(name, render_function){
+    render_in_texture(name, render_function) {
         const regl = this.regl;
         const [texture, buffer] = this.textures_and_buffers[name];
         regl({ framebuffer: buffer })(() => {
-            regl.clear({ color: [0,0,0,1], depth: 1 });
+            regl.clear({ color: [0, 0, 0, 1], depth: 1 });
             render_function();
-          });
+        });
         return texture;
     }
 
@@ -75,7 +77,7 @@ export class SceneRenderer {
      * @param {*} name 
      * @returns 
      */
-    texture(name){
+    texture(name) {
         const [texture, buffer] = this.textures_and_buffers[name];
         return texture;
     }
@@ -86,7 +88,7 @@ export class SceneRenderer {
      * @param {*} scene_state the description of the scene, time, dynamically modified parameters, etc.
      */
     render(scene_state) {
-        
+
         const scene = scene_state.scene;
         const frame = scene_state.frame;
 
@@ -96,7 +98,7 @@ export class SceneRenderer {
 
         // Update the camera ratio in case the windows size changed
         scene.camera.update_format_ratio(frame.framebufferWidth, frame.framebufferHeight);
-        
+
         // Compute the objects matrices at the beginning of each frame
         // Note: for optimizing performance, some matrices could be precomputed and shared among different objects
         scene.camera.compute_objects_transformation_matrices(scene.objects);
@@ -106,7 +108,7 @@ export class SceneRenderer {
         ---------------------------------------------------------------*/
 
         // Render call: the result will be stored in the texture "base"
-        this.render_in_texture("base", () =>{
+        this.render_in_texture("base", () => {
 
             // Prepare the z_buffer and object with default black color
             this.pre_processing.render(scene_state);
@@ -117,24 +119,33 @@ export class SceneRenderer {
             // Render the terrain
             this.terrain.render(scene_state);
 
-            // Render shaded objects
+
+            if (scene_state.ui_params.is_normals_active) {
+                this.normal.render(scene_state);
+                return;
+            }
+
+            // Render the objects with the blinn_phong shader
             this.blinn_phong.render(scene_state);
 
             // Render the reflection of mirror objects on top
-            this.mirror.render(scene_state, (s_s) => {
-                this.pre_processing.render(scene_state);
-                this.flat_color.render(s_s);
-                this.terrain.render(scene_state);
-                this.blinn_phong.render(s_s);
-            });
-        })
+            if (scene_state.ui_params.is_mirror_active) {
+                this.mirror.render(scene_state, (s_s) => {
+                    this.pre_processing.render(scene_state);
+                    this.flat_color.render(s_s);
+                    this.terrain.render(scene_state);
+                    this.blinn_phong.render(s_s);
+                });
+                return;
+            }
+        });
 
         /*---------------------------------------------------------------
             2. Shadows Render Pass
         ---------------------------------------------------------------*/
-        
+
         // Render the shadows of the scene in a black & white texture. White means shadow.
-        this.render_in_texture("shadows", () =>{
+        this.render_in_texture("shadows", () => {
 
             // Prepare the z_buffer and object with default black color
             this.pre_processing.render(scene_state);
@@ -151,11 +162,7 @@ export class SceneRenderer {
         this.map_mixer.render(scene_state, this.texture("shadows"), this.texture("base"));
 
         // Visualize cubemap
-        // this.mirror.env_capture.visualize();
+        this.mirror.env_capture.visualize();
 
     }
 }
-
-
-
-

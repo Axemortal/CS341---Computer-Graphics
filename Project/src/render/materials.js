@@ -53,8 +53,20 @@ class DiffuseMaterial extends Material {
 }
 
 class ReflectiveMaterial extends Material {
-    constructor(){
-        super()
+    constructor(params = {}) {
+        super();
+
+        // Support both: string and object {texture: "file.png"}
+        if (typeof params === "string") {
+            this.texture = params;
+        } else if (typeof params === "object" && params.texture) {
+            this.texture = params.texture;
+        }
+
+        if (this.texture) {
+            this.properties.push("textured");  // important: lets the shader know to sample texture
+        }
+
         this.properties.push("reflective");
     }
 }
@@ -112,3 +124,8 @@ export const terrain = new TerrainMaterial({
     grass_color: [0.33, 0.43, 0.18],
     peak_color: [0.8, 0.5, 0.4]
 });
+
+export const mirror = new ReflectiveMaterial(
+    {texture: 'marble.png'});
+
+    
