@@ -11,7 +11,8 @@ export const noise_functions = {
     Turbulence: "tex_turbulence",
     Map: "tex_map",
     Wood: "tex_wood",
-    FBM_for_terrain: "tex_fbm_for_terrain"
+    FBM_for_terrain: "tex_fbm_for_terrain",
+    worley: "full_worley",
 };
 
 

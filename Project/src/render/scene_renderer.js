@@ -162,7 +162,7 @@ export class SceneRenderer {
         this.map_mixer.render(scene_state, this.texture("shadows"), this.texture("base"));
 
         // Visualize cubemap
-        this.mirror.env_capture.visualize();
+        //this.mirror.env_capture.visualize();
 
     }
 }

@@ -24,6 +24,7 @@ class Material {
         this.color = default_base_color;
         this.shininess = default_shininess;
         this.properties = [];
+        this.uniforms = {};
     }
 
 }
@@ -93,6 +94,20 @@ class TerrainMaterial extends Material {
     }
 }
 
+class ProceduralMaterial extends Material {
+
+    constructor({
+        texture = null, 
+        color = default_base_color, 
+        shininess = default_shininess
+    }){
+        super()
+        this.texture = texture;
+        this.color = color;
+        this.shininess = shininess;
+    }
+}
+
 /*---------------------------------------------------------------
 	Material Instantiation
 ---------------------------------------------------------------*/
@@ -128,4 +143,16 @@ export const terrain = new TerrainMaterial({
 export const mirror = new ReflectiveMaterial(
     {texture: 'marble.png'});
 
+export const neon_billboard = new ProceduralMaterial({
+    texture: 'procedural_worley',  // We'll generate this
+    color: [1, 1, 1],  // White base color
+    shininess: 0.5,
+    uniforms: {
+        u_worley_texture: { value: null }, // Store texture here
+    }
+});
+
+
     
+    
+     

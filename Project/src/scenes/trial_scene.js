@@ -11,6 +11,8 @@ import {
 } from "../cg_libraries/cg_web.js";
 import { Scene } from "./scene.js";
 import { ResourceManager } from "../scene_resources/resource_manager.js";
+import { ProceduralTextureGenerator } from "../render/procedural_texture_generator.js";
+import { noise_functions } from "../render/shader_renderers/noise_sr.js";
 
 export class TrialScene extends Scene {
 
@@ -18,12 +20,12 @@ export class TrialScene extends Scene {
    * A scene to be completed, used for the introductory tutorial
    * @param {ResourceManager} resource_manager 
    */
-  constructor(resource_manager){
+  constructor(regl, resource_manager){
     super();
-    
-    this.resource_manager = resource_manager;
 
-    this.static_objects = [];
+    this.regl = regl;
+    this.resource_manager = resource_manager;
+    this.dynamic_objects = [];
 
     this.initialize_scene();
     this.initialize_actor_actions();
@@ -37,39 +39,43 @@ export class TrialScene extends Scene {
     // TODO
 
     this.lights.push({
-      position : [0.0 , -2.0, 2.5],
-      color: [1.0, 1.0, 0.9]
-    });
-
-    this.resource_manager.add_procedural_mesh("mesh_sphere_env_map", cg_mesh_make_uv_sphere(16));
+        position: [0.0, -2.0, 2.5],
+        color: [1.0, 1.0, 0.9]
+      });
+      
+    // Create texture generator with stored regl instance
+    this.texture_generator = new ProceduralTextureGenerator(
+    this.regl,
+    this.resource_manager
+    );
 
     this.resource_manager.add_procedural_mesh("plane", cg_mesh_make_plane());
 
-    this.static_objects.push({
-        translation: [0, 0, 0],
-        scale: [2, 2, 2], 
-        mesh_reference: "plane", 
-        material: MATERIALS.gray,
+    // Generate noise texture
+    this.texture_generator.compute_texture(
+        'procedural_worley',
+        noise_functions.worley,
+        { width: 1024, height: 1024 }
+    );
+    
+    const worley_texture = this.resource_manager.resources['procedural_worley'].texture;
+    MATERIALS.neon_billboard.uniforms.u_perlin_texture = worley_texture;
+
+    this.dynamic_objects.push({
+    translation: [0, 0, 0],
+    scale: [2, 2, 2],
+    mesh_reference: "plane",
+    material: MATERIALS.neon_billboard,
     });
 
-    this.static_objects.push({
-        translation: [0, 0, 0],
-        scale: [80., 80., 80.],
-        mesh_reference: 'mesh_sphere_env_map',
-        material: MATERIALS.sunset_sky
-    });
-
-    this.objects = this.static_objects;
+    
+    this.objects = this.dynamic_objects;
   }
-
   /**
    * Initialize the evolve function that describes the behaviour of each actor 
    */
   initialize_actor_actions(){
-
-    // TODO
-
-  }
+    }
 
   /**
    * Initialize custom scene-specific UI parameters to allow interactive control of selected scene elements.

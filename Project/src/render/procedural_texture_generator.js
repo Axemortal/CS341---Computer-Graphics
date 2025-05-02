@@ -77,9 +77,17 @@ export class ProceduralTextureGenerator {
             vec2.negate([0, 0], mouse_offset),
         )
 
-        // Convert the buffer to an array of float data that can be queried
-        const texture = buffer_to_data_array(this.regl, buffer)
+        // Convert the buffer to a regl texture
+        const texture = this.regl.texture({
+            width: buffer.width,
+            height: buffer.height,
+            data: buffer_to_data_array(this.regl, buffer).data,  // Use the data from the buffer
+            format: 'rgba',
+            type: 'float',
+        });
         this.resource_manager.resources[name] = texture;
+
+        
         return texture;
     }
 
