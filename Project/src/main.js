@@ -19,6 +19,7 @@ import { ProceduralTextureGenerator } from "./render/procedural_texture_generato
 // Scenes
 import { TutorialScene } from "./scenes/tutorial_scene.js";
 import { DemoScene } from "./scenes/demo_scene.js";
+import { CityScene } from "./scenes/city_scene.js";
 // import { distance } from "../lib/gl-matrix_3.3.0/esm/vec3.js";
 
 DOM_loaded_promise.then(main)
@@ -109,8 +110,9 @@ async function main() {
   // which one is rendered depends on the value of the active_scene variable.
   const demo_scene = new DemoScene(resource_manager, procedural_texture_generator);
   const tutorial_scene = new TutorialScene(resource_manager, procedural_texture_generator);
+  const city_scene = new CityScene(resource_manager)
 
-  const active_scene = demo_scene;   // Assign the scene to be rendered to active_scene
+  const active_scene = city_scene;   // Assign the scene to be rendered to active_scene
 
   /*---------------------------------------------------------------
     5. UI Instantiation

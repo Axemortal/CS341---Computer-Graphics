@@ -115,3 +115,8 @@ export const terrain = new TerrainMaterial({
     grass_color: [0.33, 0.43, 0.18],
     peak_color: [0.8, 0.5, 0.4]
 });
+
+export const concrete = new DiffuseMaterial({
+    texture:'concrete.jpg',
+    shininess: 0.1
+})

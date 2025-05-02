@@ -23,7 +23,7 @@ export class Scene {
     this.camera = new TurntableCamera();
 
     // Ambient light coefficient
-    this.ambient_factor = 0.3;
+    this.ambient_factor = 0.7;
 
     // Point lights
     this.lights = [];
