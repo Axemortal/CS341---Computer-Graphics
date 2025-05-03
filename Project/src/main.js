@@ -17,6 +17,7 @@ import { ProceduralTextureGenerator } from "./render/procedural_texture_generato
 import { TutorialScene } from "./scenes/tutorial_scene.js";
 import { DemoScene } from "./scenes/demo_scene.js";
 import { ProjectScene } from "./scenes/project_scene.js";
+import { TrialScene } from "./scenes/trial_scene.js";
 
 /**
  * Application class to manage the WebGL rendering application
@@ -55,7 +56,7 @@ class Application {
 
     // Setup scenes
     this.setupScenes();
-    this.activeScene = this.scenes.project;
+    this.activeScene = this.scenes.Trial;
 
     // Setup input and UI
     this.setupCameraListeners();
@@ -103,10 +104,6 @@ class Application {
    */
   setupScenes() {
     this.scenes = {
-      demo: new DemoScene(
-        this.resourceManager,
-        this.proceduralTextureGenerator
-      ),
       tutorial: new TutorialScene(
         this.resourceManager,
         this.proceduralTextureGenerator
@@ -114,6 +111,10 @@ class Application {
       project: new ProjectScene(
         this.resourceManager,
         this.proceduralTextureGenerator
+      ),
+      Trial: new TrialScene(
+        this.regl,
+        this.resourceManager
       ),
     };
   }
@@ -151,6 +152,15 @@ class Application {
     createHotkeyAction("Pause", "p", () => {
       this.uiGlobalParams.isPaused = !this.uiGlobalParams.isPaused;
     });
+
+        createHotkeyAction("Preset view", "1", () => {
+        this.activeScene.camera.setPresetView({
+          distanceFactor: 0.3,
+          angleZ: 0,
+          angleY: -Math.PI/2,
+          lookAt: [0, 0, 0]
+        });
+      });
   }
 
   /**

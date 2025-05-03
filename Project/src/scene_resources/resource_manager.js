@@ -169,6 +169,7 @@ export class ResourceManager {
       "texture.frag.glsl",
       "pre_processing.frag.glsl",
       "box_blur.frag.glsl",
+      "worley.frag.glsl",
     ];
   }
 

@@ -134,6 +134,22 @@ class TerrainMaterial extends Material {
   }
 }
 
+class ProceduralMaterial extends Material {
+
+  constructor({
+      texture = null, 
+      color = default_base_color, 
+      shininess = default_shininess,
+      uniforms = {}
+  }){
+      super()
+      this.texture = texture;
+      this.color = color;
+      this.shininess = shininess;
+      this.uniforms = uniforms;
+  }
+}
+
 /*---------------------------------------------------------------
     Material Instantiation - Predefined Materials
 ---------------------------------------------------------------*/
@@ -172,4 +188,13 @@ export const terrain = new TerrainMaterial({
 export const mirror = new ReflectiveMaterial({
   color: COLORS.WHITE,
   shininess: 127.75,
+});
+
+export const worley_material = new ProceduralMaterial({
+  color: [1, 1, 1],
+  shininess: 0.5,
+  uniforms: {
+    u_worley_texture: { value: null },
+    u_time: { value: 0.0 }
+  }
 });

@@ -13,6 +13,8 @@ import { ReflectionShaderRenderer } from "./shader_renderers/reflection_sr.js";
 import { ShadowsShaderRenderer } from "./shader_renderers/shadows_sr.js";
 import { BaseCombineShaderRenderer } from "./shader_renderers/base_combine_sr.js";
 import { TextureShaderRenderer } from "./shader_renderers/texture_sr.js";
+import { ProceduralTextureGenerator } from "../render/procedural_texture_generator.js";
+import { noise_functions } from "./shader_renderers/noise_sr.js";
 
 /**
  * SceneRenderer - Handles rendering pipeline for a 3D scene with multiple shader passes
@@ -57,6 +59,7 @@ export class SceneRenderer {
       shadows: new ShadowsShaderRenderer(regl, resourceManager),
       baseCombine: new BaseCombineShaderRenderer(regl, resourceManager),
       texture: new TextureShaderRenderer(regl, resourceManager),
+      textureGenerator: new ProceduralTextureGenerator(regl, resourceManager),
     };
   }
 
@@ -253,6 +256,9 @@ export class SceneRenderer {
         break;
       case "shadows":
         renderers.texture.render(sceneState, this.texture("shadows"));
+        break;
+      case "GlitchyWorley":
+        renderers.texture.render(sceneState, this.texture("GlitchyWorley"));
         break;
       default:
         this.regl.clear({ color: [0, 0, 0, 0], depth: 1 });

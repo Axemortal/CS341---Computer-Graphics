@@ -37,7 +37,7 @@ export class NoiseShaderRenderer extends ShaderRenderer {
     noise_buffer,
     shader_func_name,
     viewer_scale,
-    viewer_position
+    viewer_position,
   ) {
     this.regl.clear({
       framebuffer: noise_buffer,
@@ -91,6 +91,7 @@ export class NoiseShaderRenderer extends ShaderRenderer {
       uniforms: {
         viewer_position: regl.prop("viewer_position"),
         viewer_scale: regl.prop("viewer_scale"),
+        u_time: regl.prop("u_time"),
       },
 
       vert: this.vertShader,

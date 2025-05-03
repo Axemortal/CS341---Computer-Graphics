@@ -103,6 +103,7 @@ export class ProjectScene extends Scene {
         "reflectionBlur",
         "reflections",
         "shadows",
+        "GlitchyWorley"
       ],
       (value) => {
         this.UIParams.renderTexture = value;

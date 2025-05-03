@@ -59,7 +59,7 @@ export class TrialScene extends Scene {
     );
     
     const worley_texture = this.resource_manager.resources['procedural_worley'].texture;
-    MATERIALS.neon_billboard.uniforms.u_perlin_texture = worley_texture;
+    MATERIALS.neon_billboard.uniforms.u_worley_texture = worley_texture;
 
     this.dynamic_objects.push({
     translation: [0, 0, 0],
