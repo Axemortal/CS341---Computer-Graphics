@@ -17,6 +17,7 @@ import { ProceduralTextureGenerator } from "./render/procedural_texture_generato
 import { TutorialScene } from "./scenes/tutorial_scene.js";
 import { DemoScene } from "./scenes/demo_scene.js";
 import { ProjectScene } from "./scenes/project_scene.js";
+import { CityScene } from "./scenes/city_scene.js";
 
 /**
  * Application class to manage the WebGL rendering application
@@ -55,7 +56,8 @@ class Application {
 
     // Setup scenes
     this.setupScenes();
-    this.activeScene = this.scenes.project;
+    // this.activeScene = this.scenes.project;
+    this.activeScene = this.scenes.city;
 
     // Setup input and UI
     this.setupCameraListeners();
@@ -112,6 +114,10 @@ class Application {
         this.proceduralTextureGenerator
       ),
       project: new ProjectScene(
+        this.resourceManager,
+        this.proceduralTextureGenerator
+      ),
+      city: new CityScene(
         this.resourceManager,
         this.proceduralTextureGenerator
       ),

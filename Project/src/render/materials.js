@@ -173,3 +173,9 @@ export const mirror = new ReflectiveMaterial({
   color: COLORS.WHITE,
   shininess: 127.75,
 });
+
+export const concrete = new DiffuseMaterial({
+  texture: "concrete.jpg",
+  color: COLORS.WHITE,
+  shininess: 0.5,
+});
