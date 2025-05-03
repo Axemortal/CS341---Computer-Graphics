@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "tiles": [
     {
       "id": "city_block1",
@@ -48,51 +47,3 @@
     "outside": ["outside", "air"]
   }
 }
-=======
-    "tiles": [
-      {
-        "id": "city_block1",
-        "model": "city_block1.obj",
-        "rotations": [
-          {
-            "id": "city_block1_up",
-            "rotation": [0, 0, 0],
-            "faces": {
-              "top": "air",
-              "bottom": "air",    
-              "left": "air",      
-              "right": "air",     
-              "front": "air",     
-              "back": "air"
-            }
-          }
-        ]
-      },
-      {
-        "id": "city_block2",
-        "model": "city_block2.obj",
-        "rotations": [
-          {
-            "id": "city_block2_default",
-            "rotation": [0, 0, 0],
-            "faces": {
-              "top": "connectable",           
-              "bottom": "connectable",        
-              "left": "connectable",      
-              "right": "outside",             
-              "front": "outside",             
-              "back": "outside"               
-            }
-          }
-        ]
-      }
-    ],
-    "compatibility": {
-        "connectable": ["connectable", "partial", "air", "outside"],
-        "partial": ["partial", "connectable", "air", "outside"],
-        "air": ["connectable", "partial", "air", "outside"],
-        "outside": ["connectable", "partial", "air", "outside"]
-    }
-  }
-  
->>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
