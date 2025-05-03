@@ -73,26 +73,41 @@ export class CityScene extends Scene {
             scale: [1, 1, 1],
             meshReference: tile.model,
             rotation: tile.rotation, // <-- Use rotation from WFC variant
-            material: MATERIALS.concrete
+            material: MATERIALS.futuristic_concrete
           });
         });
       });
     });    
 
     // Add lights around this single building
-    const lightDist = 4;
+    const lightDist = 6; // Increased from 4 for wider light spread
     const cx = (box.minX + box.maxX) / 2;
     const cy = (box.minY + box.maxY) / 2;
     const topZ = box.maxZ;
     const midZ = (box.minZ + box.maxZ) / 2;
+    const bottomZ = box.minZ;
 
-    // Roof light
-    this.lights.push({ position: [cx, cy, topZ + lightDist], color: [0.8, 0.8, 0.8] });
-    // Side lights
-    this.lights.push({ position: [box.maxX + lightDist, cy, midZ], color: [0.8, 0.8, 0.8] });
-    this.lights.push({ position: [box.minX - lightDist, cy, midZ], color: [0.8, 0.8, 0.8] });
-    this.lights.push({ position: [cx, box.maxY + lightDist, midZ], color: [0.8, 0.8, 0.8] });
-    this.lights.push({ position: [cx, box.minY - lightDist, midZ], color: [0.8, 0.8, 0.8] });
+    // Existing lights with adjusted intensity
+    this.lights.push({ position: [cx, cy, topZ + lightDist], color: [0.9, 0.9, 0.9] }); // Brighter roof light
+
+    // Side lights with increased brightness
+    this.lights.push({ position: [box.maxX + lightDist, cy, midZ], color: [0.9, 0.9, 0.9] });
+    this.lights.push({ position: [box.minX - lightDist, cy, midZ], color: [0.9, 0.9, 0.9] });
+    this.lights.push({ position: [cx, box.maxY + lightDist, midZ], color: [0.9, 0.9, 0.9] });
+    this.lights.push({ position: [cx, box.minY - lightDist, midZ], color: [0.9, 0.9, 0.9] });
+
+    // Add corner lights at mid-height for better coverage
+    this.lights.push({ position: [box.maxX + lightDist*0.7, box.maxY + lightDist*0.7, midZ], color: [0.7, 0.7, 0.8] });
+    this.lights.push({ position: [box.maxX + lightDist*0.7, box.minY - lightDist*0.7, midZ], color: [0.7, 0.7, 0.8] });
+    this.lights.push({ position: [box.minX - lightDist*0.7, box.maxY + lightDist*0.7, midZ], color: [0.7, 0.7, 0.8] });
+    this.lights.push({ position: [box.minX - lightDist*0.7, box.minY - lightDist*0.7, midZ], color: [0.7, 0.7, 0.8] });
+
+    // Add lower lights to illuminate the base
+    this.lights.push({ position: [cx, cy, bottomZ - lightDist*0.5], color: [0.6, 0.6, 0.7] });
+
+    // Add accent lights with slight color tint for visual interest
+    this.lights.push({ position: [box.maxX + lightDist*0.5, cy, topZ - 2], color: [0.7, 0.7, 0.9] }); // Slight blue tint
+    this.lights.push({ position: [box.minX - lightDist*0.5, cy, topZ - 2], color: [0.7, 0.7, 0.9] });
 
     console.log("Single building loaded.");
     console.log("Objects:", this.objects.length, "Lights:", this.lights.length);

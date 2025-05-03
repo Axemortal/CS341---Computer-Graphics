@@ -180,3 +180,15 @@ export const concrete = new DiffuseMaterial({
   shininess: 0.5,
 });
 
+export const neon = new DiffuseMaterial({
+  texture: "neon.png",
+  color: COLORS.WHITE,
+  shininess: 1.0,
+});
+
+export const futuristic_concrete = new DiffuseMaterial({
+  texture: "futuristic_concrete.png",
+  color: COLORS.WHITE,
+  shininess: 1.0,
+});
+
