@@ -82,6 +82,7 @@ export class EnvironmentCapture {
 			please use the function perspective, see https://stackoverflow.com/questions/28286057/trying-to-understand-the-math-behind-the-perspective-matrix-in-webgl
 			Note: this is the same for all point lights/cube faces!
 		*/
+<<<<<<< HEAD
 		const near = 0.1
 		const far = 200.
 		const fovy = deg_to_rad * 90.0
@@ -92,6 +93,17 @@ export class EnvironmentCapture {
 		this.run_with_output_framebuffer = regl({
 			framebuffer: regl.prop('out_buffer'),
 		})
+=======
+		const fovy = Math.PI/2;  
+		const aspect = 1.0;        
+		const near = 0.1;         
+		const far = 200.0;    
+		this.cube_camera_projection =mat4.perspective(mat4.create(), fovy, aspect, near, far);
+
+		this.run_with_output_framebuffer = regl({
+			framebuffer: regl.prop('out_buffer'),
+		});
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 	}
 
 	static CUBE_FACE_DIR = [
@@ -112,12 +124,21 @@ export class EnvironmentCapture {
 	*/
 
 	static CUBE_FACE_UP = [
+<<<<<<< HEAD
 		[0, -1, 0],
 		[0, -1, 0],
 		[0, 0, 1],
 		[0, 0, -1],
 		[0, -1, 0],
 		[0, -1, 0],
+=======
+		[0, -1, 0],  
+		[0, -1, 0],  
+		[0, 0, 1],   
+		[0, 0, -1],  
+		[0, -1, 0],  
+		[0, -1, 0],  
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 	]
 
 	cube_camera_view(side_idx, center, mat_view_camera) {

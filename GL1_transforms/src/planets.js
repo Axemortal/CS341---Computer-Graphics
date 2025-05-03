@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { vec2, vec3, vec4, mat3, mat4 } from "../lib/gl-matrix_3.3.0/esm/index.js"
 import { mat4_matmul_many } from "./icg_math.js"
+=======
+import {vec2, vec3, vec4, mat3, mat4} from "../lib/gl-matrix_3.3.0/esm/index.js"
+import {mat4_matmul_many} from "./icg_math.js"
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 
 /*
 	Construct the scene!
@@ -11,11 +16,19 @@ export function create_scene_content() {
 			name: 'sun',
 			size: 2.5,
 			rotation_speed: 0.1,
+<<<<<<< HEAD
 
 			movement_type: 'planet',
 			orbit: null,
 
 			shader_type: 'unshaded',
+=======
+			
+			movement_type: 'planet',
+			orbit: null,
+
+			shader_type: 'unshaded', 
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 			texture_name: 'sun.jpg',
 		},
 		{
@@ -64,7 +77,11 @@ export function create_scene_content() {
 	]
 
 	// In each planet, allocate its transformation matrix
+<<<<<<< HEAD
 	for (const actor of actors) {
+=======
+	for(const actor of actors) {
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 		actor.mat_model_to_world = mat4.create()
 	}
 
@@ -89,6 +106,7 @@ export class SysOrbitalMovement {
 	}
 
 	calculate_model_matrix(actor, sim_time, actors_by_name) {
+<<<<<<< HEAD
 
 		// #TODO GL1.2.3
 		// Construct the model matrix for the current planet (actor) and store it in actor.mat_model_to_world.
@@ -117,15 +135,87 @@ export class SysOrbitalMovement {
 
 		// Store the combined transform in actor.mat_model_to_world
 		mat4_matmul_many(actor.mat_model_to_world, M_orbit, M_spin, M_scale);
+=======
+		/*
+		#TODO GL1.2.3
+		Construct the model matrix for the current planet (actor) and store it in actor.mat_model_to_world.
+		
+		Orbit (if the parent actor.orbit is not null)
+			* find the parent planet 
+				parent = actors_by_name[actor.orbit]
+			* Parent's transform is stored in
+				parent.mat_model_to_world
+			* Radius of orbit: 
+				radius = actor.orbit_radius
+			* Angle of orbit:
+				angle = sim_time * actor.orbit_speed + actor.orbit_phase
+
+		Spin around the planet's Z axis
+			angle = sim_time * actor.rotation_speed (radians)
+		
+		Scale the unit sphere to match the desired size
+			scale = actor.size
+			mat4.fromScaling takes a 3D vector!
+		*/
+
+		//const M_orbit = mat4.create();
+		// Create the local transformation: spin then scale
+		const M_local = mat4.create();
+		mat4.identity(M_local);
+		// Scale the unit sphere to desired size first
+		mat4.scale(M_local, M_local, [actor.size, actor.size, actor.size]);
+		// Then apply spin around Z: angle = sim_time * actor.rotation_speed
+		mat4.rotateZ(M_local, M_local, sim_time * actor.rotation_speed);
+
+		if (actor.orbit !== null) {
+			// Retrieve parent's model matrix from which we extract its translation
+			const parent = actors_by_name[actor.orbit];
+			const parentTranslation = vec3.create();
+			mat4.getTranslation(parentTranslation, parent.mat_model_to_world);
+			// Create a translation matrix from the parent's translation
+			const T_parent = mat4.fromTranslation(mat4.create(), parentTranslation);
+		
+			// Compute orbit parameters:
+			// Orbit angle: sim_time * actor.orbit_speed + actor.orbit_phase
+			const orbit_angle = sim_time * actor.orbit_speed + actor.orbit_phase;
+			// Create the orbit translation matrix in the XY plane
+			const T_orbit = mat4.fromTranslation(mat4.create(), [
+			  actor.orbit_radius * Math.cos(orbit_angle),
+			  actor.orbit_radius * Math.sin(orbit_angle),
+			  0
+			]);
+		
+			// Compose the final model matrix as:
+			// actor.mat_model_to_world = T_parent * T_orbit * M_local
+			const M = mat4.create();
+			mat4.multiply(M, T_parent, T_orbit); // first apply parent's translation then orbit translation
+			mat4.multiply(M, M, M_local);         // then apply the local (scale and spin) transformation
+			mat4.copy(actor.mat_model_to_world, M);
+		  } else {
+			// If there's no parent, the model matrix is just the local transformation
+			mat4.copy(actor.mat_model_to_world, M_local);
+		  }
+		
+		// Store the combined transform in actor.mat_model_to_world
+		//mat4_matmul_many(actor.mat_model_to_world, ...);
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 	}
 
 	simulate(scene_info) {
 
+<<<<<<< HEAD
 		const { sim_time, actors, actors_by_name } = scene_info
 
 		// Iterate over actors which have planet movement type
 		for (const actor of actors) {
 			if (actor.movement_type === 'planet') {
+=======
+		const {sim_time, actors, actors_by_name} = scene_info
+
+		// Iterate over actors which have planet movement type
+		for(const actor of actors) {
+			if ( actor.movement_type === 'planet' ) {
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 				this.calculate_model_matrix(actor, sim_time, actors_by_name)
 			}
 		}
@@ -149,13 +239,22 @@ export class SysRenderPlanetsUnshaded {
 			},
 			// Faces, as triplets of vertex indices
 			elements: mesh_uvsphere.faces,
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 			// Uniforms: global data available to the shader
 			uniforms: {
 				mat_mvp: regl.prop('mat_mvp'),
 				texture_base_color: regl.prop('tex_base_color'),
+<<<<<<< HEAD
 			},
 
+=======
+			},	
+	
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 			vert: resources['unshaded.vert.glsl'],
 			frag: resources['unshaded.frag.glsl'],
 		})
@@ -173,10 +272,17 @@ export class SysRenderPlanetsUnshaded {
 		const entries_to_draw = []
 
 		// Read frame info
+<<<<<<< HEAD
 		const { mat_projection, mat_view } = frame_info
 
 		// For each planet, construct information needed to draw it using the pipeline
 		for (const actor of scene_info.actors) {
+=======
+		const {mat_projection, mat_view} = frame_info
+	
+		// For each planet, construct information needed to draw it using the pipeline
+		for( const actor of scene_info.actors ) {
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 
 			// Choose only planet using this shader
 			if (actor.shader_type === 'unshaded') {
@@ -185,12 +291,21 @@ export class SysRenderPlanetsUnshaded {
 
 				// #TODO GL1.2.1.2
 				// Calculate mat_mvp: model-view-projection matrix	
+<<<<<<< HEAD
 				mat4_matmul_many(mat_mvp, mat_projection, mat_view, actor.mat_model_to_world)
+=======
+				mat4.multiply(mat_mvp, mat_view, actor.mat_model_to_world);
+				mat4.multiply(mat_mvp, mat_projection, mat_mvp);
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 
 				entries_to_draw.push({
 					mat_mvp: mat_mvp,
 					tex_base_color: this.resources[actor.texture_name],
+<<<<<<< HEAD
 				})
+=======
+				});
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 			}
 		}
 

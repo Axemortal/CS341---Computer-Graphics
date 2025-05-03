@@ -171,7 +171,11 @@ export async function load_resources(regl) {
 		https://github.com/regl-project/regl/blob/master/API.md#textures
 	*/
 	const tex_load_options = {
+<<<<<<< HEAD
 		wrap: 'repeat',
+=======
+		wrap: ['repeat', 'repeat'],
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 	}
 	resource_promises[floor_tex_name] = load_texture(regl, `./textures/${floor_tex_name}`, tex_load_options)
 

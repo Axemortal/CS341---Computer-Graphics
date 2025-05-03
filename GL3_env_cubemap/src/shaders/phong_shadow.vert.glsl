@@ -29,7 +29,11 @@ void main() {
     */
 	// viewing vector (from camera to vertex in view coordinates), camera is at vec3(0, 0, 0) in cam coords
 	// vertex position in camera coordinates
+<<<<<<< HEAD
 	v2f_position = (mat_model_view * vec4(vertex_position, 1)).xyz;
+=======
+	v2f_position = (mat_model_view * vec4(vertex_position, 1)).rgb;
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 	// transform normal to camera coordinates
 	v2f_normal = mat_normals_to_view * vertex_normal;
 

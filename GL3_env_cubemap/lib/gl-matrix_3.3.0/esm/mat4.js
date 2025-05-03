@@ -1,4 +1,5 @@
 import * as glMatrix from "./common.js";
+<<<<<<< HEAD
 /**
  * 4x4 Matrix<br>Format: column-major, when typed out it looks like row-major<br>The matrices are being post multiplied.
  * @module mat4
@@ -8,6 +9,17 @@ import * as glMatrix from "./common.js";
  * Creates a new identity mat4
  *
  * @returns {mat4} a new 4x4 matrix
+=======
+/**
+ * 4x4 Matrix<br>Format: column-major, when typed out it looks like row-major<br>The matrices are being post multiplied.
+ * @module mat4
+ */
+
+/**
+ * Creates a new identity mat4
+ *
+ * @returns {mat4} a new 4x4 matrix
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function create() {
@@ -34,11 +46,19 @@ export function create() {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a new mat4 initialized with values from an existing matrix
  *
  * @param {ReadonlyMat4} a matrix to clone
  * @returns {mat4} a new 4x4 matrix
+=======
+/**
+ * Creates a new mat4 initialized with values from an existing matrix
+ *
+ * @param {ReadonlyMat4} a matrix to clone
+ * @returns {mat4} a new 4x4 matrix
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function clone(a) {
@@ -61,12 +81,21 @@ export function clone(a) {
   out[15] = a[15];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Copy the values from one mat4 to another
  *
  * @param {mat4} out the receiving matrix
  * @param {ReadonlyMat4} a the source matrix
  * @returns {mat4} out
+=======
+/**
+ * Copy the values from one mat4 to another
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {ReadonlyMat4} a the source matrix
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function copy(out, a) {
@@ -88,6 +117,7 @@ export function copy(out, a) {
   out[15] = a[15];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Create a new mat4 with the given values
  *
@@ -108,6 +138,28 @@ export function copy(out, a) {
  * @param {Number} m32 Component in column 3, row 2 position (index 14)
  * @param {Number} m33 Component in column 3, row 3 position (index 15)
  * @returns {mat4} A new mat4
+=======
+/**
+ * Create a new mat4 with the given values
+ *
+ * @param {Number} m00 Component in column 0, row 0 position (index 0)
+ * @param {Number} m01 Component in column 0, row 1 position (index 1)
+ * @param {Number} m02 Component in column 0, row 2 position (index 2)
+ * @param {Number} m03 Component in column 0, row 3 position (index 3)
+ * @param {Number} m10 Component in column 1, row 0 position (index 4)
+ * @param {Number} m11 Component in column 1, row 1 position (index 5)
+ * @param {Number} m12 Component in column 1, row 2 position (index 6)
+ * @param {Number} m13 Component in column 1, row 3 position (index 7)
+ * @param {Number} m20 Component in column 2, row 0 position (index 8)
+ * @param {Number} m21 Component in column 2, row 1 position (index 9)
+ * @param {Number} m22 Component in column 2, row 2 position (index 10)
+ * @param {Number} m23 Component in column 2, row 3 position (index 11)
+ * @param {Number} m30 Component in column 3, row 0 position (index 12)
+ * @param {Number} m31 Component in column 3, row 1 position (index 13)
+ * @param {Number} m32 Component in column 3, row 2 position (index 14)
+ * @param {Number} m33 Component in column 3, row 3 position (index 15)
+ * @returns {mat4} A new mat4
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromValues(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
@@ -130,6 +182,7 @@ export function fromValues(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22
   out[15] = m33;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Set the components of a mat4 to the given values
  *
@@ -151,6 +204,29 @@ export function fromValues(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22
  * @param {Number} m32 Component in column 3, row 2 position (index 14)
  * @param {Number} m33 Component in column 3, row 3 position (index 15)
  * @returns {mat4} out
+=======
+/**
+ * Set the components of a mat4 to the given values
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {Number} m00 Component in column 0, row 0 position (index 0)
+ * @param {Number} m01 Component in column 0, row 1 position (index 1)
+ * @param {Number} m02 Component in column 0, row 2 position (index 2)
+ * @param {Number} m03 Component in column 0, row 3 position (index 3)
+ * @param {Number} m10 Component in column 1, row 0 position (index 4)
+ * @param {Number} m11 Component in column 1, row 1 position (index 5)
+ * @param {Number} m12 Component in column 1, row 2 position (index 6)
+ * @param {Number} m13 Component in column 1, row 3 position (index 7)
+ * @param {Number} m20 Component in column 2, row 0 position (index 8)
+ * @param {Number} m21 Component in column 2, row 1 position (index 9)
+ * @param {Number} m22 Component in column 2, row 2 position (index 10)
+ * @param {Number} m23 Component in column 2, row 3 position (index 11)
+ * @param {Number} m30 Component in column 3, row 0 position (index 12)
+ * @param {Number} m31 Component in column 3, row 1 position (index 13)
+ * @param {Number} m32 Component in column 3, row 2 position (index 14)
+ * @param {Number} m33 Component in column 3, row 3 position (index 15)
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function set(out, m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
@@ -172,11 +248,19 @@ export function set(out, m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, 
   out[15] = m33;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Set a mat4 to the identity matrix
  *
  * @param {mat4} out the receiving matrix
  * @returns {mat4} out
+=======
+/**
+ * Set a mat4 to the identity matrix
+ *
+ * @param {mat4} out the receiving matrix
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function identity(out) {
@@ -198,12 +282,21 @@ export function identity(out) {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Transpose the values of a mat4
  *
  * @param {mat4} out the receiving matrix
  * @param {ReadonlyMat4} a the source matrix
  * @returns {mat4} out
+=======
+/**
+ * Transpose the values of a mat4
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {ReadonlyMat4} a the source matrix
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function transpose(out, a) {
@@ -248,12 +341,21 @@ export function transpose(out, a) {
 
   return out;
 }
+<<<<<<< HEAD
 /**
  * Inverts a mat4
  *
  * @param {mat4} out the receiving matrix
  * @param {ReadonlyMat4} a the source matrix
  * @returns {mat4} out
+=======
+/**
+ * Inverts a mat4
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {ReadonlyMat4} a the source matrix
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function invert(out, a) {
@@ -311,12 +413,21 @@ export function invert(out, a) {
   out[15] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Calculates the adjugate of a mat4
  *
  * @param {mat4} out the receiving matrix
  * @param {ReadonlyMat4} a the source matrix
  * @returns {mat4} out
+=======
+/**
+ * Calculates the adjugate of a mat4
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {ReadonlyMat4} a the source matrix
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function adjoint(out, a) {
@@ -354,11 +465,19 @@ export function adjoint(out, a) {
   out[15] = a00 * (a11 * a22 - a12 * a21) - a10 * (a01 * a22 - a02 * a21) + a20 * (a01 * a12 - a02 * a11);
   return out;
 }
+<<<<<<< HEAD
 /**
  * Calculates the determinant of a mat4
  *
  * @param {ReadonlyMat4} a the source matrix
  * @returns {Number} determinant of a
+=======
+/**
+ * Calculates the determinant of a mat4
+ *
+ * @param {ReadonlyMat4} a the source matrix
+ * @returns {Number} determinant of a
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function determinant(a) {
@@ -393,6 +512,7 @@ export function determinant(a) {
 
   return b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 }
+<<<<<<< HEAD
 /**
  * Multiplies two mat4s
  *
@@ -400,6 +520,15 @@ export function determinant(a) {
  * @param {ReadonlyMat4} a the first operand
  * @param {ReadonlyMat4} b the second operand
  * @returns {mat4} out
+=======
+/**
+ * Multiplies two mat4s
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {ReadonlyMat4} a the first operand
+ * @param {ReadonlyMat4} b the second operand
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function multiply(out, a, b) {
@@ -454,6 +583,7 @@ export function multiply(out, a, b) {
   out[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Translate a mat4 by the given vector
  *
@@ -461,6 +591,15 @@ export function multiply(out, a, b) {
  * @param {ReadonlyMat4} a the matrix to translate
  * @param {ReadonlyVec3} v vector to translate by
  * @returns {mat4} out
+=======
+/**
+ * Translate a mat4 by the given vector
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {ReadonlyMat4} a the matrix to translate
+ * @param {ReadonlyVec3} v vector to translate by
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function translate(out, a, v) {
@@ -509,6 +648,7 @@ export function translate(out, a, v) {
 
   return out;
 }
+<<<<<<< HEAD
 /**
  * Scales the mat4 by the dimensions in the given vec3 not using vectorization
  *
@@ -516,6 +656,15 @@ export function translate(out, a, v) {
  * @param {ReadonlyMat4} a the matrix to scale
  * @param {ReadonlyVec3} v the vec3 to scale the matrix by
  * @returns {mat4} out
+=======
+/**
+ * Scales the mat4 by the dimensions in the given vec3 not using vectorization
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {ReadonlyMat4} a the matrix to scale
+ * @param {ReadonlyVec3} v the vec3 to scale the matrix by
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  **/
 
 export function scale(out, a, v) {
@@ -540,6 +689,7 @@ export function scale(out, a, v) {
   out[15] = a[15];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Rotates a mat4 by the given angle around the given axis
  *
@@ -548,6 +698,16 @@ export function scale(out, a, v) {
  * @param {Number} rad the angle to rotate the matrix by
  * @param {ReadonlyVec3} axis the axis to rotate around
  * @returns {mat4} out
+=======
+/**
+ * Rotates a mat4 by the given angle around the given axis
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {ReadonlyMat4} a the matrix to rotate
+ * @param {Number} rad the angle to rotate the matrix by
+ * @param {ReadonlyVec3} axis the axis to rotate around
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function rotate(out, a, rad, axis) {
@@ -620,6 +780,7 @@ export function rotate(out, a, rad, axis) {
 
   return out;
 }
+<<<<<<< HEAD
 /**
  * Rotates a matrix by the given angle around the X axis
  *
@@ -627,6 +788,15 @@ export function rotate(out, a, rad, axis) {
  * @param {ReadonlyMat4} a the matrix to rotate
  * @param {Number} rad the angle to rotate the matrix by
  * @returns {mat4} out
+=======
+/**
+ * Rotates a matrix by the given angle around the X axis
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {ReadonlyMat4} a the matrix to rotate
+ * @param {Number} rad the angle to rotate the matrix by
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function rotateX(out, a, rad) {
@@ -664,6 +834,7 @@ export function rotateX(out, a, rad) {
   out[11] = a23 * c - a13 * s;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Rotates a matrix by the given angle around the Y axis
  *
@@ -671,6 +842,15 @@ export function rotateX(out, a, rad) {
  * @param {ReadonlyMat4} a the matrix to rotate
  * @param {Number} rad the angle to rotate the matrix by
  * @returns {mat4} out
+=======
+/**
+ * Rotates a matrix by the given angle around the Y axis
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {ReadonlyMat4} a the matrix to rotate
+ * @param {Number} rad the angle to rotate the matrix by
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function rotateY(out, a, rad) {
@@ -708,6 +888,7 @@ export function rotateY(out, a, rad) {
   out[11] = a03 * s + a23 * c;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Rotates a matrix by the given angle around the Z axis
  *
@@ -715,6 +896,15 @@ export function rotateY(out, a, rad) {
  * @param {ReadonlyMat4} a the matrix to rotate
  * @param {Number} rad the angle to rotate the matrix by
  * @returns {mat4} out
+=======
+/**
+ * Rotates a matrix by the given angle around the Z axis
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {ReadonlyMat4} a the matrix to rotate
+ * @param {Number} rad the angle to rotate the matrix by
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function rotateZ(out, a, rad) {
@@ -752,6 +942,7 @@ export function rotateZ(out, a, rad) {
   out[7] = a13 * c - a03 * s;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a matrix from a vector translation
  * This is equivalent to (but much faster than):
@@ -762,6 +953,18 @@ export function rotateZ(out, a, rad) {
  * @param {mat4} out mat4 receiving operation result
  * @param {ReadonlyVec3} v Translation vector
  * @returns {mat4} out
+=======
+/**
+ * Creates a matrix from a vector translation
+ * This is equivalent to (but much faster than):
+ *
+ *     mat4.identity(dest);
+ *     mat4.translate(dest, dest, vec);
+ *
+ * @param {mat4} out mat4 receiving operation result
+ * @param {ReadonlyVec3} v Translation vector
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromTranslation(out, v) {
@@ -783,6 +986,7 @@ export function fromTranslation(out, v) {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a matrix from a vector scaling
  * This is equivalent to (but much faster than):
@@ -793,6 +997,18 @@ export function fromTranslation(out, v) {
  * @param {mat4} out mat4 receiving operation result
  * @param {ReadonlyVec3} v Scaling vector
  * @returns {mat4} out
+=======
+/**
+ * Creates a matrix from a vector scaling
+ * This is equivalent to (but much faster than):
+ *
+ *     mat4.identity(dest);
+ *     mat4.scale(dest, dest, vec);
+ *
+ * @param {mat4} out mat4 receiving operation result
+ * @param {ReadonlyVec3} v Scaling vector
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromScaling(out, v) {
@@ -814,6 +1030,7 @@ export function fromScaling(out, v) {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a matrix from a given angle around a given axis
  * This is equivalent to (but much faster than):
@@ -825,6 +1042,19 @@ export function fromScaling(out, v) {
  * @param {Number} rad the angle to rotate the matrix by
  * @param {ReadonlyVec3} axis the axis to rotate around
  * @returns {mat4} out
+=======
+/**
+ * Creates a matrix from a given angle around a given axis
+ * This is equivalent to (but much faster than):
+ *
+ *     mat4.identity(dest);
+ *     mat4.rotate(dest, dest, rad, axis);
+ *
+ * @param {mat4} out mat4 receiving operation result
+ * @param {Number} rad the angle to rotate the matrix by
+ * @param {ReadonlyVec3} axis the axis to rotate around
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromRotation(out, rad, axis) {
@@ -864,6 +1094,7 @@ export function fromRotation(out, rad, axis) {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a matrix from the given angle around the X axis
  * This is equivalent to (but much faster than):
@@ -874,6 +1105,18 @@ export function fromRotation(out, rad, axis) {
  * @param {mat4} out mat4 receiving operation result
  * @param {Number} rad the angle to rotate the matrix by
  * @returns {mat4} out
+=======
+/**
+ * Creates a matrix from the given angle around the X axis
+ * This is equivalent to (but much faster than):
+ *
+ *     mat4.identity(dest);
+ *     mat4.rotateX(dest, dest, rad);
+ *
+ * @param {mat4} out mat4 receiving operation result
+ * @param {Number} rad the angle to rotate the matrix by
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromXRotation(out, rad) {
@@ -898,6 +1141,7 @@ export function fromXRotation(out, rad) {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a matrix from the given angle around the Y axis
  * This is equivalent to (but much faster than):
@@ -908,6 +1152,18 @@ export function fromXRotation(out, rad) {
  * @param {mat4} out mat4 receiving operation result
  * @param {Number} rad the angle to rotate the matrix by
  * @returns {mat4} out
+=======
+/**
+ * Creates a matrix from the given angle around the Y axis
+ * This is equivalent to (but much faster than):
+ *
+ *     mat4.identity(dest);
+ *     mat4.rotateY(dest, dest, rad);
+ *
+ * @param {mat4} out mat4 receiving operation result
+ * @param {Number} rad the angle to rotate the matrix by
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromYRotation(out, rad) {
@@ -932,6 +1188,7 @@ export function fromYRotation(out, rad) {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a matrix from the given angle around the Z axis
  * This is equivalent to (but much faster than):
@@ -942,6 +1199,18 @@ export function fromYRotation(out, rad) {
  * @param {mat4} out mat4 receiving operation result
  * @param {Number} rad the angle to rotate the matrix by
  * @returns {mat4} out
+=======
+/**
+ * Creates a matrix from the given angle around the Z axis
+ * This is equivalent to (but much faster than):
+ *
+ *     mat4.identity(dest);
+ *     mat4.rotateZ(dest, dest, rad);
+ *
+ * @param {mat4} out mat4 receiving operation result
+ * @param {Number} rad the angle to rotate the matrix by
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromZRotation(out, rad) {
@@ -966,6 +1235,7 @@ export function fromZRotation(out, rad) {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a matrix from a quaternion rotation and vector translation
  * This is equivalent to (but much faster than):
@@ -980,6 +1250,22 @@ export function fromZRotation(out, rad) {
  * @param {quat4} q Rotation quaternion
  * @param {ReadonlyVec3} v Translation vector
  * @returns {mat4} out
+=======
+/**
+ * Creates a matrix from a quaternion rotation and vector translation
+ * This is equivalent to (but much faster than):
+ *
+ *     mat4.identity(dest);
+ *     mat4.translate(dest, vec);
+ *     let quatMat = mat4.create();
+ *     quat4.toMat4(quat, quatMat);
+ *     mat4.multiply(dest, quatMat);
+ *
+ * @param {mat4} out mat4 receiving operation result
+ * @param {quat4} q Rotation quaternion
+ * @param {ReadonlyVec3} v Translation vector
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromRotationTranslation(out, q, v) {
@@ -1018,12 +1304,21 @@ export function fromRotationTranslation(out, q, v) {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a new mat4 from a dual quat.
  *
  * @param {mat4} out Matrix
  * @param {ReadonlyQuat2} a Dual Quaternion
  * @returns {mat4} mat4 receiving operation result
+=======
+/**
+ * Creates a new mat4 from a dual quat.
+ *
+ * @param {mat4} out Matrix
+ * @param {ReadonlyQuat2} a Dual Quaternion
+ * @returns {mat4} mat4 receiving operation result
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromQuat2(out, a) {
@@ -1051,6 +1346,7 @@ export function fromQuat2(out, a) {
   fromRotationTranslation(out, a, translation);
   return out;
 }
+<<<<<<< HEAD
 /**
  * Returns the translation vector component of a transformation
  *  matrix. If a matrix is built with fromRotationTranslation,
@@ -1059,6 +1355,16 @@ export function fromQuat2(out, a) {
  * @param  {vec3} out Vector to receive translation component
  * @param  {ReadonlyMat4} mat Matrix to be decomposed (input)
  * @return {vec3} out
+=======
+/**
+ * Returns the translation vector component of a transformation
+ *  matrix. If a matrix is built with fromRotationTranslation,
+ *  the returned vector will be the same as the translation vector
+ *  originally supplied.
+ * @param  {vec3} out Vector to receive translation component
+ * @param  {ReadonlyMat4} mat Matrix to be decomposed (input)
+ * @return {vec3} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function getTranslation(out, mat) {
@@ -1067,6 +1373,7 @@ export function getTranslation(out, mat) {
   out[2] = mat[14];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Returns the scaling factor component of a transformation
  *  matrix. If a matrix is built with fromRotationTranslationScale
@@ -1076,6 +1383,17 @@ export function getTranslation(out, mat) {
  * @param  {vec3} out Vector to receive scaling factor component
  * @param  {ReadonlyMat4} mat Matrix to be decomposed (input)
  * @return {vec3} out
+=======
+/**
+ * Returns the scaling factor component of a transformation
+ *  matrix. If a matrix is built with fromRotationTranslationScale
+ *  with a normalized Quaternion paramter, the returned vector will be
+ *  the same as the scaling vector
+ *  originally supplied.
+ * @param  {vec3} out Vector to receive scaling factor component
+ * @param  {ReadonlyMat4} mat Matrix to be decomposed (input)
+ * @return {vec3} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function getScaling(out, mat) {
@@ -1093,6 +1411,7 @@ export function getScaling(out, mat) {
   out[2] = Math.hypot(m31, m32, m33);
   return out;
 }
+<<<<<<< HEAD
 /**
  * Returns a quaternion representing the rotational component
  *  of a transformation matrix. If a matrix is built with
@@ -1101,6 +1420,16 @@ export function getScaling(out, mat) {
  * @param {quat} out Quaternion to receive the rotation component
  * @param {ReadonlyMat4} mat Matrix to be decomposed (input)
  * @return {quat} out
+=======
+/**
+ * Returns a quaternion representing the rotational component
+ *  of a transformation matrix. If a matrix is built with
+ *  fromRotationTranslation, the returned quaternion will be the
+ *  same as the quaternion originally supplied.
+ * @param {quat} out Quaternion to receive the rotation component
+ * @param {ReadonlyMat4} mat Matrix to be decomposed (input)
+ * @return {quat} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function getRotation(out, mat) {
@@ -1149,6 +1478,7 @@ export function getRotation(out, mat) {
 
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a matrix from a quaternion rotation, vector translation and vector scale
  * This is equivalent to (but much faster than):
@@ -1165,6 +1495,24 @@ export function getRotation(out, mat) {
  * @param {ReadonlyVec3} v Translation vector
  * @param {ReadonlyVec3} s Scaling vector
  * @returns {mat4} out
+=======
+/**
+ * Creates a matrix from a quaternion rotation, vector translation and vector scale
+ * This is equivalent to (but much faster than):
+ *
+ *     mat4.identity(dest);
+ *     mat4.translate(dest, vec);
+ *     let quatMat = mat4.create();
+ *     quat4.toMat4(quat, quatMat);
+ *     mat4.multiply(dest, quatMat);
+ *     mat4.scale(dest, scale)
+ *
+ * @param {mat4} out mat4 receiving operation result
+ * @param {quat4} q Rotation quaternion
+ * @param {ReadonlyVec3} v Translation vector
+ * @param {ReadonlyVec3} s Scaling vector
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromRotationTranslationScale(out, q, v, s) {
@@ -1206,6 +1554,7 @@ export function fromRotationTranslationScale(out, q, v, s) {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a matrix from a quaternion rotation, vector translation and vector scale, rotating and scaling around the given origin
  * This is equivalent to (but much faster than):
@@ -1225,6 +1574,27 @@ export function fromRotationTranslationScale(out, q, v, s) {
  * @param {ReadonlyVec3} s Scaling vector
  * @param {ReadonlyVec3} o The origin vector around which to scale and rotate
  * @returns {mat4} out
+=======
+/**
+ * Creates a matrix from a quaternion rotation, vector translation and vector scale, rotating and scaling around the given origin
+ * This is equivalent to (but much faster than):
+ *
+ *     mat4.identity(dest);
+ *     mat4.translate(dest, vec);
+ *     mat4.translate(dest, origin);
+ *     let quatMat = mat4.create();
+ *     quat4.toMat4(quat, quatMat);
+ *     mat4.multiply(dest, quatMat);
+ *     mat4.scale(dest, scale)
+ *     mat4.translate(dest, negativeOrigin);
+ *
+ * @param {mat4} out mat4 receiving operation result
+ * @param {quat4} q Rotation quaternion
+ * @param {ReadonlyVec3} v Translation vector
+ * @param {ReadonlyVec3} s Scaling vector
+ * @param {ReadonlyVec3} o The origin vector around which to scale and rotate
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromRotationTranslationScaleOrigin(out, q, v, s, o) {
@@ -1278,6 +1648,7 @@ export function fromRotationTranslationScaleOrigin(out, q, v, s, o) {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Calculates a 4x4 matrix from the given quaternion
  *
@@ -1285,6 +1656,15 @@ export function fromRotationTranslationScaleOrigin(out, q, v, s, o) {
  * @param {ReadonlyQuat} q Quaternion to create matrix from
  *
  * @returns {mat4} out
+=======
+/**
+ * Calculates a 4x4 matrix from the given quaternion
+ *
+ * @param {mat4} out mat4 receiving operation result
+ * @param {ReadonlyQuat} q Quaternion to create matrix from
+ *
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromQuat(out, q) {
@@ -1322,6 +1702,7 @@ export function fromQuat(out, q) {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Generates a frustum matrix with the given bounds
  *
@@ -1333,6 +1714,19 @@ export function fromQuat(out, q) {
  * @param {Number} near Near bound of the frustum
  * @param {Number} far Far bound of the frustum
  * @returns {mat4} out
+=======
+/**
+ * Generates a frustum matrix with the given bounds
+ *
+ * @param {mat4} out mat4 frustum matrix will be written into
+ * @param {Number} left Left bound of the frustum
+ * @param {Number} right Right bound of the frustum
+ * @param {Number} bottom Bottom bound of the frustum
+ * @param {Number} top Top bound of the frustum
+ * @param {Number} near Near bound of the frustum
+ * @param {Number} far Far bound of the frustum
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function frustum(out, left, right, bottom, top, near, far) {
@@ -1357,6 +1751,7 @@ export function frustum(out, left, right, bottom, top, near, far) {
   out[15] = 0;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Generates a perspective projection matrix with the given bounds.
  * Passing null/undefined/no value for far will generate infinite projection matrix.
@@ -1367,6 +1762,18 @@ export function frustum(out, left, right, bottom, top, near, far) {
  * @param {number} near Near bound of the frustum
  * @param {number} far Far bound of the frustum, can be null or Infinity
  * @returns {mat4} out
+=======
+/**
+ * Generates a perspective projection matrix with the given bounds.
+ * Passing null/undefined/no value for far will generate infinite projection matrix.
+ *
+ * @param {mat4} out mat4 frustum matrix will be written into
+ * @param {number} fovy Vertical field of view in radians
+ * @param {number} aspect Aspect ratio. typically viewport width/height
+ * @param {number} near Near bound of the frustum
+ * @param {number} far Far bound of the frustum, can be null or Infinity
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function perspective(out, fovy, aspect, near, far) {
@@ -1398,6 +1805,7 @@ export function perspective(out, fovy, aspect, near, far) {
 
   return out;
 }
+<<<<<<< HEAD
 /**
  * Generates a perspective projection matrix with the given field of view.
  * This is primarily useful for generating projection matrices to be used
@@ -1408,6 +1816,18 @@ export function perspective(out, fovy, aspect, near, far) {
  * @param {number} near Near bound of the frustum
  * @param {number} far Far bound of the frustum
  * @returns {mat4} out
+=======
+/**
+ * Generates a perspective projection matrix with the given field of view.
+ * This is primarily useful for generating projection matrices to be used
+ * with the still experiemental WebVR API.
+ *
+ * @param {mat4} out mat4 frustum matrix will be written into
+ * @param {Object} fov Object containing the following values: upDegrees, downDegrees, leftDegrees, rightDegrees
+ * @param {number} near Near bound of the frustum
+ * @param {number} far Far bound of the frustum
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function perspectiveFromFieldOfView(out, fov, near, far) {
@@ -1435,6 +1855,7 @@ export function perspectiveFromFieldOfView(out, fov, near, far) {
   out[15] = 0.0;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Generates a orthogonal projection matrix with the given bounds
  *
@@ -1446,6 +1867,19 @@ export function perspectiveFromFieldOfView(out, fov, near, far) {
  * @param {number} near Near bound of the frustum
  * @param {number} far Far bound of the frustum
  * @returns {mat4} out
+=======
+/**
+ * Generates a orthogonal projection matrix with the given bounds
+ *
+ * @param {mat4} out mat4 frustum matrix will be written into
+ * @param {number} left Left bound of the frustum
+ * @param {number} right Right bound of the frustum
+ * @param {number} bottom Bottom bound of the frustum
+ * @param {number} top Top bound of the frustum
+ * @param {number} near Near bound of the frustum
+ * @param {number} far Far bound of the frustum
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function ortho(out, left, right, bottom, top, near, far) {
@@ -1470,6 +1904,7 @@ export function ortho(out, left, right, bottom, top, near, far) {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Generates a look-at matrix with the given eye position, focal point, and up axis.
  * If you want a matrix that actually makes an object look at another object, you should use targetTo instead.
@@ -1479,6 +1914,17 @@ export function ortho(out, left, right, bottom, top, near, far) {
  * @param {ReadonlyVec3} center Point the viewer is looking at
  * @param {ReadonlyVec3} up vec3 pointing up
  * @returns {mat4} out
+=======
+/**
+ * Generates a look-at matrix with the given eye position, focal point, and up axis.
+ * If you want a matrix that actually makes an object look at another object, you should use targetTo instead.
+ *
+ * @param {mat4} out mat4 frustum matrix will be written into
+ * @param {ReadonlyVec3} eye Position of the viewer
+ * @param {ReadonlyVec3} center Point the viewer is looking at
+ * @param {ReadonlyVec3} up vec3 pointing up
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function lookAt(out, eye, center, up) {
@@ -1554,6 +2000,7 @@ export function lookAt(out, eye, center, up) {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Generates a matrix that makes something look at something else.
  *
@@ -1562,6 +2009,16 @@ export function lookAt(out, eye, center, up) {
  * @param {ReadonlyVec3} center Point the viewer is looking at
  * @param {ReadonlyVec3} up vec3 pointing up
  * @returns {mat4} out
+=======
+/**
+ * Generates a matrix that makes something look at something else.
+ *
+ * @param {mat4} out mat4 frustum matrix will be written into
+ * @param {ReadonlyVec3} eye Position of the viewer
+ * @param {ReadonlyVec3} center Point the viewer is looking at
+ * @param {ReadonlyVec3} up vec3 pointing up
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function targetTo(out, eye, target, up) {
@@ -1613,26 +2070,43 @@ export function targetTo(out, eye, target, up) {
   out[15] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Returns a string representation of a mat4
  *
  * @param {ReadonlyMat4} a matrix to represent as a string
  * @returns {String} string representation of the matrix
+=======
+/**
+ * Returns a string representation of a mat4
+ *
+ * @param {ReadonlyMat4} a matrix to represent as a string
+ * @returns {String} string representation of the matrix
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function str(a) {
   return "mat4(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ", " + a[8] + ", " + a[9] + ", " + a[10] + ", " + a[11] + ", " + a[12] + ", " + a[13] + ", " + a[14] + ", " + a[15] + ")";
 }
+<<<<<<< HEAD
 /**
  * Returns Frobenius norm of a mat4
  *
  * @param {ReadonlyMat4} a the matrix to calculate Frobenius norm of
  * @returns {Number} Frobenius norm
+=======
+/**
+ * Returns Frobenius norm of a mat4
+ *
+ * @param {ReadonlyMat4} a the matrix to calculate Frobenius norm of
+ * @returns {Number} Frobenius norm
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function frob(a) {
   return Math.hypot(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]);
 }
+<<<<<<< HEAD
 /**
  * Adds two mat4's
  *
@@ -1640,6 +2114,15 @@ export function frob(a) {
  * @param {ReadonlyMat4} a the first operand
  * @param {ReadonlyMat4} b the second operand
  * @returns {mat4} out
+=======
+/**
+ * Adds two mat4's
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {ReadonlyMat4} a the first operand
+ * @param {ReadonlyMat4} b the second operand
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function add(out, a, b) {
@@ -1661,6 +2144,7 @@ export function add(out, a, b) {
   out[15] = a[15] + b[15];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Subtracts matrix b from matrix a
  *
@@ -1668,6 +2152,15 @@ export function add(out, a, b) {
  * @param {ReadonlyMat4} a the first operand
  * @param {ReadonlyMat4} b the second operand
  * @returns {mat4} out
+=======
+/**
+ * Subtracts matrix b from matrix a
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {ReadonlyMat4} a the first operand
+ * @param {ReadonlyMat4} b the second operand
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function subtract(out, a, b) {
@@ -1689,6 +2182,7 @@ export function subtract(out, a, b) {
   out[15] = a[15] - b[15];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Multiply each element of the matrix by a scalar.
  *
@@ -1696,6 +2190,15 @@ export function subtract(out, a, b) {
  * @param {ReadonlyMat4} a the matrix to scale
  * @param {Number} b amount to scale the matrix's elements by
  * @returns {mat4} out
+=======
+/**
+ * Multiply each element of the matrix by a scalar.
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {ReadonlyMat4} a the matrix to scale
+ * @param {Number} b amount to scale the matrix's elements by
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function multiplyScalar(out, a, b) {
@@ -1717,6 +2220,7 @@ export function multiplyScalar(out, a, b) {
   out[15] = a[15] * b;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Adds two mat4's after multiplying each element of the second operand by a scalar value.
  *
@@ -1725,6 +2229,16 @@ export function multiplyScalar(out, a, b) {
  * @param {ReadonlyMat4} b the second operand
  * @param {Number} scale the amount to scale b's elements by before adding
  * @returns {mat4} out
+=======
+/**
+ * Adds two mat4's after multiplying each element of the second operand by a scalar value.
+ *
+ * @param {mat4} out the receiving vector
+ * @param {ReadonlyMat4} a the first operand
+ * @param {ReadonlyMat4} b the second operand
+ * @param {Number} scale the amount to scale b's elements by before adding
+ * @returns {mat4} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function multiplyScalarAndAdd(out, a, b, scale) {
@@ -1746,23 +2260,41 @@ export function multiplyScalarAndAdd(out, a, b, scale) {
   out[15] = a[15] + b[15] * scale;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Returns whether or not the matrices have exactly the same elements in the same position (when compared with ===)
  *
  * @param {ReadonlyMat4} a The first matrix.
  * @param {ReadonlyMat4} b The second matrix.
  * @returns {Boolean} True if the matrices are equal, false otherwise.
+=======
+/**
+ * Returns whether or not the matrices have exactly the same elements in the same position (when compared with ===)
+ *
+ * @param {ReadonlyMat4} a The first matrix.
+ * @param {ReadonlyMat4} b The second matrix.
+ * @returns {Boolean} True if the matrices are equal, false otherwise.
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function exactEquals(a, b) {
   return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3] && a[4] === b[4] && a[5] === b[5] && a[6] === b[6] && a[7] === b[7] && a[8] === b[8] && a[9] === b[9] && a[10] === b[10] && a[11] === b[11] && a[12] === b[12] && a[13] === b[13] && a[14] === b[14] && a[15] === b[15];
 }
+<<<<<<< HEAD
 /**
  * Returns whether or not the matrices have approximately the same elements in the same position.
  *
  * @param {ReadonlyMat4} a The first matrix.
  * @param {ReadonlyMat4} b The second matrix.
  * @returns {Boolean} True if the matrices are equal, false otherwise.
+=======
+/**
+ * Returns whether or not the matrices have approximately the same elements in the same position.
+ *
+ * @param {ReadonlyMat4} a The first matrix.
+ * @param {ReadonlyMat4} b The second matrix.
+ * @returns {Boolean} True if the matrices are equal, false otherwise.
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function equals(a, b) {
@@ -1800,6 +2332,7 @@ export function equals(a, b) {
       b15 = b[15];
   return Math.abs(a0 - b0) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3)) && Math.abs(a4 - b4) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a4), Math.abs(b4)) && Math.abs(a5 - b5) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a5), Math.abs(b5)) && Math.abs(a6 - b6) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a6), Math.abs(b6)) && Math.abs(a7 - b7) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a7), Math.abs(b7)) && Math.abs(a8 - b8) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a8), Math.abs(b8)) && Math.abs(a9 - b9) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a9), Math.abs(b9)) && Math.abs(a10 - b10) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a10), Math.abs(b10)) && Math.abs(a11 - b11) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a11), Math.abs(b11)) && Math.abs(a12 - b12) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a12), Math.abs(b12)) && Math.abs(a13 - b13) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a13), Math.abs(b13)) && Math.abs(a14 - b14) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a14), Math.abs(b14)) && Math.abs(a15 - b15) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a15), Math.abs(b15));
 }
+<<<<<<< HEAD
 /**
  * Alias for {@link mat4.multiply}
  * @function
@@ -1809,6 +2342,17 @@ export var mul = multiply;
 /**
  * Alias for {@link mat4.subtract}
  * @function
+=======
+/**
+ * Alias for {@link mat4.multiply}
+ * @function
+ */
+
+export var mul = multiply;
+/**
+ * Alias for {@link mat4.subtract}
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export var sub = subtract;

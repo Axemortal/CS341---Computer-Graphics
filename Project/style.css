@@ -124,11 +124,14 @@ button, #submitOffset {
 	border-radius: 0.1em;
 }
 
+<<<<<<< HEAD
 .dropdown{
 	margin-left: 0.5rem;
 	margin-right: 0.5rem;
 }
 
+=======
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 .slider{
 	height: 0.3em;
 	accent-color: #ffffff;

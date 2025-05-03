@@ -27,9 +27,16 @@ void main() {
     Hint: Write the final vertex position to gl_Position
     */
 	// viewing vector (from camera to vertex in view coordinates), camera is at vec3(0, 0, 0) in cam coords
+<<<<<<< HEAD
 	v2f_dir_to_camera = (mat_model_view * vec4(vertex_position, 1)).xyz;
 	// transform normal to camera coordinates
 	v2f_normal = mat_normals_to_view * vertex_normal;
 
+=======
+	vec4 view_space_position = mat_model_view * vec4(vertex_position, 1.0);
+	v2f_dir_to_camera = -normalize(view_space_position.xyz);
+	v2f_normal = normalize(mat_normals_to_view * vertex_normal);
+	
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 	gl_Position = mat_mvp * vec4(vertex_position, 1);
 }
