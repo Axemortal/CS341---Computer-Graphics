@@ -43,6 +43,7 @@ export class TrialScene extends Scene {
       });
     
     this.resourceManager.addProceduralMesh("plane", makePlane());
+
     this.proceduralTextureGenerator.generate_worley_texture(
         "worley_texture",
         {
@@ -89,10 +90,8 @@ export class TrialScene extends Scene {
    * Initialize custom scene-specific UI parameters to allow interactive control of selected scene elements.
    * This function is called in main() if the scene is active.
    */
-  initialize_ui_params(){
-
-      
-
+  initialize_ui_params() {
   }
+  
 
 }

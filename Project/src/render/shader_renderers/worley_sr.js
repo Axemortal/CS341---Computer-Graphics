@@ -37,7 +37,10 @@ export class WorleyShaderRenderer extends ShaderRenderer {
     const regl = this.regl;
     return regl({
       attributes: {
-        vertex_positions: regl.prop("mesh_quad_2d.vertex_positions"),
+        vertex_positions: {
+            buffer: regl.prop("mesh_quad_2d.vertex_positions"),
+            size: 3,
+          },
       },
       elements: regl.prop("mesh_quad_2d.faces"),
       uniforms: {

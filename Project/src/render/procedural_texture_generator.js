@@ -154,10 +154,10 @@ export class ProceduralTextureGenerator {
     return {
       vertex_positions: [
         // 4 vertices with 2 coordinates each
-        [-1, -1],
-        [1, -1],
-        [1, 1],
-        [-1, 1],
+        [-1, -1, 0],
+        [1, -1, 0],
+        [1, 1, 0],
+        [-1, 1, 0],
       ],
       faces: [
         [0, 1, 2], // top right
