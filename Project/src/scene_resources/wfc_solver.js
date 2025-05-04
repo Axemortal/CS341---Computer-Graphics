@@ -144,7 +144,7 @@ function rotateFaces(faces, rot) {
   return rotated;
 }
 
-function quatFromAxisAngle(axis, angle) {
+export function quatFromAxisAngle(axis, angle) {
   const half = angle * 0.5;
   const s    = Math.sin(half);
   // axis must be normalized—but here it’s one of the cardinal axes, so its length is 1
@@ -164,7 +164,9 @@ export async function runWFC(dimX = 10, dimY = 10, dimZ = 1) {
       y: [0, 1, 0],
       z: [0, 0, 1]
     };
-    const axis = axisMap[tile.rotationAxis] || axisMap.z; // fallback to Z
+    const axisKeys = ['x', 'y', 'z']
+    const randomAxisKey = axisKeys[Math.floor(Math.random() * axisKeys.length)];
+    const axis = axisMap[tile.rotationAxis] || axisMap[randomAxisKey]; // fallback to Z
 
     for (let rot = 0; rot < numRotations; rot++) {
       // compute exactly rot × 90° around that axis
