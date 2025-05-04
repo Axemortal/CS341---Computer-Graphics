@@ -1,7 +1,7 @@
 precision mediump float;
 
 uniform vec2 u_resolution;
-uniform float u_time;
+const vec2 u_time = vec2 (5.0, 1.0);
 uniform vec2 viewer_position;
 uniform float viewer_scale;
 
@@ -62,6 +62,6 @@ void main() {
     vec2 st = (gl_FragCoord.xy - viewer_position) / (u_resolution * viewer_scale);
     st.x *= u_resolution.x / u_resolution.y;
 
-    vec3 color = full_worley(st + u_time * 0.02); // animate subtly
+    vec3 color = full_worley(st + u_time); // animate subtly
     gl_FragColor = vec4(color, 1.0);
 }

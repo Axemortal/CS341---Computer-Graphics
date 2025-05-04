@@ -43,7 +43,7 @@ export class TrialScene extends Scene {
       });
     
     this.resourceManager.addProceduralMesh("plane", makePlane());
-
+    this.resourceManager.addProceduralMesh("plane2", makePlane());
     this.proceduralTextureGenerator.generate_worley_texture(
         "worley_texture",
         {
@@ -60,6 +60,24 @@ export class TrialScene extends Scene {
         rotation: [0, 0, 0, 1],
         scale: [2, 2, 2],
         meshReference: "plane",
+        material: worley_material,
+      });
+
+      this.proceduralTextureGenerator.generate_worley_texture(
+        "worley_texture2",
+        {
+          viewer_position: [0, 0],
+          viewer_scale: 1.0,
+          width: 512,
+          height: 512,
+          u_time: 5 // Will update in update()
+        }
+      );
+      this.dynamic_objects.push({
+        translation: [5, 0, 0],
+        rotation: [0, 0, 0, 1],
+        scale: [2, 2, 2],
+        meshReference: "plane2",
         material: worley_material,
       });
   
