@@ -2,12 +2,7 @@ import { ShaderRenderer } from "./shader_renderer.js";
 
 export class WorleyShaderRenderer extends ShaderRenderer {
   constructor(regl, resourceManager) {
-    super(
-      regl,
-      resourceManager,
-      "pass_through.vert.glsl",
-      "worley.frag.glsl"
-    );
+    super(regl, resourceManager, "pass_through.vert.glsl", "worley.frag.glsl");
   }
 
   /**
@@ -38,9 +33,9 @@ export class WorleyShaderRenderer extends ShaderRenderer {
     return regl({
       attributes: {
         vertex_positions: {
-            buffer: regl.prop("mesh_quad_2d.vertex_positions"),
-            size: 3,
-          },
+          buffer: regl.prop("mesh_quad_2d.vertex_positions"),
+          size: 3,
+        },
       },
       elements: regl.prop("mesh_quad_2d.faces"),
       uniforms: {
@@ -52,11 +47,8 @@ export class WorleyShaderRenderer extends ShaderRenderer {
           viewportHeight,
         ],
         mat_model_view_projection: [
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-          ] // Identity for 2D quad
+          1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+        ], // Identity for 2D quad
       },
       vert: this.vertShader,
       frag: this.fragShader,

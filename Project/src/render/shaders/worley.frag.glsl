@@ -1,7 +1,7 @@
 precision mediump float;
 
 uniform vec2 u_resolution;
-const vec2 u_time = vec2(5.0, 1.0);
+uniform float u_time;
 uniform vec2 viewer_position;
 uniform float viewer_scale;
 
