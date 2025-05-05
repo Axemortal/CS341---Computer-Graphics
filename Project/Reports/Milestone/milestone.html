@@ -212,8 +212,8 @@ Texture</figcaption>
 </ul>
 <table>
 <colgroup>
-<col style="width: 20%" />
-<col style="width: 79%" />
+<col style="width: 16%" />
+<col style="width: 83%" />
 </colgroup>
 <thead>
 <tr>
@@ -228,14 +228,14 @@ Texture</figcaption>
 alt="Starting Mesh" /></td>
 </tr>
 <tr>
-<td>Generated Mesh 1</td>
+<td>Generated Mesh</td>
 <td><img src="images/generated_mesh_1.jpg" width="500"
 alt="Generated Mesh 1" /></td>
 </tr>
 <tr>
-<td>Generated Mesh 2</td>
+<td>Zoomed in View</td>
 <td><img src="images/generated_mesh_2.jpg" width="500"
-alt="Generated Mesh 2" /></td>
+alt="Zoomed in View of Generated Mesh 1" /></td>
 </tr>
 </tbody>
 </table>
@@ -297,6 +297,52 @@ ray-marching precision and early exits for performance.</p></li>
 accuracy is currently a trade-off: tighter thresholds result in
 incomplete reflections, while looser ones cause smeared or noisy
 visuals. Work is ongoing to tune these margins.</p></li>
+</ul></li>
+<li><p>Wave Function Collapse</p>
+<ul>
+<li><p><strong>Implementation Details</strong></p>
+<p>We handle the procedural generation logic using Wave Function
+Collapse (WFC). It begins by loading a tile rule set from a JSON file,
+defines possible tile variants including rotated versions, and
+initializes a 3D grid where each cell starts with all valid variants.
+The propagate function iteratively reduces options in each cell based on
+neighboring constraints until the system stabilizes. Then, the
+least-constrained cell is picked to collapse, repeating until all cells
+are resolved. After collapse, the solver identifies which horizontal
+faces are exposed to empty space to attach planes as billboards. The
+solver returns the final grid, where each tile has a selected model,
+rotation quaternion, and its exposed sides marked.</p>
+<p>The main module consumes this grid and constructs a renderable city
+scene. It groups all tiles by mesh type for GPU instancing, attaching
+relevant rotation and position data. It also processes exposed faces to
+spawn billboard planes that face outward, using basic yaw rotation and
+optional tilt. A visibility system updates every 100 ms based on camera
+position, discarding distant objects and applying LOD scaling to
+billboards for better performance. Objects are sorted by render priority
+to minimize overdraw, with the sky dome rendered first and transparent
+elements like billboards rendered last.</p></li>
+<li><p><strong>Validation</strong></p>
+<p>Currently, a variety of buildings can be generated using the WFC
+algorithm. For improvement, additional procedural planes will be added
+on fully exposed outermost surfaces by detecting fullyExposedFaces and
+instantiating solid geometry for those sides, using the same instancing
+pipeline already in place. The dynamic billboard texture below will then
+be applied to these planes to display the billboards. A UI will also be
+implemented to regenerate the city and manipulate parameters such as
+building parameters.</p></li>
+</ul></li>
+<li><p>Dynamic Billboard Texture with Noise</p>
+<ul>
+<li><p><strong>Implementation Details</strong> This fragment shader
+generates a dynamic, glitch-inspired procedural texture using Worley
+noise. It simulates organic cellular patterns by computing distances to
+pseudo-random feature points and enhances visual complexity through
+sinusoidal color distortions and stripe patterns. The animation evolves
+over time using the u_time parameter, allowing for continuous,
+time-based visual variation.</p></li>
+<li><p><strong>Validation</strong></p>
+<p>Further work includes creating more fragment shaders to allow for
+diverse billboards within the scene.</p></li>
 </ul></li>
 </ul>
 <h3 id="worked-hours">Worked Hours</h3>

@@ -81,11 +81,11 @@ title: Milestone Report CS-341 2025
 
 - **Wave Function Collapse (WFC)**
 
-| Stage            | Screenshot                                                      |
-| ---------------- | --------------------------------------------------------------- |
-| Starting Mesh    | ![Starting Mesh](images/starting_mesh.png){width="500px"}       |
-| Generated Mesh 1 | ![Generated Mesh 1](images/generated_mesh_1.jpg){width="500px"} |
-| Generated Mesh 2 | ![Generated Mesh 2](images/generated_mesh_2.jpg){width="500px"} |
+| Stage            | Screenshot                                                      				   |
+| ---------------- | --------------------------------------------------------------------------------- |
+| Starting Mesh    | ![Starting Mesh](images/starting_mesh.png){width="500px"}       				   |
+| Generated Mesh   | ![Generated Mesh 1](images/generated_mesh_1.jpg){width="500px"} 				   |
+| Zoomed in View   | ![Zoomed in View of Generated Mesh 1](images/generated_mesh_2.jpg){width="500px"} |
 
 - **Screen-Space Reflections (SSR)**
 
@@ -110,6 +110,27 @@ We have individually implemented key components and will continue to improve the
   - **Validation**
 
     While the implementation is functional (See above images), reflection accuracy is currently a trade-off: tighter thresholds result in incomplete reflections, while looser ones cause smeared or noisy visuals. Work is ongoing to tune these margins.
+
+- Wave Function Collapse
+
+  - **Implementation Details**
+
+    We handle the procedural generation logic using Wave Function Collapse (WFC). It begins by loading a tile rule set from a JSON file, defines possible tile variants including rotated versions, and initializes a 3D grid where each cell starts with all valid variants. The propagate function iteratively reduces options in each cell based on neighboring constraints until the system stabilizes. Then, the least-constrained cell is picked to collapse, repeating until all cells are resolved. After collapse, the solver identifies which horizontal faces are exposed to empty space to attach planes as billboards. The solver returns the final grid, where each tile has a selected model, rotation quaternion, and its exposed sides marked.
+
+	The main module consumes this grid and constructs a renderable city scene. It groups all tiles by mesh type for GPU instancing, attaching relevant rotation and position data. It also processes exposed faces to spawn billboard planes that face outward, using basic yaw rotation and optional tilt. A visibility system updates every 100 ms based on camera position, discarding distant objects and applying LOD scaling to billboards for better performance. Objects are sorted by render priority to minimize overdraw, with the sky dome rendered first and transparent elements like billboards rendered last.
+
+  - **Validation**
+
+    Currently, a variety of buildings can be generated using the WFC algorithm. For improvement, additional procedural planes will be added on fully exposed outermost surfaces by detecting fullyExposedFaces and instantiating solid geometry for those sides, using the same instancing pipeline already in place. The dynamic billboard texture below will then be applied to these planes to display the billboards. A UI will also be implemented to regenerate the city and manipulate parameters such as building parameters.
+
+- Dynamic Billboard Texture with Noise
+  
+  - **Implementation Details**
+    This fragment shader generates a dynamic, glitch-inspired procedural texture using Worley noise. It simulates organic cellular patterns by computing distances to pseudo-random feature points and enhances visual complexity through sinusoidal color distortions and stripe patterns. The animation evolves over time using the u_time parameter, allowing for continuous, time-based visual variation. 
+
+  - **Validation**
+
+    Further work includes creating more fragment shaders to allow for diverse billboards within the scene. 
 
 ### Worked Hours
 
