@@ -146,42 +146,100 @@ function rotateFaces(faces, rot) {
 }
 
 /**
- * After collapse, compute which horizontal faces are exposed to air
+ * Check if a face is fully exposed to air (no connected assets blocking any part of it)
+ * @param {Array} grid - The 3D grid of cells
+ * @param {number} x - X coordinate
+ * @param {number} y - Y coordinate
+ * @param {number} z - Z coordinate
  */
-function computeExposedFaces(grid, x, y, z) {
+export function computeExposedFaces(grid, x, y, z) {
   // Guard for missing cell
   if (!grid[x] || !grid[x][y] || !grid[x][y][z]) return;
   const cell = grid[x][y][z];
   
-  // Ensure both properties exist
-  if (!cell.exposedFaces) {
-    cell.exposedFaces = { front: false, back: false, left: false, right: false };
-  }
-  if (!cell.fullyExposedFaces) {
-    cell.fullyExposedFaces = { front: false, back: false, left: false, right: false };
-  }
+  // Skip if the cell isn't collapsed
+  if (!cell.collapsed) return;
   
-  const sides = ['front', 'right', 'back', 'left'];
-  const dirOffsets = { front: [0,1], right: [1,0], back: [0,-1], left: [-1,0] };
+  // Initialize exposure structures
+  cell.exposedFaces = { front: false, back: false, left: false, right: false };
+  cell.fullyExposedFaces = { front: false, back: false, left: false, right: false };
+  
   const dimX = grid.length, dimY = grid[0].length, dimZ = grid[0][0].length;
   
-  sides.forEach(side => {
-    const [dx, dy] = dirOffsets[side];
-    const nx = x + dx, ny = y + dy;
+  // Define direction offsets and how to check full exposure for each direction
+  const directions = [
+    { name: 'front', dx: 0, dy: 1, dz: 0, checkFunc: (nx, ny, nz) => isPathClearToAir(grid, nx, ny, nz, 'front', dimX, dimY, dimZ) },
+    { name: 'back', dx: 0, dy: -1, dz: 0, checkFunc: (nx, ny, nz) => isPathClearToAir(grid, nx, ny, nz, 'back', dimX, dimY, dimZ) },
+    { name: 'left', dx: -1, dy: 0, dz: 0, checkFunc: (nx, ny, nz) => isPathClearToAir(grid, nx, ny, nz, 'left', dimX, dimY, dimZ) },
+    { name: 'right', dx: 1, dy: 0, dz: 0, checkFunc: (nx, ny, nz) => isPathClearToAir(grid, nx, ny, nz, 'right', dimX, dimY, dimZ) }
+  ];
+  
+  for (const dir of directions) {
+    const nx = x + dir.dx;
+    const ny = y + dir.dy;
+    const nz = z;
     
     // Basic exposure check - is there a direct neighbor?
-    const hasNeighbor = (nx >= 0 && nx < dimX && ny >= 0 && ny < dimY && grid[nx][ny][z] && grid[nx][ny][z].collapsed);
-    cell.exposedFaces[side] = !hasNeighbor;
+    const hasNeighbor = (nx >= 0 && nx < dimX && ny >= 0 && ny < dimY && 
+                         grid[nx] && grid[nx][ny] && grid[nx][ny][nz] && 
+                         grid[nx][ny][nz].collapsed);
     
-    // For debugging - always set at least one face as fully exposed
-    // This ensures we'll see at least some planes
-    cell.fullyExposedFaces[side] = !hasNeighbor;
+    cell.exposedFaces[dir.name] = !hasNeighbor;
     
-    // Log for debugging
+    // Full exposure check - is there a clear path to the edge?
     if (!hasNeighbor) {
-      console.log(`Cell at [${x},${y},${z}] has exposed face: ${side}`);
+      cell.fullyExposedFaces[dir.name] = dir.checkFunc(nx, ny, nz);
+      
+      if (cell.fullyExposedFaces[dir.name]) {
+        console.log(`Cell at [${x},${y},${z}] has FULLY exposed face: ${dir.name}`);
+      }
     }
-  });
+  }
+}
+
+/**
+ * Check if there's a clear path from a position to the edge of the grid in the specified direction
+ * @param {Array} grid - The 3D grid of cells
+ * @param {number} x - Starting X coordinate
+ * @param {number} y - Starting Y coordinate
+ * @param {number} z - Starting Z coordinate
+ * @param {string} direction - Direction to check ('front', 'back', 'left', 'right')
+ * @param {number} dimX - X dimension of grid
+ * @param {number} dimY - Y dimension of grid
+ * @param {number} dimZ - Z dimension of grid
+ * @returns {boolean} - True if there's a clear path to the edge
+ */
+function isPathClearToAir(grid, x, y, z, direction, dimX, dimY, dimZ) {
+  // Define how to traverse based on direction
+  let dx = 0, dy = 0;
+  switch(direction) {
+    case 'front': dy = 1; break;
+    case 'back': dy = -1; break;
+    case 'left': dx = -1; break;
+    case 'right': dx = 1; break;
+  }
+  
+  // Start from the given position
+  let currX = x;
+  let currY = y;
+  
+  // Keep moving in the direction until we reach an edge or hit an obstacle
+  while (true) {
+    // If we're at the edge, path is clear
+    if (currX < 0 || currX >= dimX || currY < 0 || currY >= dimY) {
+      return true;
+    }
+    
+    // Check if the current cell is occupied
+    if (grid[currX] && grid[currX][currY] && grid[currX][currY][z] && 
+        grid[currX][currY][z].collapsed) {
+      return false; // Hit an obstacle, path is blocked
+    }
+    
+    // Move one step in the direction
+    currX += dx;
+    currY += dy;
+  }
 }
 
 export function quatFromAxisAngle(axis, angle) {
