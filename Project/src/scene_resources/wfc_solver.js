@@ -1,4 +1,3 @@
-
 // Load rule set from JSON
 export async function loadRules(url = '/Project/assets/rules.json') {
   const res = await fetch(url);
@@ -17,6 +16,8 @@ export function initGrid(dimX, dimY, dimZ, variants) {
         grid[x][y][z] = {
           collapsed: false,
           options: variants.slice(),
+          // after collapse: record exposed faces
+          exposedFaces: { front: false, back: false, left: false, right: false }
         };
       }
     }
@@ -144,6 +145,45 @@ function rotateFaces(faces, rot) {
   return rotated;
 }
 
+/**
+ * After collapse, compute which horizontal faces are exposed to air
+ */
+function computeExposedFaces(grid, x, y, z) {
+  // Guard for missing cell
+  if (!grid[x] || !grid[x][y] || !grid[x][y][z]) return;
+  const cell = grid[x][y][z];
+  
+  // Ensure both properties exist
+  if (!cell.exposedFaces) {
+    cell.exposedFaces = { front: false, back: false, left: false, right: false };
+  }
+  if (!cell.fullyExposedFaces) {
+    cell.fullyExposedFaces = { front: false, back: false, left: false, right: false };
+  }
+  
+  const sides = ['front', 'right', 'back', 'left'];
+  const dirOffsets = { front: [0,1], right: [1,0], back: [0,-1], left: [-1,0] };
+  const dimX = grid.length, dimY = grid[0].length, dimZ = grid[0][0].length;
+  
+  sides.forEach(side => {
+    const [dx, dy] = dirOffsets[side];
+    const nx = x + dx, ny = y + dy;
+    
+    // Basic exposure check - is there a direct neighbor?
+    const hasNeighbor = (nx >= 0 && nx < dimX && ny >= 0 && ny < dimY && grid[nx][ny][z] && grid[nx][ny][z].collapsed);
+    cell.exposedFaces[side] = !hasNeighbor;
+    
+    // For debugging - always set at least one face as fully exposed
+    // This ensures we'll see at least some planes
+    cell.fullyExposedFaces[side] = !hasNeighbor;
+    
+    // Log for debugging
+    if (!hasNeighbor) {
+      console.log(`Cell at [${x},${y},${z}] has exposed face: ${side}`);
+    }
+  });
+}
+
 export function quatFromAxisAngle(axis, angle) {
   const half = angle * 0.5;
   const s    = Math.sin(half);
@@ -152,7 +192,7 @@ export function quatFromAxisAngle(axis, angle) {
 }
 
 export async function runWFC(dimX = 10, dimY = 10, dimZ = 1) {
-  const data     = await loadRules();
+  const data = await loadRules();
   const variants = [];
 
   for (const tile of data.tiles) {
@@ -169,7 +209,6 @@ export async function runWFC(dimX = 10, dimY = 10, dimZ = 1) {
     const axis = axisMap[tile.rotationAxis] || axisMap[randomAxisKey]; // fallback to Z
 
     for (let rot = 0; rot < numRotations; rot++) {
-      // compute exactly rot × 90° around that axis
       const angle = rot * (Math.PI / 2);
       const q     = quatFromAxisAngle(axis, angle);
 
@@ -182,14 +221,29 @@ export async function runWFC(dimX = 10, dimY = 10, dimZ = 1) {
     }
   }
 
+  const grid = initGrid(dimX, dimY, dimZ, variants);
   const compatibility = data.compatibility;
-  const grid          = initGrid(dimX, dimY, dimZ, variants);
+
   propagate(grid, compatibility);
   while (collapseCell(grid)) propagate(grid, compatibility);
 
+  // annotate exposed faces after full collapse
+  for (let x = 0; x < dimX; x++)
+    for (let y = 0; y < dimY; y++)
+      for (let z = 0; z < dimZ; z++)
+        computeExposedFaces(grid, x, y, z);
+
+  // build final 3‑D array of chosen variants + exposedFaces info
   return grid.map(slice =>
     slice.map(row =>
-      row.map(cell => cell.options[0] || null)
+      row.map(cell => {
+        const v = cell.options[0];
+        return v ? { 
+          ...v, 
+          exposedFaces: cell.exposedFaces,
+          fullyExposedFaces: cell.fullyExposedFaces 
+        } : null;
+      })
     )
   );
 }
