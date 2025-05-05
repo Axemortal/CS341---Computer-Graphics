@@ -55,20 +55,20 @@ title: Milestone Report CS-341 2025
  	</tr>
  	<tr style="background-color: #f0f0f0;">
  		<td>Week 2 (Easter)</td>
- 		<td>Bright pass filter</td>
- 		<td>Implement 2D WFC; build seed parameter UI</td>
+ 		<td>Implement various noise functions including Worley, Gabor</td>
+ 		<td>Implement 3D WFC to generate preliminary buildings</td>
  		<td>Learn about SSR, implement SSR with texture maps</td>
  	</tr>
  	<tr>
  		<td>Week 3</td>
- 		<td>Enhance texture evolution</td>
- 		<td>Map 2D layouts to 3D; refine seed UI</td>
+ 		<td>Enhance noise functions with sinusoidal glitchy effects</td>
+ 		<td>Refine WFC algorithm to identify disconnected faces for plane attachment</td>
  		<td>Refactor code base</td>
  	</tr>
 	<tr>
  		<td>Week 4</td>
- 		<td></td>
- 		<td></td>
+ 		<td>Implement time-based visual variations</td>
+ 		<td>Heavily optimise WFC algorithm to reduce rendering lag</td>
  		<td>Fine-tune reflections</td>
  	</tr>
  </table>
@@ -77,7 +77,7 @@ title: Milestone Report CS-341 2025
 
 - **Dynamic Billboard Texture with Noise**
 
-![Noise-based Billboard Texture](images/noise.jpg){width="500px"}
+![Noise-based Billboard Texture](images/noise.jpg){width="5000px"}
 
 - **Wave Function Collapse (WFC)**
 
