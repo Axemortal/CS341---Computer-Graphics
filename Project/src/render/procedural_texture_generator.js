@@ -4,7 +4,6 @@ import { WorleyShaderRenderer } from "./shader_renderers/worley_sr.js";
 
 import { vec2 } from "../../lib/gl-matrix_3.3.0/esm/index.js";
 
-
 export class ProceduralTextureGenerator {
   /**
    * A class that allow procedural texture computation
@@ -28,8 +27,6 @@ export class ProceduralTextureGenerator {
       regl,
       resourceManager
     );
-
-
   }
 
   /**
@@ -44,13 +41,13 @@ export class ProceduralTextureGenerator {
     const buffer = this.regl.framebuffer({
       width: 768,
       height: 768,
-      colorFormat: 'rgba',
-      colorType: isSafari ? 'uint8' : 'float',
+      colorFormat: "rgba",
+      colorType: isSafari ? "uint8" : "float",
       stencil: false,
       depth: false,
-      mag: 'linear',
-      min: 'linear', 
-  })
+      mag: "linear",
+      min: "linear",
+    });
 
     return buffer;
   }
@@ -85,11 +82,11 @@ export class ProceduralTextureGenerator {
 
     // Convert the buffer to a regl texture
     const texture = this.regl.texture({
-        width: buffer.width,
-        height: buffer.height,
-        data: buffer_to_data_array(this.regl, buffer).data,  // Use the data from the buffer
-        format: 'rgba',
-        type: 'float',
+      width: buffer.width,
+      height: buffer.height,
+      data: buffer_to_data_array(this.regl, buffer).data, // Use the data from the buffer
+      format: "rgba",
+      type: "float",
     });
     this.resourceManager.resources[name] = texture;
     return texture;
@@ -116,14 +113,23 @@ export class ProceduralTextureGenerator {
       buffer,
       function_type,
       zoom_factor,
-      vec2.negate([0, 0], mouse_offset),
+      vec2.negate([0, 0], mouse_offset)
     );
 
     // Display
     this.buffer_to_screen.render(this.mesh_quad_2d, buffer);
   }
 
-  generate_worley_texture(name, { viewer_position = [0, 0], viewer_scale = 1.0, width = 256, height = 256, u_time = 0 }) {
+  generate_worley_texture(
+    name,
+    {
+      viewer_position = [0, 0],
+      viewer_scale = 1.0,
+      width = 256,
+      height = 256,
+      u_time = 0,
+    }
+  ) {
     const buffer = this.new_buffer();
     if (buffer.width != width || buffer.height != height) {
       buffer.resize(width, height);
@@ -139,12 +145,12 @@ export class ProceduralTextureGenerator {
       width: buffer.width,
       height: buffer.height,
       data: buffer_to_data_array(this.regl, buffer).data,
-      format: 'rgba',
-      type: 'float',
+      format: "rgba",
+      type: "float",
     });
     this.resourceManager.resources[name] = texture;
-  return texture;
-}
+    return texture;
+  }
 
   /**
    * Create the simple square mesh on which the texture is displayed
@@ -203,5 +209,4 @@ class BufferData {
 
     return this.data[(x + y * this.width) << 2] * this.scale;
   }
-
 }

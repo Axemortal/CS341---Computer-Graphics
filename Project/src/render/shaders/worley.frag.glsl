@@ -1,7 +1,7 @@
 precision mediump float;
 
 uniform vec2 u_resolution;
-const vec2 u_time = vec2 (5.0, 1.0);
+const vec2 u_time = vec2(5.0, 1.0);
 uniform vec2 viewer_position;
 uniform float viewer_scale;
 
@@ -15,8 +15,8 @@ float w_noise(vec2 p) {
 
 float worley(vec2 p) {
     float d = 1e30;
-    for (int xo = -1; xo <= 1; ++xo) {
-        for (int yo = -1; yo <= 1; ++yo) {
+    for(int xo = -1; xo <= 1; ++xo) {
+        for(int yo = -1; yo <= 1; ++yo) {
             vec2 tp = floor(p) + vec2(float(xo), float(yo));
             d = min(d, length2(p - (tp + vec2(w_noise(tp), w_noise(tp + 1.0)))));
         }
@@ -25,11 +25,9 @@ float worley(vec2 p) {
 }
 
 float fworley(vec2 p) {
-    return sqrt(sqrt(sqrt(
-        worley(p * 5.0) *
+    return sqrt(sqrt(sqrt(worley(p * 5.0 + u_time) *
         sqrt(worley(p * 50.0 + 0.12)) *
-        sqrt(sqrt(worley(p * -10.0)))
-    )));
+        sqrt(sqrt(worley(p * -10.0))))));
 }
 
 vec3 full_worley(vec2 point) {

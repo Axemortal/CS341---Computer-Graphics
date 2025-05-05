@@ -112,10 +112,7 @@ class Application {
         this.resourceManager,
         this.proceduralTextureGenerator
       ),
-      Trial: new TrialScene(
-        this.regl,
-        this.resourceManager
-      ),
+      Trial: new TrialScene(this.regl, this.resourceManager),
     };
   }
 
@@ -153,14 +150,14 @@ class Application {
       this.uiGlobalParams.isPaused = !this.uiGlobalParams.isPaused;
     });
 
-        createHotkeyAction("Preset view", "1", () => {
-        this.activeScene.camera.setPresetView({
-          distanceFactor: 0.3,
-          angleZ: 0,
-          angleY: -Math.PI/2,
-          lookAt: [0, 0, 0]
-        });
+    createHotkeyAction("Preset view", "1", () => {
+      this.activeScene.camera.setPresetView({
+        distanceFactor: 0.3,
+        angleZ: 0,
+        angleY: -Math.PI / 2,
+        lookAt: [0, 0, 0],
       });
+    });
   }
 
   /**
@@ -180,6 +177,7 @@ class Application {
 
       if (!this.uiGlobalParams.isPaused) {
         this.updateSceneActors(dt);
+        this.activeScene.updateSceneState(dt, frame.time);
       }
 
       // Build scene state and render
