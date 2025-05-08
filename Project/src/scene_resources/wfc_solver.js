@@ -7,49 +7,46 @@ export async function loadRules(url = '/Project/assets/rules.json') {
 
 // Initialize a 3D grid of cells, each with all possible tile variants
 export function initGrid(dimX, dimY, dimZ, variants) {
-  const grid = [];
-  for (let x = 0; x < dimX; x++) {
-    grid[x] = [];
-    for (let y = 0; y < dimY; y++) {
-      grid[x][y] = [];
-      for (let z = 0; z < dimZ; z++) {
-        grid[x][y][z] = {
-          collapsed: false,
-          options: variants.slice(),
-          // after collapse: record exposed faces
-          exposedFaces: { front: false, back: false, left: false, right: false }
-        };
-      }
-    }
-  }
-  return grid;
+  return Array.from({ length: dimX }, () =>
+    Array.from({ length: dimY }, () =>
+      Array.from({ length: dimZ }, () => ({
+        collapsed: false,
+        options: variants.slice()
+      }))
+    )
+  );
 }
 
-// Mapping axis directions to their opposites
+// Map cardinal face names to neighbor offsets, direction name and opposite face names
+export const CARDINALS = {
+  '+x': { dx: 1, dy: 0, dz: 0, dir: 'right', opp: 'left', normal: [1, 0, 0] },
+  '-x': { dx:-1, dy: 0, dz: 0, dir: 'left',  opp: 'right', normal: [-1, 0, 0] },
+  '+y': { dx: 0, dy: 1, dz: 0, dir: 'front', opp: 'back', normal: [0, 1, 0] },
+  '-y': { dx: 0, dy:-1, dz: 0, dir: 'back',  opp: 'front', normal: [0, -1, 0] },
+  '+z': { dx: 0, dy: 0, dz: 1, dir: 'top', opp: 'bottom', normal: [0, 0, 1] },
+  '-z': { dx: 0, dy: 0, dz:-1, dir: 'bottom', opp: 'top', normal: [0, 0, -1] }
+};
+
+// Opposite face helper
 export function getOppositeDir(dir) {
-  return {
-    top: 'bottom', bottom: 'top',
-    left: 'right', right: 'left',
-    front: 'back', back: 'front'
-  }[dir];
+  return { top:'bottom', bottom:'top', left:'right', right:'left', front:'back', back:'front' }[dir];
 }
 
-// Constraint propagation: filter options based on neighbors
+// Constraint propagation
 export function propagate(grid, compatibility) {
   const dimX = grid.length;
   const dimY = grid[0].length;
   const dimZ = grid[0][0].length;
-  let changed = true;
-
-  const neighbors = [
-    { dx: 1, dy: 0, dz: 0, dir: 'right' },
-    { dx:-1, dy: 0, dz: 0, dir: 'left'  },
-    { dx: 0, dy: 1, dz: 0, dir: 'front' },
-    { dx: 0, dy:-1, dz: 0, dir: 'back'  },
-    { dx: 0, dy: 0, dz: 1, dir: 'top'   },
-    { dx: 0, dy: 0, dz:-1, dir: 'bottom'}
+  const neighborDirs = [
+    { dx: 1, dy: 0, dz: 0, dir: 'right'  },
+    { dx:-1, dy: 0, dz: 0, dir: 'left'   },
+    { dx: 0, dy: 1, dz: 0, dir: 'front'  },
+    { dx: 0, dy:-1, dz: 0, dir: 'back'   },
+    { dx: 0, dy: 0, dz: 1, dir: 'top'    },
+    { dx: 0, dy: 0, dz:-1, dir: 'bottom' }
   ];
 
+  let changed = true;
   while (changed) {
     changed = false;
     for (let x = 0; x < dimX; x++) {
@@ -61,30 +58,22 @@ export function propagate(grid, compatibility) {
           const allowed = [];
           for (const variant of cell.options) {
             let ok = true;
-            for (const n of neighbors) {
-              const nx = x + n.dx;
-              const ny = y + n.dy;
-              const nz = z + n.dz;
-              const faceType = variant.faces[n.dir];
+            for (const nd of neighborDirs) {
+              const nx = x + nd.dx;
+              const ny = y + nd.dy;
+              const nz = z + nd.dz;
+              if (nx < 0 || ny < 0 || nz < 0 || nx >= dimX || ny >= dimY || nz >= dimZ) continue;
+              const neighbor = grid[nx][ny][nz];
+              const faceType = variant.faces[nd.dir];
               const compatList = compatibility[faceType] || [];
-
-              // At grid boundary, skip constraint: allow any faceType
-              if (nx < 0 || ny < 0 || nz < 0 || nx >= dimX || ny >= dimY || nz >= dimZ) {
-                continue;
-              }
-
-              // In-bounds: neighbor options must share at least one compatible face
-              const neighborCell = grid[nx][ny][nz];
-              const oppDir = getOppositeDir(n.dir);
-              const match = neighborCell.options.some(nv => compatList.includes(nv.faces[oppDir]));
-              if (!match) {
+              const opp = getOppositeDir(nd.dir);
+              if (!neighbor.options.some(o => compatList.includes(o.faces[opp]))) {
                 ok = false;
                 break;
               }
             }
             if (ok) allowed.push(variant);
           }
-
           if (allowed.length < cell.options.length) {
             cell.options = allowed;
             changed = true;
@@ -95,16 +84,16 @@ export function propagate(grid, compatibility) {
   }
 }
 
-// Collapse one cell: choose the cell with lowest entropy (fewest options)
+// Collapse the lowest-entropy cell
 export function collapseCell(grid) {
-  let minOptions = Infinity;
+  let min = Infinity;
   let target = null;
   for (let x = 0; x < grid.length; x++) {
     for (let y = 0; y < grid[x].length; y++) {
       for (let z = 0; z < grid[x][y].length; z++) {
         const cell = grid[x][y][z];
-        if (!cell.collapsed && cell.options.length > 0 && cell.options.length < minOptions) {
-          minOptions = cell.options.length;
+        if (!cell.collapsed && cell.options.length > 0 && cell.options.length < min) {
+          min = cell.options.length;
           target = { x, y, z };
         }
       }
@@ -112,196 +101,169 @@ export function collapseCell(grid) {
   }
   if (!target) return false;
 
-  const cell = grid[target.x][target.y][target.z];
+  const { x, y, z } = target;
+  const cell = grid[x][y][z];
   const choice = cell.options[Math.floor(Math.random() * cell.options.length)];
   cell.options = [choice];
   cell.collapsed = true;
   return true;
 }
 
+// Rotate faces helper
 function rotateFaces(faces, rot) {
-  // rot: 0 = 0°, 1 = 90°, 2 = 180°, 3 = 270°
-  const rotated = {};
-  
-  // Preserve vertical faces (top/bottom)
-  rotated.top = faces.top;
-  rotated.bottom = faces.bottom;
-  
-  // Define rotation patterns for horizontal faces
-  const faceOrders = [
-    ["left", "front", "right", "back"],  // 0° rotation
-    ["front", "right", "back", "left"],  // 90° rotation
-    ["right", "back", "left", "front"],  // 180° rotation
-    ["back", "left", "front", "right"]   // 270° rotation
+  const orders = [
+    ['left','front','right','back'],
+    ['front','right','back','left'],
+    ['right','back','left','front'],
+    ['back','left','front','right']
   ];
-  
-  // Apply rotation to horizontal faces
-  const order = faceOrders[rot % 4];  // Ensure valid rotation index
-  rotated.left = faces[order[0]];
-  rotated.front = faces[order[1]];
-  rotated.right = faces[order[2]];
-  rotated.back = faces[order[3]];
-  
-  return rotated;
+  const o = orders[rot % 4];
+  return {
+    top: faces.top,
+    bottom: faces.bottom,
+    left: faces[o[0]],
+    front: faces[o[1]],
+    right: faces[o[2]],
+    back: faces[o[3]]
+  };
 }
 
-/**
- * Check if a face is fully exposed to air (no connected assets blocking any part of it)
- * @param {Array} grid - The 3D grid of cells
- * @param {number} x - X coordinate
- * @param {number} y - Y coordinate
- * @param {number} z - Z coordinate
- */
-export function computeExposedFaces(grid, x, y, z) {
-  // Guard for missing cell
-  if (!grid[x] || !grid[x][y] || !grid[x][y][z]) return;
-  const cell = grid[x][y][z];
-  
-  // Skip if the cell isn't collapsed
-  if (!cell.collapsed) return;
-  
-  // Initialize exposure structures
-  cell.exposedFaces = { front: false, back: false, left: false, right: false };
-  cell.fullyExposedFaces = { front: false, back: false, left: false, right: false };
-  
-  const dimX = grid.length, dimY = grid[0].length, dimZ = grid[0][0].length;
-  
-  // Define direction offsets and how to check full exposure for each direction
-  const directions = [
-    { name: 'front', dx: 0, dy: 1, dz: 0, checkFunc: (nx, ny, nz) => isPathClearToAir(grid, nx, ny, nz, 'front', dimX, dimY, dimZ) },
-    { name: 'back', dx: 0, dy: -1, dz: 0, checkFunc: (nx, ny, nz) => isPathClearToAir(grid, nx, ny, nz, 'back', dimX, dimY, dimZ) },
-    { name: 'left', dx: -1, dy: 0, dz: 0, checkFunc: (nx, ny, nz) => isPathClearToAir(grid, nx, ny, nz, 'left', dimX, dimY, dimZ) },
-    { name: 'right', dx: 1, dy: 0, dz: 0, checkFunc: (nx, ny, nz) => isPathClearToAir(grid, nx, ny, nz, 'right', dimX, dimY, dimZ) }
-  ];
-  
-  for (const dir of directions) {
-    const nx = x + dir.dx;
-    const ny = y + dir.dy;
-    const nz = z;
-    
-    // Basic exposure check - is there a direct neighbor?
-    const hasNeighbor = (nx >= 0 && nx < dimX && ny >= 0 && ny < dimY && 
-                         grid[nx] && grid[nx][ny] && grid[nx][ny][nz] && 
-                         grid[nx][ny][nz].collapsed);
-    
-    cell.exposedFaces[dir.name] = !hasNeighbor;
-    
-    // Full exposure check - is there a clear path to the edge?
-    if (!hasNeighbor) {
-      cell.fullyExposedFaces[dir.name] = dir.checkFunc(nx, ny, nz);
-      
-      if (cell.fullyExposedFaces[dir.name]) {
-        console.log(`Cell at [${x},${y},${z}] has FULLY exposed face: ${dir.name}`);
+// Quaternion helper
+export function quatFromAxisAngle(axis, angle) {
+  const half = angle * 0.5;
+  const s = Math.sin(half);
+  return [axis[0] * s, axis[1] * s, axis[2] * s, Math.cos(half)];
+}
+
+// Convert direction name to cardinal key
+function dirToCardinalKey(dir) {
+  const dirToKey = {
+    'right': '+x',
+    'left': '-x',
+    'front': '+y',
+    'back': '-y',
+    'top': '+z',
+    'bottom': '-z'
+  };
+  return dirToKey[dir];
+}
+
+// Execute WFC and identify boundary-facing cells for plane attachments
+export async function runWFC(dimX = 10, dimY = 10, dimZ = 1) {
+  const data = await loadRules();
+  // Prepare all rotated variants
+  const variants = [];
+  data.tiles.forEach(tile => {
+    const rots = tile.rotations || 1;
+    const axisMap = { x:[1,0,0], y:[0,1,0], z:[0,0,1] };
+    const axis = axisMap[tile.rotationAxis] || axisMap.z;
+    for (let r = 0; r < rots; r++) {
+      variants.push({
+        id: `${tile.id}_rot${r}`,
+        model: tile.model,
+        rotation: quatFromAxisAngle(axis, r * (Math.PI / 2)),
+        faces: rotateFaces(tile.faces, r)
+      });
+    }
+  });
+
+  // Initialize grid and solve WFC
+  const grid = initGrid(dimX, dimY, dimZ, variants);
+  propagate(grid, data.compatibility);
+  while (collapseCell(grid)) propagate(grid, data.compatibility);
+
+  // Build final 3D array with attachPlanes from missing neighbors
+  const result = Array.from({ length: dimX }, () =>
+    Array.from({ length: dimY }, () =>
+      Array(dimZ).fill(null)
+    )
+  );
+
+  // Process the grid to identify exposed faces
+  for (let x = 0; x < dimX; x++) {
+    for (let y = 0; y < dimY; y++) {
+      for (let z = 0; z < dimZ; z++) {
+        const cell = grid[x][y][z];
+        if (!cell || !cell.collapsed) continue;
+        const variant = cell.options[0];
+        
+        // Create a structure to store exposed faces with their normals and directions
+        const exposedFaces = [];
+        
+        // Check all six directions (not just the cardinal 4)
+        for (const dirKey of Object.keys(CARDINALS)) {
+          const { dx, dy, dz, dir, normal } = CARDINALS[dirKey];
+          const nx = x + dx;
+          const ny = y + dy;
+          const nz = z + dz;
+          
+          // Check if this is an exterior face (either out of bounds or no neighbor)
+          const isOutOfBounds = (
+            nx < 0 || nx >= dimX || 
+            ny < 0 || ny >= dimY || 
+            nz < 0 || nz >= dimZ
+          );
+          
+          const neighbor = isOutOfBounds ? null : grid[nx][ny][nz];
+          const isExposed = isOutOfBounds || !neighbor || !neighbor.collapsed;
+          
+          if (isExposed) {
+            // This face is exposed, store info about its direction and normal
+            exposedFaces.push({
+              direction: dir,
+              cardinalKey: dirKey,
+              normal: normal
+            });
+          }
+        }
+        
+        // Only store asset if it exists and has exposed faces
+        if (variant && exposedFaces.length > 0) {
+          result[x][y][z] = {
+            ...variant,
+            exposedFaces: exposedFaces,
+            position: [x, y, z]
+          };
+        } else if (variant) {
+          // Still store the asset even if it has no exposed faces (interior asset)
+          result[x][y][z] = {
+            ...variant,
+            exposedFaces: [],
+            position: [x, y, z]
+          };
+        }
       }
     }
   }
+
+  return result;
 }
 
-/**
- * Check if there's a clear path from a position to the edge of the grid in the specified direction
- * @param {Array} grid - The 3D grid of cells
- * @param {number} x - Starting X coordinate
- * @param {number} y - Starting Y coordinate
- * @param {number} z - Starting Z coordinate
- * @param {string} direction - Direction to check ('front', 'back', 'left', 'right')
- * @param {number} dimX - X dimension of grid
- * @param {number} dimY - Y dimension of grid
- * @param {number} dimZ - Z dimension of grid
- * @returns {boolean} - True if there's a clear path to the edge
- */
-function isPathClearToAir(grid, x, y, z, direction, dimX, dimY, dimZ) {
-  // Define how to traverse based on direction
-  let dx = 0, dy = 0;
-  switch(direction) {
-    case 'front': dy = 1; break;
-    case 'back': dy = -1; break;
-    case 'left': dx = -1; break;
-    case 'right': dx = 1; break;
+// Helper function to attach planes to exposed faces
+export function attachPlanesToExposedFaces(wfcResult) {
+  const planeAttachments = [];
+  
+  // Iterate through the result to find cells with exposed faces
+  for (let x = 0; x < wfcResult.length; x++) {
+    for (let y = 0; y < wfcResult[x].length; y++) {
+      for (let z = 0; z < wfcResult[x][y].length; z++) {
+        const cell = wfcResult[x][y][z];
+        if (!cell || !cell.exposedFaces || cell.exposedFaces.length === 0) continue;
+        
+        // Create plane attachments for each exposed face
+        for (const face of cell.exposedFaces) {
+          planeAttachments.push({
+            position: [x, y, z],
+            faceDirection: face.direction,
+            normal: face.normal,
+            // Additional data you might need for rendering
+            assetId: cell.id,
+            planeSize: 1.0 // Adjust as needed
+          });
+        }
+      }
+    }
   }
   
-  // Start from the given position
-  let currX = x;
-  let currY = y;
-  
-  // Keep moving in the direction until we reach an edge or hit an obstacle
-  while (true) {
-    // If we're at the edge, path is clear
-    if (currX < 0 || currX >= dimX || currY < 0 || currY >= dimY) {
-      return true;
-    }
-    
-    // Check if the current cell is occupied
-    if (grid[currX] && grid[currX][currY] && grid[currX][currY][z] && 
-        grid[currX][currY][z].collapsed) {
-      return false; // Hit an obstacle, path is blocked
-    }
-    
-    // Move one step in the direction
-    currX += dx;
-    currY += dy;
-  }
-}
-
-export function quatFromAxisAngle(axis, angle) {
-  const half = angle * 0.5;
-  const s    = Math.sin(half);
-  // axis must be normalized—but here it’s one of the cardinal axes, so its length is 1
-  return [ axis[0] * s, axis[1] * s, axis[2] * s, Math.cos(half) ];
-}
-
-export async function runWFC(dimX = 10, dimY = 10, dimZ = 1) {
-  const data = await loadRules();
-  const variants = [];
-
-  for (const tile of data.tiles) {
-    const numRotations = tile.rotations || 1;
-
-    // pick exactly one unit axis from your JSON string
-    const axisMap = {
-      x: [1, 0, 0],
-      y: [0, 1, 0],
-      z: [0, 0, 1]
-    };
-    const axisKeys = ['x', 'y', 'z']
-    const randomAxisKey = axisKeys[Math.floor(Math.random() * axisKeys.length)];
-    const axis = axisMap[tile.rotationAxis] || axisMap[randomAxisKey]; // fallback to Z
-
-    for (let rot = 0; rot < numRotations; rot++) {
-      const angle = rot * (Math.PI / 2);
-      const q     = quatFromAxisAngle(axis, angle);
-
-      variants.push({
-        id:       `${tile.id}_rot${rot}`,
-        model:    tile.model,
-        rotation: q,                         // [x, y, z, w]
-        faces:    rotateFaces(tile.faces, rot)
-      });
-    }
-  }
-
-  const grid = initGrid(dimX, dimY, dimZ, variants);
-  const compatibility = data.compatibility;
-
-  propagate(grid, compatibility);
-  while (collapseCell(grid)) propagate(grid, compatibility);
-
-  // annotate exposed faces after full collapse
-  for (let x = 0; x < dimX; x++)
-    for (let y = 0; y < dimY; y++)
-      for (let z = 0; z < dimZ; z++)
-        computeExposedFaces(grid, x, y, z);
-
-  // build final 3‑D array of chosen variants + exposedFaces info
-  return grid.map(slice =>
-    slice.map(row =>
-      row.map(cell => {
-        const v = cell.options[0];
-        return v ? { 
-          ...v, 
-          exposedFaces: cell.exposedFaces,
-          fullyExposedFaces: cell.fullyExposedFaces 
-        } : null;
-      })
-    )
-  );
+  return planeAttachments;
 }

@@ -20,10 +20,10 @@
       "faces": {
         "top": "connectable",
         "bottom": "connectable",
-        "left": "connectable",
-        "right": "connectable",
-        "front": "connectable",
-        "back": "connectable"
+        "left": "outside",
+        "right": "outside",
+        "front": "outside",
+        "back": "outside"
       },
       "rotations": 4
     },
@@ -33,7 +33,7 @@
       "faces": {
         "top": "connectable",
         "bottom": "connectable",
-        "left": "connectable",
+        "left": "outside",
         "right": "outside",
         "front": "outside",
         "back": "outside"
@@ -44,6 +44,6 @@
   "compatibility": {
     "connectable": ["connectable"],
     "air": ["air", "outside"],
-    "outside": ["outside", "air"]
+    "outside": ["outside", "air", "connectable"]
   }
 }
