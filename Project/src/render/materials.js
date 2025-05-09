@@ -192,3 +192,9 @@ export const futuristic_concrete = new DiffuseMaterial({
   shininess: 1.0,
 });
 
+export const futuristic_orange = new DiffuseMaterial({
+  texture: "futuristic_orange.png",
+  color: COLORS.WHITE,
+  shininess: 1.0,
+});
+
