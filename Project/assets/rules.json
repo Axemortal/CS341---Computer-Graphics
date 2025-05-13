@@ -4,7 +4,7 @@
       "id": "city_block1",
       "model": "city_block1.obj",
       "faces": {
-        "top": "air",
+        "top": "outside",
         "bottom": "connectable",
         "left": "connectable",
         "right": "connectable",
@@ -25,6 +25,7 @@
         "front": "outside",
         "back": "outside"
       },
+      "rotationAxis": "z",
       "rotations": 4
     },
     {
@@ -43,7 +44,6 @@
   ],
   "compatibility": {
     "connectable": ["connectable"],
-    "air": ["air", "outside"],
-    "outside": ["outside", "air", "connectable"]
+    "outside": ["outside"]
   }
 }

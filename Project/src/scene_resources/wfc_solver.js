@@ -156,7 +156,7 @@ export async function runWFC(dimX = 10, dimY = 10, dimZ = 1) {
   data.tiles.forEach(tile => {
     const rots = tile.rotations || 1;
     const axisMap = { x:[1,0,0], y:[0,1,0], z:[0,0,1] };
-    const axis = axisMap[tile.rotationAxis] || axisMap.z;
+    const axis = axisMap[tile.rotationAxis] || axisMap.x;
     for (let r = 0; r < rots; r++) {
       variants.push({
         id: `${tile.id}_rot${r}`,

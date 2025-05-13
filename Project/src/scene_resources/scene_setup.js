@@ -59,7 +59,7 @@ function addBillboardPlane(resource_manager) {
 * Run WFC to generate central and small grids
 */
 async function generateGrids() {
- const centralDims = [10, 4, 5]; // Width, Depth, Height for central grid
+ const centralDims = [10, 4, 10]; // Width, Depth, Height for central grid
  const smallDims = [3, 3, 3]; // Width, Depth, Height for small grids
  const [cw, cd, ch] = centralDims;
  const [sw, sd, sh] = smallDims;
