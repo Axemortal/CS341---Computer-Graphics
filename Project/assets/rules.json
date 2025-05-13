@@ -16,7 +16,7 @@
     },
     {
       "id": "city_block2",
-      "model": "city_block2.obj",
+      "model": ["city_block2.obj", "city_block4.obj"],
       "faces": {
         "top": "connectable",
         "bottom": "connectable",

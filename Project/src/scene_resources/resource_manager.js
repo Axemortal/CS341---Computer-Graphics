@@ -173,6 +173,6 @@ export class ResourceManager {
   }
 
   meshes_to_load() {
-    return ["pine.obj", "suzanne.obj", "donut.obj", "plane.obj", "city_block1.obj", "city_block2.obj", "city_block3.obj"];
+    return ["pine.obj", "suzanne.obj", "donut.obj", "plane.obj", "city_block1.obj", "city_block2.obj", "city_block3.obj", "city_block4.obj"];
   }
 }
