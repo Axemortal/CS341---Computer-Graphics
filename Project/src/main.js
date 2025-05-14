@@ -64,6 +64,7 @@ class Application {
     clearOverlay();
     this.setupUIGlobalParamsListeners();
     this.activeScene.initializeUIParams();
+    this.activeScene.initialize_ui_params();
 
     // Start the render loop
     this.startRenderLoop();

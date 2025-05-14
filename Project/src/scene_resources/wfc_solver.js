@@ -238,32 +238,3 @@ export async function runWFC(dimX = 10, dimY = 10, dimZ = 1) {
 
   return result;
 }
-
-// Helper function to attach planes to exposed faces
-export function attachPlanesToExposedFaces(wfcResult) {
-  const planeAttachments = [];
-  
-  // Iterate through the result to find cells with exposed faces
-  for (let x = 0; x < wfcResult.length; x++) {
-    for (let y = 0; y < wfcResult[x].length; y++) {
-      for (let z = 0; z < wfcResult[x][y].length; z++) {
-        const cell = wfcResult[x][y][z];
-        if (!cell || !cell.exposedFaces || cell.exposedFaces.length === 0) continue;
-        
-        // Create plane attachments for each exposed face
-        for (const face of cell.exposedFaces) {
-          planeAttachments.push({
-            position: [x, y, z],
-            faceDirection: face.direction,
-            normal: face.normal,
-            // Additional data you might need for rendering
-            assetId: cell.id,
-            planeSize: 1.0 // Adjust as needed
-          });
-        }
-      }
-    }
-  }
-  
-  return planeAttachments;
-}

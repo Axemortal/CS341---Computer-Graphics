@@ -58,9 +58,7 @@ function addBillboardPlane(resource_manager) {
 /**
 * Run WFC to generate central and small grids
 */
-async function generateGrids() {
- const centralDims = [10, 4, 10]; // Width, Depth, Height for central grid
- const smallDims = [3, 3, 3]; // Width, Depth, Height for small grids
+async function generateGrids(centralDims, smallDims) {
  const [cw, cd, ch] = centralDims;
  const [sw, sd, sh] = smallDims;
  const centralGrid = await runWFC(cw, cd, ch);
@@ -72,37 +70,37 @@ async function generateGrids() {
 * Collect tiles into instances and compute bounding box
 */
 function collectInstances(grids, dims) {
- const { centralGrid, smallGrid } = grids;
- const { cw, cd, ch, sw, sd, sh } = dims;
+  const { centralGrid, smallGrid } = grids;
+  const { cw, cd, ch, sw, sd, sh } = dims;
 
   // Offset for the central grid to center it around (0,0) in X,Y plane
- const centralOffset = [-cw / 2, -cd / 2, 0];
+  const centralOffset = [-cw / 2, -cd / 2, 0];
 
- const buildingInstances = {};
- const billboardInstances = {};
- const box = { // Bounding box for the entire scene
-  minX: Infinity, maxX: -Infinity,
-  minY: Infinity, maxY: -Infinity,
-  minZ: Infinity, maxZ: -Infinity
- };
+  const buildingInstances = {};
+  const billboardInstances = {};
+  const box = { // Bounding box for the entire scene
+    minX: Infinity, maxX: -Infinity,
+    minY: Infinity, maxY: -Infinity,
+    minZ: Infinity, maxZ: -Infinity
+  };
 
   // Mapping for billboard orientation based on exposed face cardinal key
- const dirs = {
-  '+X': { dx: 0.5, dy: 0,   dz: 0.5, yaw: -Math.PI / 2 }, // Right face
-  '-X': { dx: -0.5, dy: 0,   dz: 0.5, yaw: Math.PI / 2 }, // Left face
-  '+Y': { dx: 0,   dy: 0.5, dz: 0.5, yaw: 0      }, // Front face
-  '-Y': { dx: 0,   dy: -0.5, dz: 0.5, yaw: Math.PI   }, // Back face
-    // Add '+Z' (top) and '-Z' (bottom) if you want billboards on horizontal surfaces
-    // For top: { dx: 0, dy: 0, dz: 1, yaw: 0, pitch: -Math.PI/2 } (adjust tiltQuat or use pitch)
- };
+  const dirs = {
+    '+X': { dx: 0.5, dy: 0,   dz: 0.5, yaw: -Math.PI / 2 }, // Right face
+    '-X': { dx: -0.5, dy: 0,   dz: 0.5, yaw: Math.PI / 2 }, // Left face
+    '+Y': { dx: 0,   dy: 0.5, dz: 0.5, yaw: 0      }, // Front face
+    '-Y': { dx: 0,   dy: -0.5, dz: 0.5, yaw: Math.PI   }, // Back face
+      // Add '+Z' (top) and '-Z' (bottom) if you want billboards on horizontal surfaces
+      // For top: { dx: 0, dy: 0, dz: 1, yaw: 0, pitch: -Math.PI/2 } (adjust tiltQuat or use pitch)
+  };
   // Tilt for billboards (e.g., if they are angled signs rather than flat against face)
   // This tilt is around X-axis. If billboards are always perpendicular to faces,
   // you might not need this, or adjust yaw/pitch per face in `dirs`.
  const tiltQuat = quatFromAxisAngle([1,0,0], -Math.PI/2); // Tilts billboards to be vertical if original plane is XY
 
- function addTile(tile, currentGridWorldOffsetX, currentGridWorldOffsetY) {
+function addTile(tile, currentGridWorldOffsetX, currentGridWorldOffsetY) {
     // tile.position is [gridX, gridY, gridZ] from WFC solver (local to its grid)
-  const [gridX, gridY, gridZ] = tile.position;
+    const [gridX, gridY, gridZ] = tile.position;
 
     // Calculate absolute world coordinates for the tile's origin
     const wx = currentGridWorldOffsetX + gridX;
@@ -110,12 +108,12 @@ function collectInstances(grids, dims) {
     const wz = gridZ; // Assuming Z starts from 0 and tiles stack upwards
 
     // Update scene bounding box (assumes tiles are 1x1x1 units)
-  box.minX = Math.min(box.minX, wx);
-  box.maxX = Math.max(box.maxX, wx + 1);
-  box.minY = Math.min(box.minY, wy);
-  box.maxY = Math.max(box.maxY, wy + 1);
-  box.minZ = Math.min(box.minZ, wz);
-  box.maxZ = Math.max(box.maxZ, wz + 1);
+    box.minX = Math.min(box.minX, wx);
+    box.maxX = Math.max(box.maxX, wx + 1);
+    box.minY = Math.min(box.minY, wy);
+    box.maxY = Math.max(box.maxY, wy + 1);
+    box.minZ = Math.min(box.minZ, wz);
+    box.maxZ = Math.max(box.maxZ, wz + 1);
 
     // Handle single or multiple models for the tile
     const modelsToInstance = Array.isArray(tile.model) ? tile.model : [tile.model];
@@ -145,23 +143,7 @@ function collectInstances(grids, dims) {
 
             // Calculate billboard rotation
             const yawQuat = quatFromAxisAngle([0,0,1], d.yaw); // Billboards typically rotate around Z in their local space
-                                                                // or Y in world space depending on plane orientation
-            // If your plane model is XY, you might need to rotate it to face outwards first.
-            // The initial tiltQuat might be for this. Let's assume a common billboard orientation setup.
-            // This part highly depends on your plane model's default orientation and desired billboard look.
-            // A common setup for billboards on vertical faces:
             const billboardRotation = quatFromAxisAngle([0,1,0], d.yaw); // Rotate around world Y for facing
-            // If billboards are like signs sticking out and tilted, more complex rotations are needed.
-            // For simplicity, let's use the yaw and a standard tilt.
-            // Final rotation might need adjustment based on how 'plane' mesh is defined.
-            // If 'plane' is in XY plane, facing +Z:
-            // 1. Rotate by `tiltQuat` to make it vertical (XZ plane, facing +Y or -Y).
-            // 2. Rotate by `yawQuat` around its new local Y (which is world Z if tiltQuat is around X) to face correct direction.
-            // This composition order matters.
-            // Example: standard plane on XY, tilt it up, then yaw.
-            // const baseOrientationQuat = quatFromAxisAngle([1,0,0], -Math.PI/2); // Makes XY plane vertical
-            // const finalYawQuat = quatFromAxisAngle([0,1,0], d.yaw); // Yaw in world Y
-            // const rot = multiplyQuat(finalYawQuat, baseOrientationQuat);
 
             const rot = multiplyQuat(quatFromAxisAngle([0,1,0], d.yaw), tiltQuat); // Original logic
 
@@ -186,8 +168,8 @@ function collectInstances(grids, dims) {
  }
 
  // Process surrounding ring of small grids
- const ringSize = 2; // How many rings of small grids
- const gapBetweenGrids = 2; // Units of gap between central and small, and between small grids
+ const ringSize = 3; // How many rings of small grids
+ const gapBetweenGrids = 3; // Units of gap between central and small, and between small grids
   // Distance from center of central grid to center of an adjacent small grid
  const xSmallGridDisplacement = cw / 2 + gapBetweenGrids + sw / 2;
  const ySmallGridDisplacement = cd / 2 + gapBetweenGrids + sd / 2;
@@ -221,72 +203,72 @@ function collectInstances(grids, dims) {
 * Register instanced meshes into scene
 */
 function registerInstances(scene, buildingInstances, billboardInstances) {
- Object.entries(buildingInstances).forEach(([meshRef, instances]) => {
+  Object.entries(buildingInstances).forEach(([meshRef, instances]) => {
     if (!meshRef || meshRef === "undefined") {
         console.warn("Skipping undefined meshRef in buildingInstances:", instances);
         return;
     }
     const material = MODEL_MATERIAL_MAP[meshRef] || DEFAULT_BUILDING_MATERIAL;
-  scene.instancedObjects[meshRef] = {
-   meshReference: meshRef,
-   material:   material,
-   instances,
-   type:     'building',
-   priority:   20 // Render after sky, before billboards
-  };
- });
+    scene.instancedObjects[meshRef] = {
+      meshReference: meshRef,
+      material:   material,
+      instances,
+      type:     'building',
+      priority:   20 // Render after sky, before billboards
+    };
+  });
 
- Object.entries(billboardInstances).forEach(([key, instances]) => {
+  Object.entries(billboardInstances).forEach(([key, instances]) => {
     // 'key' is currently 'billboard_default' or similar
-  scene.instancedObjects[key] = {
-   meshReference: 'plane', // All billboards use the 'plane' mesh
-   material:   MATERIALS.pine, // Or a specific billboard material
-   instances,
-   type:     'billboard',
-   priority:   30 // Render after buildings
-  };
- });
+    scene.instancedObjects[key] = {
+      meshReference: 'plane', // All billboards use the 'plane' mesh
+      material:   MATERIALS.pine, // Or a specific billboard material
+      instances,
+      type:     'billboard',
+      priority:   30 // Render after buildings
+    };
+  });
 }
 
 /**
 * Setup lighting and bounding box on scene
 */
 function setupLightingAndBounds(scene, box) {
- const lightDist = Math.max(10, (box.maxX - box.minX)/2, (box.maxY - box.minY)/2); // Dynamic light distance
- const cx = (box.minX + box.maxX) / 2;
- const cy = (box.minY + box.maxY) / 2;
- const cz = (box.minZ + box.maxZ) / 2;
- const topZ = box.maxZ;
- const bottomZ = box.minZ;
+  const lightDist = Math.max(10, (box.maxX - box.minX)/2, (box.maxY - box.minY)/2); // Dynamic light distance
+  const cx = (box.minX + box.maxX) / 2;
+  const cy = (box.minY + box.maxY) / 2;
+  const cz = (box.minZ + box.maxZ) / 2;
+  const topZ = box.maxZ;
+  const bottomZ = box.minZ;
 
- scene.lights = [
-  { position: [cx, cy, topZ + lightDist * 0.5], color: [0.8, 0.8, 0.9] }, // Top
-  { position: [box.maxX + lightDist, cy, cz], color: [0.6, 0.6, 0.5] },   // Right
-  { position: [box.minX - lightDist, cy, cz], color: [0.6, 0.6, 0.5] },   // Left
-  { position: [cx, box.maxY + lightDist, cz], color: [0.5, 0.5, 0.6] },   // Front
-  { position: [cx, box.minY - lightDist, cz], color: [0.5, 0.5, 0.6] },   // Back
-  { position: [cx, cy, bottomZ - lightDist * 0.25], color: [0.4, 0.4, 0.4]} // Bottom subtle
- ];
- scene.sceneBoundingBox = box;
+  scene.lights = [
+    { position: [cx, cy, topZ + lightDist * 0.5], color: [0.8, 0.8, 0.9] }, // Top
+    { position: [box.maxX + lightDist, cy, cz], color: [0.6, 0.6, 0.5] },   // Right
+    { position: [box.minX - lightDist, cy, cz], color: [0.6, 0.6, 0.5] },   // Left
+    { position: [cx, box.maxY + lightDist, cz], color: [0.5, 0.5, 0.6] },   // Front
+    { position: [cx, box.minY - lightDist, cz], color: [0.5, 0.5, 0.6] },   // Back
+    { position: [cx, cy, bottomZ - lightDist * 0.25], color: [0.4, 0.4, 0.4]} // Bottom subtle
+  ];
+  scene.sceneBoundingBox = box;
 }
 
 /**
 * Main entry: sets up entire city scene
 */
-export async function setupCityScene(resource_manager, scene) {
- addSkyDome(resource_manager, scene);
- addBillboardPlane(resource_manager); // Ensure 'plane' mesh is loaded for billboards
+export async function setupCityScene(resource_manager, scene, centralDims = [10,4,5], smallDims = [3,3,3]) {
+  addSkyDome(resource_manager, scene);
+  addBillboardPlane(resource_manager); // Ensure 'plane' mesh is loaded for billboards
 
- const grids = await generateGrids();
- const { buildingInstances, billboardInstances, box } = collectInstances(grids, grids.dims);
- registerInstances(scene, buildingInstances, billboardInstances);
+  const grids = await generateGrids(centralDims, smallDims);
+  const { buildingInstances, billboardInstances, box } = collectInstances(grids, grids.dims);
+  registerInstances(scene, buildingInstances, billboardInstances);
 
   // Initialize camera position and visibility if not already set by a controller
   scene.cameraPosition = scene.cameraPosition || [(box.minX + box.maxX)/2, box.maxY + 20, (box.minZ + box.maxZ)/2 + 10]; // Example starting camera
   scene.visibilityDistance = scene.visibilityDistance || 150; // Example visibility distance
-
- updateInstancedObjectsVisibility(scene); // Initial visibility update
- setupLightingAndBounds(scene, box);
+   
+  updateInstancedObjectsVisibility(scene); // Initial visibility update
+  setupLightingAndBounds(scene, box);
 }
 
 /**
