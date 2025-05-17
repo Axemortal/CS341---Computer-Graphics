@@ -62,7 +62,10 @@ async function generateGrids(centralDims, smallDims) {
  const [cw, cd, ch] = centralDims;
  const [sw, sd, sh] = smallDims;
  const centralGrid = await runWFC(cw, cd, ch);
- const smallGrid = await runWFC(sw, sd, sh);
+ let smallGrid = null;
+ if (sw > 0 && sd > 0 && sh > 0) {
+  smallGrid = await runWFC(sw, sd, sh);
+}
  return { centralGrid, smallGrid, dims: { cw, cd, ch, sw, sd, sh } };
 }
 

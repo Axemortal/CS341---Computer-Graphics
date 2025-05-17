@@ -153,11 +153,16 @@ export async function runWFC(dimX = 10, dimY = 10, dimZ = 1) {
   const data = await loadRules();
   // Prepare all rotated variants
   const variants = [];
+  const axisMap = { x: [1,0,0], y: [0,1,0], z: [0,0,1] };
+  const axes = Object.values(axisMap);
+
   data.tiles.forEach(tile => {
     const rots = tile.rotations || 1;
-    const axisMap = { x:[1,0,0], y:[0,1,0], z:[0,0,1] };
-    const axis = axisMap[tile.rotationAxis] || axisMap.x;
     for (let r = 0; r < rots; r++) {
+      // pick axis: from metadata or random
+      const axisKey = tile.rotationAxis?.toLowerCase();
+      const axis = axisMap[axisKey] || axes[Math.floor(Math.random() * axes.length)];
+
       variants.push({
         id: `${tile.id}_rot${r}`,
         model: tile.model,

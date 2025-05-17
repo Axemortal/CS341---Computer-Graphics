@@ -20,8 +20,8 @@
       "faces": {
         "top": "connectable",
         "bottom": "connectable",
-        "left": "outside",
-        "right": "outside",
+        "left": "connectable",
+        "right": "connectable",
         "front": "outside",
         "back": "outside"
       },

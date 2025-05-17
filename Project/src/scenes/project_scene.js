@@ -3,65 +3,54 @@ import { Scene } from "./scene.js";
 import { makeSphereUV } from "../cg_libraries/cg_mesh.js";
 import { ResourceManager } from "../scene_resources/resource_manager.js";
 import { quat } from "../../lib/gl-matrix_3.3.0/esm/index.js";
-import { createDropdown } from "../cg_libraries/cg_web.js";
+import { createDropdown, createSlider, createButton, clearOverlay } from "../cg_libraries/cg_web.js";
+import { setupCityScene, updateInstancedObjectsVisibility } from "../scene_resources/scene_setup.js";
 
 export class ProjectScene extends Scene {
-  /**
-   * A scene featuring reflective water body
-   *
-   * @param {ResourceManager} resourceManager
-   */
+  /** @param {ResourceManager} resourceManager */ 
   constructor(resourceManager) {
     super();
+    // WFC grid dims
+    this.centralDims = [2, 2, 2];
+    this.smallDims   = [1, 1, 1];
+    this.showSmall   = false;
 
+    // Core managers
     this.resourceManager = resourceManager;
-
-    this.static_objects = [];
+    this.static_objects  = [];
     this.dynamic_objects = [];
 
+    // Scene data
+    this.objects          = [];
+    this.lights           = [];
+    this.instancedObjects = {};
+    this.cameraPosition   = [0,0,0];
+    this.lastCameraUpdateTime = 0;
+    this.visibilityDistance   = 30;
+
+    // Initialize
     this.initialize_scene();
     this.initialize_actor_actions();
-    this.UIParams.renderTexture = null;
   }
 
-  initialize_scene() {
-    // Add lights
-    this.lights.push({ position: [5.0, 5.0, 5.0], color: [1.0, 0.8, 0.7] });
-
-    this.resourceManager.addProceduralMesh(
-      "mesh_sphere_env_map",
-      makeSphereUV(16)
-    );
-
+  /**
+   * Set up both static demo objects and WFC-based city
+   */
+  async initialize_scene() {
+    // Add static sky and demo meshes
+    this.lights.push({ position: [5,5,5], color: [1,0.8,0.7] });
+    this.resourceManager.addProceduralMesh("mesh_sphere_env_map", makeSphereUV(16));
     this.static_objects.push({
-      translation: [0, 0, 0],
-      scale: [100, 100, 100],
-      rotation: [0, 0, 0, 0],
-      meshReference: "mesh_sphere_env_map",
-      material: MATERIALS.sunset_sky,
+      translation: [0,0,0], scale:[100,100,100], rotation:[0,0,0,1],
+      meshReference: "mesh_sphere_env_map", material: MATERIALS.sunset_sky
     });
 
-    let rotationQuat = quat.create();
-    quat.fromEuler(rotationQuat, 90, 0, 0);
-
-    const donut_mesh = {
-      translation: [0, 2, 2],
-      scale: [1, 1, 1],
-      rotation: rotationQuat,
-      meshReference: "donut.obj",
-      material: MATERIALS.BasicColors.gray,
-    };
-
-    const plane_mesh = {
-      translation: [0, 0, 0],
-      scale: [10, 1, 10],
-      rotation: rotationQuat,
-      meshReference: "plane.obj",
-      material: MATERIALS.mirror,
-    };
-
-    this.dynamic_objects.push(donut_mesh);
-    this.dynamic_objects.push(plane_mesh);
+    // Donut + plane
+    let rotQ = quat.create(); quat.fromEuler(rotQ,90,0,0);
+    this.dynamic_objects.push(
+      { translation:[0,2,2], scale:[1,1,1], rotation:rotQ, meshReference:"donut.obj", material:MATERIALS.BasicColors.gray },
+      { translation:[0,0,0], scale:[100,1,100], rotation:rotQ, meshReference:"plane.obj", material:MATERIALS.mirror }
+    );
 
     const pine_positions = [
       [-3, 4, 0.3],
@@ -84,29 +73,98 @@ export class ProjectScene extends Scene {
       });
     }
 
-    // Combine the dynamic & static objects into one array
+    // Merge static/dynamic
     this.objects = this.static_objects.concat(this.dynamic_objects);
+
+    // Now add WFC-generated city blocks
+    const smallDims = this.showSmall ? this.smallDims : [0,0,0];
+    await setupCityScene(this.resourceManager, this, this.centralDims, smallDims);
+    updateInstancedObjectsVisibility(this);
+    // Preserve static and dynamic demo objects
+    this.objects = this.static_objects.concat(this.dynamic_objects, this.objects);
+  }
+
+  /**
+   * Rebuild scene when params change
+   */
+  async reloadScene() {
+    // Clear all
+    this.objects = [];
+    this.lights  = [];
+    this.instancedObjects = {};
+    this.static_objects  = [];
+    this.dynamic_objects = [];
+
+    // Re-init
+    await this.initialize_scene();
+  }
+
+  /**
+   * Rebuild city after parameter changes
+   */
+  async reloadCityScene() {
+    // Clear previous data
+    this.objects = [];
+    this.lights  = [];
+    this.instancedObjects = {};
+
+    this.static_objects  = [];
+    this.dynamic_objects = [];
+
+    // Re-run
+    const smallDims = this.showSmall ? this.smallDims : [0, 0, 0];
+    await setupCityScene(
+      this.resource_manager,
+      this,
+      this.centralDims,
+      smallDims
+    );
+    updateInstancedObjectsVisibility(this);
+  }
+
+  /**
+   * Frame update: culling
+   */
+  update(dt,camera) {
+    if(camera?.position) {
+      this.cameraPosition = camera.position;
+      const now = performance.now();
+      if(now - this.lastCameraUpdateTime > 100) {
+        updateInstancedObjectsVisibility(this);
+    // Preserve static and dynamic demo objects
+    this.objects = this.static_objects.concat(this.dynamic_objects, this.objects);
+        this.lastCameraUpdateTime = now;
+      }
+    }
   }
 
   initialize_actor_actions() {}
 
+  /**
+   * Build UI: combines WFC toggles and existing dropdown
+   */
   initializeUIParams() {
+    clearOverlay();
+    // Dropdown for render texture
     createDropdown(
       "Render Texture",
-      [
-        "default",
-        "position",
-        "normals",
-        "base",
-        "reflectionUV",
-        "reflectionColor",
-        "reflectionBlur",
-        "reflections",
-        "shadows",
-      ],
-      (value) => {
-        this.UIParams.renderTexture = value;
-      }
+      ["default","position","normals","base","reflectionUV","reflectionColor","reflectionBlur","reflections","shadows"],
+      v=>{ this.UIParams.renderTexture = v; }
+    );
+    // WFC controls
+    createSlider("Central Width",  [1,20], v=>{ this.centralDims[0]=Number(v); this.reloadScene(); });
+    createSlider("Central Depth",  [1,20], v=>{ this.centralDims[1]=Number(v); this.reloadScene(); });
+    createSlider("Central Height", [1,10], v=>{ this.centralDims[2]=Number(v); this.reloadScene(); });
+    createSlider("Small Width",    [1,10], v=>{ this.smallDims[0]=Number(v); this.reloadScene(); });
+    createSlider("Small Depth",    [1,10], v=>{ this.smallDims[1]=Number(v); this.reloadScene(); });
+    createSlider("Small Height",   [1,10], v=>{ this.smallDims[2]=Number(v); this.reloadScene(); });
+    const toggleLabel = () => this.showSmall?"Hide Small":"Show Small";
+    const btn = createButton(toggleLabel(), ()=>{ this.showSmall=!this.showSmall; btn.querySelector('button').textContent=toggleLabel(); this.reloadScene(); });
+
+    // Reload button
+    createButton(
+      "Reload City Scene",
+      () => { this.reloadCityScene(); }
     );
   }
 }

@@ -56,15 +56,15 @@ class Application {
 
     // Setup scenes
     this.setupScenes();
-    // this.activeScene = this.scenes.project;
-    this.activeScene = this.scenes.city;
+    this.activeScene = this.scenes.project;
+    // this.activeScene = this.scenes.city;
 
     // Setup input and UI
     this.setupCameraListeners();
     clearOverlay();
     this.setupUIGlobalParamsListeners();
     this.activeScene.initializeUIParams();
-    this.activeScene.initialize_ui_params();
+    // this.activeScene.initialize_ui_params();
 
     // Start the render loop
     this.startRenderLoop();

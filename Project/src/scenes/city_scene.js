@@ -1,4 +1,3 @@
-// city_scene.js
 import { Scene } from "./scene.js";
 import { setupCityScene, updateInstancedObjectsVisibility } from "../scene_resources/scene_setup.js";
 import { createSlider, createButton, clearOverlay } from "../cg_libraries/cg_web.js";
@@ -7,9 +6,10 @@ export class CityScene extends Scene {
   /** @param {ResourceManager} resource_manager */
   constructor(resource_manager) {
     super();
-    // Dimensions for WFC grids
-    this.centralDims = [10, 5, 4];
-    this.smallDims   = [3, 3, 3];
+    // WFC grid dimensions
+    this.centralDims = [2, 2, 2];
+    this.smallDims   = [1, 1, 1];
+    this.showSmall   = false; // toggle small buildings
 
     // Core scene data
     this.resource_manager     = resource_manager;
@@ -21,26 +21,27 @@ export class CityScene extends Scene {
     this.visibilityDistance   = 30;
     this.billboardLODDistances= { high:15, medium:25, low:35 };
 
-    // Initialize scene
+    // Initialize
     this.initialize_scene();
     this.initialize_actor_actions();
   }
 
   /**
-   * Orchestrate WFC-based scene setup
+   * Set up scene with or without small buildings
    */
   async initialize_scene() {
+    const smallDims = this.showSmall ? this.smallDims : [0, 0, 0];
     await setupCityScene(
       this.resource_manager,
       this,
       this.centralDims,
-      this.smallDims
+      smallDims
     );
     updateInstancedObjectsVisibility(this);
   }
 
   /**
-   * Rebuild the city when parameters change
+   * Rebuild city after parameter changes
    */
   async reloadCityScene() {
     // Clear previous data
@@ -48,12 +49,13 @@ export class CityScene extends Scene {
     this.lights  = [];
     this.instancedObjects = {};
 
-    // Re-run setup
+    // Re-run
+    const smallDims = this.showSmall ? this.smallDims : [0, 0, 0];
     await setupCityScene(
       this.resource_manager,
       this,
       this.centralDims,
-      this.smallDims
+      smallDims
     );
     updateInstancedObjectsVisibility(this);
   }
@@ -78,13 +80,12 @@ export class CityScene extends Scene {
   initialize_actor_actions() {}
 
   /**
-   * Create UI controls for adjustable parameters
+   * Build UI controls
    */
   initialize_ui_params() {
-    // Clear existing UI
     clearOverlay();
 
-    // Visibility distance
+    // Visibility distance slider
     createSlider(
       "Visibility Distance",
       [10, 50],
@@ -94,56 +95,25 @@ export class CityScene extends Scene {
       }
     );
 
-    // Central block dimensions (update values and reload)
-    createSlider(
-      "Central Width",
-      [1, 20],
-      (v) => { this.centralDims[0] = Number(v); this.reloadCityScene(); }
-    );
-    createSlider(
-      "Central Depth",
-      [1, 20],
-      (v) => { this.centralDims[1] = Number(v); this.reloadCityScene(); }
-    );
-    createSlider(
-      "Central Height",
-      [1, 10],
-      (v) => { this.centralDims[2] = Number(v); this.reloadCityScene(); }
-    );
+    // Central block dimensions sliders
+    createSlider("Central Width",  [1,20], (v)=>{ this.centralDims[0]=Number(v); this.reloadCityScene(); });
+    createSlider("Central Depth",  [1,20], (v)=>{ this.centralDims[1]=Number(v); this.reloadCityScene(); });
+    createSlider("Central Height", [1,10], (v)=>{ this.centralDims[2]=Number(v); this.reloadCityScene(); });
 
-    // Surrounding block dimensions (update values and reload)
-    createSlider(
-      "Small Width",
-      [1, 10],
-      (v) => { this.smallDims[0] = Number(v); this.reloadCityScene(); }
-    );
-    createSlider(
-      "Small Depth",
-      [1, 10],
-      (v) => { this.smallDims[1] = Number(v); this.reloadCityScene(); }
-    );
-    createSlider(
-      "Small Height",
-      [1, 10],
-      (v) => { this.smallDims[2] = Number(v); this.reloadCityScene(); }
-    );
-    createSlider(
-      "Small Width",
-      [1, 10],
-      (v) => { this.smallDims[0] = Number(v); }
-    );
-    createSlider(
-      "Small Depth",
-      [1, 10],
-      (v) => { this.smallDims[1] = Number(v); }
-    );
-    createSlider(
-      "Small Height",
-      [1, 10],
-      (v) => { this.smallDims[2] = Number(v); }
-    );
+    // Toggle small buildings
+    const toggleLabel = () => this.showSmall ? "Hide Small Buildings" : "Show Small Buildings";
+    // Surrounding block dimensions sliders
+    createSlider("Small Width",  [1,10], (v)=>{ this.smallDims[0]=Number(v); this.reloadCityScene(); });
+    createSlider("Small Depth",  [1,10], (v)=>{ this.smallDims[1]=Number(v); this.reloadCityScene(); });
+    createSlider("Small Height", [1,10], (v)=>{ this.smallDims[2]=Number(v); this.reloadCityScene(); });
 
-    // Reload button to apply changes
+    const btnBlock = createButton(toggleLabel(), () => {
+      this.showSmall = !this.showSmall;
+      btnBlock.querySelector('button').textContent = toggleLabel();
+      this.reloadCityScene();
+    });
+
+    // Reload button
     createButton(
       "Reload City Scene",
       () => { this.reloadCityScene(); }
