@@ -162,7 +162,7 @@ class UIManager {
    * @param {Array<number>} range - The range of the slider [min, max]
    * @param {Function} action - Function to execute when slider value changes
    */
-  createSlider(title, range, action) {
+  createSlider(title, range, action, initialValue = range[0], step = 1) {
     if (!this.overlay) return;
 
     // Creates the html elements
@@ -171,15 +171,18 @@ class UIManager {
     const sliderText = document.createElement("span");
 
     // Set some values of these elements
+    sliderBlock.className = "sliderBlock";
     slider.className = "slider";
     slider.type = "range";
     slider.min = range[0];
     slider.max = range[1];
-    slider.value = range[0]; // set default value to the min value
-    sliderText.textContent = title;
+    slider.step = step;
+    slider.value = initialValue; // set default value to the min value
+    sliderText.textContent = `${title}: ${initialValue}`;
 
     // Define the action executed when the input changes (when dragging the slider)
     slider.oninput = () => {
+      sliderText.textContent = `${title}: ${slider.value}`;
       action(slider.value);
     };
 
@@ -332,8 +335,8 @@ const uiManager = new UIManager();
 export const clearOverlay = () => uiManager.clearOverlay();
 export const toggleOverlayVisibility = () =>
   uiManager.toggleOverlayVisibility();
-export const createSlider = (title, range, action) =>
-  uiManager.createSlider(title, range, action);
+export const createSlider = (title, range, action, initialValue, step) =>
+  uiManager.createSlider(title, range, action, initialValue, step);
 export const createHotkeyAction = (title, key, action) =>
   uiManager.createHotkeyAction(title, key, action);
 export const createButton = (title, action) =>

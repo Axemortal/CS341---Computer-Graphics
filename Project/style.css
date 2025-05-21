@@ -129,6 +129,13 @@ button, #submitOffset {
 	margin-right: 0.5rem;
 }
 
+.sliderBlock {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+}
+
 .slider{
 	height: 0.3em;
 	accent-color: #ffffff;

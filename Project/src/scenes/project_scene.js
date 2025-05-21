@@ -3,7 +3,7 @@ import { Scene } from "./scene.js";
 import { makeSphereUV } from "../cg_libraries/cg_mesh.js";
 import { ResourceManager } from "../scene_resources/resource_manager.js";
 import { quat } from "../../lib/gl-matrix_3.3.0/esm/index.js";
-import { createDropdown } from "../cg_libraries/cg_web.js";
+import { createDropdown, createSlider } from "../cg_libraries/cg_web.js";
 
 export class ProjectScene extends Scene {
   /**
@@ -22,6 +22,10 @@ export class ProjectScene extends Scene {
     this.initialize_scene();
     this.initialize_actor_actions();
     this.UIParams.renderTexture = null;
+    this.UIParams.maxDistance = 15;
+    this.UIParams.thickness = 0.1;
+    this.UIParams.resolution = 0.65;
+    this.UIParams.steps = 8;
   }
 
   initialize_scene() {
@@ -107,6 +111,40 @@ export class ProjectScene extends Scene {
       (value) => {
         this.UIParams.renderTexture = value;
       }
+    );
+    createSlider(
+      "SSR Ray Marching Max Distance",
+      [0, 25],
+      (value) => {
+        this.UIParams.maxDistance = parseFloat(value);
+      },
+      this.UIParams.maxDistance
+    );
+    createSlider(
+      "SSR Thickness Threshold",
+      [0, 0.5],
+      (value) => {
+        this.UIParams.thickness = parseFloat(value);
+      },
+      this.UIParams.thickness,
+      0.01
+    );
+    createSlider(
+      "SSR Resolution",
+      [0, 1],
+      (value) => {
+        this.UIParams.resolution = parseFloat(value);
+      },
+      this.UIParams.resolution,
+      0.01
+    );
+    createSlider(
+      "SSR Steps",
+      [0, 32],
+      (value) => {
+        this.UIParams.steps = parseInt(value);
+      },
+      this.UIParams.steps
     );
   }
 }
