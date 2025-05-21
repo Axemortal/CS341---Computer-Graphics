@@ -1,6 +1,9 @@
 import { NoiseShaderRenderer } from "./shader_renderers/noise_sr.js";
 import { BufferToScreenShaderRenderer } from "./shader_renderers/buffer_to_screen_sr.js";
 import { WorleyShaderRenderer } from "./shader_renderers/worley_sr.js";
+import { ZippyShaderRenderer } from "./shader_renderers/zippy_sr.js";
+import { BloomShaderRenderer } from "./shader_renderers/bloom_sr.js";
+import { SquareShaderRenderer } from "./shader_renderers/square_sr.js";
 
 import { vec2 } from "../../lib/gl-matrix_3.3.0/esm/index.js";
 
@@ -22,6 +25,9 @@ export class ProceduralTextureGenerator {
     // The shader that generates the noise
     this.noise = new NoiseShaderRenderer(regl, resourceManager);
     this.worley = new WorleyShaderRenderer(regl, resourceManager);
+    this.bloom = new BloomShaderRenderer(regl, resourceManager);
+    this.zippy = new ZippyShaderRenderer(regl, resourceManager);
+    this.square = new SquareShaderRenderer(regl, resourceManager);
     // The shader that can display the content of a buffer of the screen
     this.buffer_to_screen = new BufferToScreenShaderRenderer(
       regl,
@@ -125,29 +131,123 @@ export class ProceduralTextureGenerator {
     {
       viewer_position = [0, 0],
       viewer_scale = 1.0,
-      width = 256,
-      height = 256,
+      width = 1024,
+      height = 1024,
       u_time = 0,
+      apply_bloom = true
     }
   ) {
-    const buffer = this.new_buffer();
-    if (buffer.width != width || buffer.height != height) {
-      buffer.resize(width, height);
-    }
+    const baseBuffer = this.new_buffer();
+    baseBuffer.resize(width, height);
+  
     this.worley.render(
       this.mesh_quad_2d,
-      buffer,
+      baseBuffer,
       viewer_scale,
       viewer_position,
       u_time
     );
+  
+    let finalBuffer = baseBuffer;
+  
+    if (apply_bloom) {
+      const bloomOutput = this.new_buffer();
+      this.bloom.apply(this.mesh_quad_2d, baseBuffer, bloomOutput);
+      finalBuffer = bloomOutput;
+    }
+  
     const texture = this.regl.texture({
-      width: buffer.width,
-      height: buffer.height,
-      data: buffer_to_data_array(this.regl, buffer).data,
+      width: finalBuffer.width,
+      height: finalBuffer.height,
+      data: buffer_to_data_array(this.regl, finalBuffer).data,
       format: "rgba",
       type: "float",
     });
+  
+    this.resourceManager.resources[name] = texture;
+    return texture;
+  }
+  
+  generate_zippy_texture(
+    name,
+    {
+      viewer_position = [0, 0],
+      viewer_scale = 1.0,
+      width = 1024,
+      height = 1024,
+      u_time = 0,
+      apply_bloom = true
+    }
+  ) {
+    const baseBuffer = this.new_buffer();
+    baseBuffer.resize(width, height);
+  
+    this.zippy.render(
+      this.mesh_quad_2d,
+      baseBuffer,
+      viewer_scale,
+      viewer_position,
+      u_time
+    );
+  
+    let finalBuffer = baseBuffer;
+  
+    if (apply_bloom) {
+      const bloomOutput = this.new_buffer();
+      this.bloom.apply(this.mesh_quad_2d, baseBuffer, bloomOutput);
+      finalBuffer = bloomOutput;
+    }
+  
+    const texture = this.regl.texture({
+      width: finalBuffer.width,
+      height: finalBuffer.height,
+      data: buffer_to_data_array(this.regl, finalBuffer).data,
+      format: "rgba",
+      type: "float",
+    });
+  
+    this.resourceManager.resources[name] = texture;
+    return texture;
+  }
+
+  generate_square_texture(
+    name,
+    {
+      viewer_position = [0, 0],
+      viewer_scale = 1.0,
+      width = 1024,
+      height = 1024,
+      u_time = 0,
+      apply_bloom = true
+    }
+  ) {
+    const baseBuffer = this.new_buffer();
+    baseBuffer.resize(width, height);
+  
+    this.square.render(
+      this.mesh_quad_2d,
+      baseBuffer,
+      viewer_scale,
+      viewer_position,
+      u_time
+    );
+  
+    let finalBuffer = baseBuffer;
+  
+    if (apply_bloom) {
+      const bloomOutput = this.new_buffer();
+      this.bloom.apply(this.mesh_quad_2d, baseBuffer, bloomOutput);
+      finalBuffer = bloomOutput;
+    }
+  
+    const texture = this.regl.texture({
+      width: finalBuffer.width,
+      height: finalBuffer.height,
+      data: buffer_to_data_array(this.regl, finalBuffer).data,
+      format: "rgba",
+      type: "float",
+    });
+  
     this.resourceManager.resources[name] = texture;
     return texture;
   }

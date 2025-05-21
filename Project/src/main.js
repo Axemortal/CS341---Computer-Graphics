@@ -149,15 +149,6 @@ class Application {
     createHotkeyAction("Pause", "p", () => {
       this.uiGlobalParams.isPaused = !this.uiGlobalParams.isPaused;
     });
-
-    createHotkeyAction("Preset view", "1", () => {
-      this.activeScene.camera.setPresetView({
-        distanceFactor: 0.3,
-        angleZ: 0,
-        angleY: -Math.PI / 2,
-        lookAt: [0, 0, 0],
-      });
-    });
   }
 
   /**
