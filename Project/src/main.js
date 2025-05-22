@@ -176,6 +176,8 @@ class Application {
       prevREGLTime = frame.time;
 
       if (!this.uiGlobalParams.isPaused) {
+        // 1) let the scene do its per‐frame update (culling, camera checks…)
+        this.activeScene.update(dt, this.activeScene.camera);
         this.updateSceneActors(dt);
       }
 
