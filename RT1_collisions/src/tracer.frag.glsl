@@ -189,6 +189,7 @@ bool ray_plane_intersection(
 	// can use the plane center if you need it
 	vec3 plane_center = plane_normal * plane_offset;
 	t = MAX_RANGE + 10.;  // corresponds to no intersection, to be updated if one is found
+<<<<<<< HEAD
 	// Equation of the ray = o + t * d
 	// Equation of the plane = dot(x, n_p) = b
 	// Ray intersects the plane if dot(o + t * d, n_p) = b
@@ -213,6 +214,35 @@ bool ray_plane_intersection(
 
 	// There is an intersection
 	return true;
+=======
+	
+	// Compute the denominator: the dot product of the plane normal and the ray direction.
+	float denom = dot(plane_normal, ray_direction);
+	
+	// If the denominator is close to zero, the ray is parallel to the plane (or lies within it),
+	// so there is no valid intersection.
+	if (abs(denom) < 1e-12) {
+		return false;
+	}
+
+	// Compute the intersection distance along the ray.
+	t = (plane_offset - dot(plane_normal, ray_origin)) / denom;
+	
+	// We only consider intersections that are in front of the ray origin (t > 0).
+	if (t > 0.0) {
+		// Determine the proper orientation of the plane normal.
+		// Flip the normal if the ray is coming from behind the plane.
+		if (dot(ray_direction, plane_normal) < 0.0)
+			normal = plane_normal;
+		else
+			normal = -plane_normal;
+		return true;
+	} else {
+		// Intersection occurs behind the ray origin.
+
+		return false;
+	}
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 }
 
 /*
@@ -228,6 +258,7 @@ bool ray_cylinder_intersection(vec3 ray_origin, vec3 ray_direction, Cylinder cyl
 	- Return whether there is an intersection with t > 0
 	*/
 
+<<<<<<< HEAD
 	t = MAX_RANGE + 10.;
 	vec2 solutions;
 	bool has_intersection = false;
@@ -296,6 +327,84 @@ bool ray_cylinder_intersection(vec3 ray_origin, vec3 ray_direction, Cylinder cyl
 	}
 
 	return true; // Valid intersection
+=======
+	// Set default t to a large value (indicating no intersection)
+    t = MAX_RANGE + 10.0;
+    vec2 solutions; // will hold up to 2 candidate t values
+    bool has_intersection = false;
+
+    // Compute the vector from the cylinder center to the ray origin.
+    vec3 oc = ray_origin - cyl.center;
+    float oc_dot_a = dot(oc, cyl.axis);
+
+    // Compute cross products relative to the cylinder axis.
+    vec3 oc_cross_a = cross(oc, cyl.axis);
+    vec3 d_cross_a = cross(ray_direction, cyl.axis);
+    float d_cross_a_len2 = dot(d_cross_a, d_cross_a); // squared length of (ray_direction x cyl.axis)
+
+    // Special case: ray is parallel to the cylinder's axis.
+    if (d_cross_a_len2 < 1e-12) {
+        // The ray is parallel; check if it lies exactly on the cylinder's surface.
+        if (abs(length(oc_cross_a) - cyl.radius) > 1e-6) {
+            // Not on the surface: no intersection.
+            return false;
+        }
+        // Compute intersections with the top and bottom boundaries.
+        // (Here, we solve for t where the ray hits the finite height limits.)
+        float d_dot_a = dot(ray_direction, cyl.axis);
+        solutions[0] = (cyl.height * 0.5 - oc_dot_a) / d_dot_a;
+        solutions[1] = (-cyl.height * 0.5 - oc_dot_a) / d_dot_a;
+    } 
+    else {
+        // General case: ray is not parallel.
+        // Compute quadratic coefficients using cross-product formulation.
+        float A = d_cross_a_len2;
+        float B = 2.0 * dot(oc_cross_a, d_cross_a);
+        float C = dot(oc_cross_a, oc_cross_a) - cyl.radius * cyl.radius;
+        int num_solutions = solve_quadratic(A, B, C, solutions);
+        if (num_solutions == 0) {
+            return false;
+        }
+    }
+    
+    // Evaluate candidate solutions.
+    for (int i = 0; i < 2; i++) {
+        float t_candidate = solutions[i];
+        // Ignore intersections behind the ray origin.
+        if (t_candidate < 0.0)
+            continue;
+        
+        // Compute the intersection point.
+        vec3 intersection_point = ray_origin + t_candidate * ray_direction;
+        // Determine how far along the cylinder's axis this point lies.
+        float projection = dot(intersection_point - cyl.center, cyl.axis);
+        // Discard if the point lies outside the finite cylinder.
+        if (projection > cyl.height * 0.5 || projection < -cyl.height * 0.5)
+            continue;
+        
+        // Keep the closest valid intersection.
+        if (t_candidate < t) {
+            t = t_candidate;
+            has_intersection = true;
+        }
+    }
+    
+    if (!has_intersection)
+        return false;
+    
+    // Compute the final intersection point.
+    vec3 intersection_point = ray_origin + t * ray_direction;
+    // Remove the axial component to compute the surface normal.
+    vec3 y = intersection_point - cyl.center;
+    vec3 n = y - dot(y, cyl.axis) * cyl.axis;
+    normal = normalize(n);
+    
+    // Ensure the normal points against the ray direction.
+    if (dot(normal, ray_direction) > 0.0)
+        normal = -normal;
+    
+    return true;
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 }
 
 /*

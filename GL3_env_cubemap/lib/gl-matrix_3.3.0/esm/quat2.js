@@ -1,6 +1,7 @@
 import * as glMatrix from "./common.js";
 import * as quat from "./quat.js";
 import * as mat4 from "./mat4.js";
+<<<<<<< HEAD
 /**
  * Dual Quaternion<br>
  * Format: [real, dual]<br>
@@ -13,6 +14,20 @@ import * as mat4 from "./mat4.js";
  * Creates a new identity dual quat
  *
  * @returns {quat2} a new dual quaternion [real -> rotation, dual -> translation]
+=======
+/**
+ * Dual Quaternion<br>
+ * Format: [real, dual]<br>
+ * Quaternion format: XYZW<br>
+ * Make sure to have normalized dual quaternions, otherwise the functions may not work as intended.<br>
+ * @module quat2
+ */
+
+/**
+ * Creates a new identity dual quat
+ *
+ * @returns {quat2} a new dual quaternion [real -> rotation, dual -> translation]
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function create() {
@@ -31,12 +46,21 @@ export function create() {
   dq[3] = 1;
   return dq;
 }
+<<<<<<< HEAD
 /**
  * Creates a new quat initialized with values from an existing quaternion
  *
  * @param {ReadonlyQuat2} a dual quaternion to clone
  * @returns {quat2} new dual quaternion
  * @function
+=======
+/**
+ * Creates a new quat initialized with values from an existing quaternion
+ *
+ * @param {ReadonlyQuat2} a dual quaternion to clone
+ * @returns {quat2} new dual quaternion
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function clone(a) {
@@ -51,6 +75,7 @@ export function clone(a) {
   dq[7] = a[7];
   return dq;
 }
+<<<<<<< HEAD
 /**
  * Creates a new dual quat initialized with the given values
  *
@@ -64,6 +89,21 @@ export function clone(a) {
  * @param {Number} w2 W component
  * @returns {quat2} new dual quaternion
  * @function
+=======
+/**
+ * Creates a new dual quat initialized with the given values
+ *
+ * @param {Number} x1 X component
+ * @param {Number} y1 Y component
+ * @param {Number} z1 Z component
+ * @param {Number} w1 W component
+ * @param {Number} x2 X component
+ * @param {Number} y2 Y component
+ * @param {Number} z2 Z component
+ * @param {Number} w2 W component
+ * @returns {quat2} new dual quaternion
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromValues(x1, y1, z1, w1, x2, y2, z2, w2) {
@@ -78,6 +118,7 @@ export function fromValues(x1, y1, z1, w1, x2, y2, z2, w2) {
   dq[7] = w2;
   return dq;
 }
+<<<<<<< HEAD
 /**
  * Creates a new dual quat from the given values (quat and translation)
  *
@@ -90,6 +131,20 @@ export function fromValues(x1, y1, z1, w1, x2, y2, z2, w2) {
  * @param {Number} z2 Z component (translation)
  * @returns {quat2} new dual quaternion
  * @function
+=======
+/**
+ * Creates a new dual quat from the given values (quat and translation)
+ *
+ * @param {Number} x1 X component
+ * @param {Number} y1 Y component
+ * @param {Number} z1 Z component
+ * @param {Number} w1 W component
+ * @param {Number} x2 X component (translation)
+ * @param {Number} y2 Y component (translation)
+ * @param {Number} z2 Z component (translation)
+ * @returns {quat2} new dual quaternion
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromRotationTranslationValues(x1, y1, z1, w1, x2, y2, z2) {
@@ -107,6 +162,7 @@ export function fromRotationTranslationValues(x1, y1, z1, w1, x2, y2, z2) {
   dq[7] = -ax * x1 - ay * y1 - az * z1;
   return dq;
 }
+<<<<<<< HEAD
 /**
  * Creates a dual quat from a quaternion and a translation
  *
@@ -115,6 +171,16 @@ export function fromRotationTranslationValues(x1, y1, z1, w1, x2, y2, z2) {
  * @param {ReadonlyVec3} t tranlation vector
  * @returns {quat2} dual quaternion receiving operation result
  * @function
+=======
+/**
+ * Creates a dual quat from a quaternion and a translation
+ *
+ * @param {ReadonlyQuat2} dual quaternion receiving operation result
+ * @param {ReadonlyQuat} q a normalized quaternion
+ * @param {ReadonlyVec3} t tranlation vector
+ * @returns {quat2} dual quaternion receiving operation result
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromRotationTranslation(out, q, t) {
@@ -135,6 +201,7 @@ export function fromRotationTranslation(out, q, t) {
   out[7] = -ax * bx - ay * by - az * bz;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a dual quat from a translation
  *
@@ -142,6 +209,15 @@ export function fromRotationTranslation(out, q, t) {
  * @param {ReadonlyVec3} t translation vector
  * @returns {quat2} dual quaternion receiving operation result
  * @function
+=======
+/**
+ * Creates a dual quat from a translation
+ *
+ * @param {ReadonlyQuat2} dual quaternion receiving operation result
+ * @param {ReadonlyVec3} t translation vector
+ * @returns {quat2} dual quaternion receiving operation result
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromTranslation(out, t) {
@@ -155,6 +231,7 @@ export function fromTranslation(out, t) {
   out[7] = 0;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a dual quat from a quaternion
  *
@@ -162,6 +239,15 @@ export function fromTranslation(out, t) {
  * @param {ReadonlyQuat} q the quaternion
  * @returns {quat2} dual quaternion receiving operation result
  * @function
+=======
+/**
+ * Creates a dual quat from a quaternion
+ *
+ * @param {ReadonlyQuat2} dual quaternion receiving operation result
+ * @param {ReadonlyQuat} q the quaternion
+ * @returns {quat2} dual quaternion receiving operation result
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromRotation(out, q) {
@@ -175,6 +261,7 @@ export function fromRotation(out, q) {
   out[7] = 0;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a new dual quat from a matrix (4x4)
  *
@@ -182,6 +269,15 @@ export function fromRotation(out, q) {
  * @param {ReadonlyMat4} a the matrix
  * @returns {quat2} dual quat receiving operation result
  * @function
+=======
+/**
+ * Creates a new dual quat from a matrix (4x4)
+ *
+ * @param {quat2} out the dual quaternion
+ * @param {ReadonlyMat4} a the matrix
+ * @returns {quat2} dual quat receiving operation result
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromMat4(out, a) {
@@ -193,6 +289,7 @@ export function fromMat4(out, a) {
   fromRotationTranslation(out, outer, t);
   return out;
 }
+<<<<<<< HEAD
 /**
  * Copy the values from one dual quat to another
  *
@@ -200,6 +297,15 @@ export function fromMat4(out, a) {
  * @param {ReadonlyQuat2} a the source dual quaternion
  * @returns {quat2} out
  * @function
+=======
+/**
+ * Copy the values from one dual quat to another
+ *
+ * @param {quat2} out the receiving dual quaternion
+ * @param {ReadonlyQuat2} a the source dual quaternion
+ * @returns {quat2} out
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function copy(out, a) {
@@ -213,11 +319,19 @@ export function copy(out, a) {
   out[7] = a[7];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Set a dual quat to the identity dual quaternion
  *
  * @param {quat2} out the receiving quaternion
  * @returns {quat2} out
+=======
+/**
+ * Set a dual quat to the identity dual quaternion
+ *
+ * @param {quat2} out the receiving quaternion
+ * @returns {quat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function identity(out) {
@@ -231,6 +345,7 @@ export function identity(out) {
   out[7] = 0;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Set the components of a dual quat to the given values
  *
@@ -245,6 +360,22 @@ export function identity(out) {
  * @param {Number} w2 W component
  * @returns {quat2} out
  * @function
+=======
+/**
+ * Set the components of a dual quat to the given values
+ *
+ * @param {quat2} out the receiving quaternion
+ * @param {Number} x1 X component
+ * @param {Number} y1 Y component
+ * @param {Number} z1 Z component
+ * @param {Number} w1 W component
+ * @param {Number} x2 X component
+ * @param {Number} y2 Y component
+ * @param {Number} z2 Z component
+ * @param {Number} w2 W component
+ * @returns {quat2} out
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function set(out, x1, y1, z1, w1, x2, y2, z2, w2) {
@@ -258,6 +389,7 @@ export function set(out, x1, y1, z1, w1, x2, y2, z2, w2) {
   out[7] = w2;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Gets the real part of a dual quat
  * @param  {quat} out real part
@@ -271,6 +403,21 @@ export var getReal = quat.copy;
  * @param  {quat} out dual part
  * @param  {ReadonlyQuat2} a Dual Quaternion
  * @return {quat} dual part
+=======
+/**
+ * Gets the real part of a dual quat
+ * @param  {quat} out real part
+ * @param  {ReadonlyQuat2} a Dual Quaternion
+ * @return {quat} real part
+ */
+
+export var getReal = quat.copy;
+/**
+ * Gets the dual part of a dual quat
+ * @param  {quat} out dual part
+ * @param  {ReadonlyQuat2} a Dual Quaternion
+ * @return {quat} dual part
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function getDual(out, a) {
@@ -280,6 +427,7 @@ export function getDual(out, a) {
   out[3] = a[7];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Set the real component of a dual quat to the given quaternion
  *
@@ -297,6 +445,25 @@ export var setReal = quat.copy;
  * @param {ReadonlyQuat} q a quaternion representing the dual part
  * @returns {quat2} out
  * @function
+=======
+/**
+ * Set the real component of a dual quat to the given quaternion
+ *
+ * @param {quat2} out the receiving quaternion
+ * @param {ReadonlyQuat} q a quaternion representing the real part
+ * @returns {quat2} out
+ * @function
+ */
+
+export var setReal = quat.copy;
+/**
+ * Set the dual component of a dual quat to the given quaternion
+ *
+ * @param {quat2} out the receiving quaternion
+ * @param {ReadonlyQuat} q a quaternion representing the dual part
+ * @returns {quat2} out
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function setDual(out, q) {
@@ -306,11 +473,19 @@ export function setDual(out, q) {
   out[7] = q[3];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Gets the translation of a normalized dual quat
  * @param  {vec3} out translation
  * @param  {ReadonlyQuat2} a Dual Quaternion to be decomposed
  * @return {vec3} translation
+=======
+/**
+ * Gets the translation of a normalized dual quat
+ * @param  {vec3} out translation
+ * @param  {ReadonlyQuat2} a Dual Quaternion to be decomposed
+ * @return {vec3} translation
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function getTranslation(out, a) {
@@ -327,6 +502,7 @@ export function getTranslation(out, a) {
   out[2] = (az * bw + aw * bz + ax * by - ay * bx) * 2;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Translates a dual quat by the given vector
  *
@@ -334,6 +510,15 @@ export function getTranslation(out, a) {
  * @param {ReadonlyQuat2} a the dual quaternion to translate
  * @param {ReadonlyVec3} v vector to translate by
  * @returns {quat2} out
+=======
+/**
+ * Translates a dual quat by the given vector
+ *
+ * @param {quat2} out the receiving dual quaternion
+ * @param {ReadonlyQuat2} a the dual quaternion to translate
+ * @param {ReadonlyVec3} v vector to translate by
+ * @returns {quat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function translate(out, a, v) {
@@ -358,6 +543,7 @@ export function translate(out, a, v) {
   out[7] = -ax1 * bx1 - ay1 * by1 - az1 * bz1 + aw2;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Rotates a dual quat around the X axis
  *
@@ -365,6 +551,15 @@ export function translate(out, a, v) {
  * @param {ReadonlyQuat2} a the dual quaternion to rotate
  * @param {number} rad how far should the rotation be
  * @returns {quat2} out
+=======
+/**
+ * Rotates a dual quat around the X axis
+ *
+ * @param {quat2} out the receiving dual quaternion
+ * @param {ReadonlyQuat2} a the dual quaternion to rotate
+ * @param {number} rad how far should the rotation be
+ * @returns {quat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function rotateX(out, a, rad) {
@@ -391,6 +586,7 @@ export function rotateX(out, a, rad) {
   out[7] = aw1 * bw - ax1 * bx - ay1 * by - az1 * bz;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Rotates a dual quat around the Y axis
  *
@@ -398,6 +594,15 @@ export function rotateX(out, a, rad) {
  * @param {ReadonlyQuat2} a the dual quaternion to rotate
  * @param {number} rad how far should the rotation be
  * @returns {quat2} out
+=======
+/**
+ * Rotates a dual quat around the Y axis
+ *
+ * @param {quat2} out the receiving dual quaternion
+ * @param {ReadonlyQuat2} a the dual quaternion to rotate
+ * @param {number} rad how far should the rotation be
+ * @returns {quat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function rotateY(out, a, rad) {
@@ -424,6 +629,7 @@ export function rotateY(out, a, rad) {
   out[7] = aw1 * bw - ax1 * bx - ay1 * by - az1 * bz;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Rotates a dual quat around the Z axis
  *
@@ -431,6 +637,15 @@ export function rotateY(out, a, rad) {
  * @param {ReadonlyQuat2} a the dual quaternion to rotate
  * @param {number} rad how far should the rotation be
  * @returns {quat2} out
+=======
+/**
+ * Rotates a dual quat around the Z axis
+ *
+ * @param {quat2} out the receiving dual quaternion
+ * @param {ReadonlyQuat2} a the dual quaternion to rotate
+ * @param {number} rad how far should the rotation be
+ * @returns {quat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function rotateZ(out, a, rad) {
@@ -457,6 +672,7 @@ export function rotateZ(out, a, rad) {
   out[7] = aw1 * bw - ax1 * bx - ay1 * by - az1 * bz;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Rotates a dual quat by a given quaternion (a * q)
  *
@@ -464,6 +680,15 @@ export function rotateZ(out, a, rad) {
  * @param {ReadonlyQuat2} a the dual quaternion to rotate
  * @param {ReadonlyQuat} q quaternion to rotate by
  * @returns {quat2} out
+=======
+/**
+ * Rotates a dual quat by a given quaternion (a * q)
+ *
+ * @param {quat2} out the receiving dual quaternion
+ * @param {ReadonlyQuat2} a the dual quaternion to rotate
+ * @param {ReadonlyQuat} q quaternion to rotate by
+ * @returns {quat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function rotateByQuatAppend(out, a, q) {
@@ -489,6 +714,7 @@ export function rotateByQuatAppend(out, a, q) {
   out[7] = aw * qw - ax * qx - ay * qy - az * qz;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Rotates a dual quat by a given quaternion (q * a)
  *
@@ -496,6 +722,15 @@ export function rotateByQuatAppend(out, a, q) {
  * @param {ReadonlyQuat} q quaternion to rotate by
  * @param {ReadonlyQuat2} a the dual quaternion to rotate
  * @returns {quat2} out
+=======
+/**
+ * Rotates a dual quat by a given quaternion (q * a)
+ *
+ * @param {quat2} out the receiving dual quaternion
+ * @param {ReadonlyQuat} q quaternion to rotate by
+ * @param {ReadonlyQuat2} a the dual quaternion to rotate
+ * @returns {quat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function rotateByQuatPrepend(out, q, a) {
@@ -521,6 +756,7 @@ export function rotateByQuatPrepend(out, q, a) {
   out[7] = qw * bw - qx * bx - qy * by - qz * bz;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Rotates a dual quat around a given axis. Does the normalisation automatically
  *
@@ -529,6 +765,16 @@ export function rotateByQuatPrepend(out, q, a) {
  * @param {ReadonlyVec3} axis the axis to rotate around
  * @param {Number} rad how far the rotation should be
  * @returns {quat2} out
+=======
+/**
+ * Rotates a dual quat around a given axis. Does the normalisation automatically
+ *
+ * @param {quat2} out the receiving dual quaternion
+ * @param {ReadonlyQuat2} a the dual quaternion to rotate
+ * @param {ReadonlyVec3} axis the axis to rotate around
+ * @param {Number} rad how far the rotation should be
+ * @returns {quat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function rotateAroundAxis(out, a, axis, rad) {
@@ -562,6 +808,7 @@ export function rotateAroundAxis(out, a, axis, rad) {
   out[7] = aw * bw - ax * bx - ay * by - az * bz;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Adds two dual quat's
  *
@@ -570,6 +817,16 @@ export function rotateAroundAxis(out, a, axis, rad) {
  * @param {ReadonlyQuat2} b the second operand
  * @returns {quat2} out
  * @function
+=======
+/**
+ * Adds two dual quat's
+ *
+ * @param {quat2} out the receiving dual quaternion
+ * @param {ReadonlyQuat2} a the first operand
+ * @param {ReadonlyQuat2} b the second operand
+ * @returns {quat2} out
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function add(out, a, b) {
@@ -583,6 +840,7 @@ export function add(out, a, b) {
   out[7] = a[7] + b[7];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Multiplies two dual quat's
  *
@@ -590,6 +848,15 @@ export function add(out, a, b) {
  * @param {ReadonlyQuat2} a the first operand
  * @param {ReadonlyQuat2} b the second operand
  * @returns {quat2} out
+=======
+/**
+ * Multiplies two dual quat's
+ *
+ * @param {quat2} out the receiving dual quaternion
+ * @param {ReadonlyQuat2} a the first operand
+ * @param {ReadonlyQuat2} b the second operand
+ * @returns {quat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function multiply(out, a, b) {
@@ -619,6 +886,7 @@ export function multiply(out, a, b) {
   out[7] = aw0 * bw1 - ax0 * bx1 - ay0 * by1 - az0 * bz1 + aw1 * bw0 - ax1 * bx0 - ay1 * by0 - az1 * bz0;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Alias for {@link quat2.multiply}
  * @function
@@ -633,6 +901,22 @@ export var mul = multiply;
  * @param {Number} b amount to scale the dual quat by
  * @returns {quat2} out
  * @function
+=======
+/**
+ * Alias for {@link quat2.multiply}
+ * @function
+ */
+
+export var mul = multiply;
+/**
+ * Scales a dual quat by a scalar number
+ *
+ * @param {quat2} out the receiving dual quat
+ * @param {ReadonlyQuat2} a the dual quat to scale
+ * @param {Number} b amount to scale the dual quat by
+ * @returns {quat2} out
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function scale(out, a, b) {
@@ -646,6 +930,7 @@ export function scale(out, a, b) {
   out[7] = a[7] * b;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Calculates the dot product of two dual quat's (The dot product of the real parts)
  *
@@ -665,6 +950,27 @@ export var dot = quat.dot;
  * @param {ReadonlyQuat2} b the second operand
  * @param {Number} t interpolation amount, in the range [0-1], between the two inputs
  * @returns {quat2} out
+=======
+/**
+ * Calculates the dot product of two dual quat's (The dot product of the real parts)
+ *
+ * @param {ReadonlyQuat2} a the first operand
+ * @param {ReadonlyQuat2} b the second operand
+ * @returns {Number} dot product of a and b
+ * @function
+ */
+
+export var dot = quat.dot;
+/**
+ * Performs a linear interpolation between two dual quats's
+ * NOTE: The resulting dual quaternions won't always be normalized (The error is most noticeable when t = 0.5)
+ *
+ * @param {quat2} out the receiving dual quat
+ * @param {ReadonlyQuat2} a the first operand
+ * @param {ReadonlyQuat2} b the second operand
+ * @param {Number} t interpolation amount, in the range [0-1], between the two inputs
+ * @returns {quat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function lerp(out, a, b, t) {
@@ -680,12 +986,21 @@ export function lerp(out, a, b, t) {
   out[7] = a[7] * mt + b[7] * t;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Calculates the inverse of a dual quat. If they are normalized, conjugate is cheaper
  *
  * @param {quat2} out the receiving dual quaternion
  * @param {ReadonlyQuat2} a dual quat to calculate inverse of
  * @returns {quat2} out
+=======
+/**
+ * Calculates the inverse of a dual quat. If they are normalized, conjugate is cheaper
+ *
+ * @param {quat2} out the receiving dual quaternion
+ * @param {ReadonlyQuat2} a dual quat to calculate inverse of
+ * @returns {quat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function invert(out, a) {
@@ -700,6 +1015,7 @@ export function invert(out, a) {
   out[7] = a[7] / sqlen;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Calculates the conjugate of a dual quat
  * If the dual quaternion is normalized, this function is faster than quat2.inverse and produces the same result.
@@ -707,6 +1023,15 @@ export function invert(out, a) {
  * @param {quat2} out the receiving quaternion
  * @param {ReadonlyQuat2} a quat to calculate conjugate of
  * @returns {quat2} out
+=======
+/**
+ * Calculates the conjugate of a dual quat
+ * If the dual quaternion is normalized, this function is faster than quat2.inverse and produces the same result.
+ *
+ * @param {quat2} out the receiving quaternion
+ * @param {ReadonlyQuat2} a quat to calculate conjugate of
+ * @returns {quat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function conjugate(out, a) {
@@ -720,6 +1045,7 @@ export function conjugate(out, a) {
   out[7] = a[7];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Calculates the length of a dual quat
  *
@@ -757,6 +1083,45 @@ export var sqrLen = squaredLength;
  * @param {ReadonlyQuat2} a dual quaternion to normalize
  * @returns {quat2} out
  * @function
+=======
+/**
+ * Calculates the length of a dual quat
+ *
+ * @param {ReadonlyQuat2} a dual quat to calculate length of
+ * @returns {Number} length of a
+ * @function
+ */
+
+export var length = quat.length;
+/**
+ * Alias for {@link quat2.length}
+ * @function
+ */
+
+export var len = length;
+/**
+ * Calculates the squared length of a dual quat
+ *
+ * @param {ReadonlyQuat2} a dual quat to calculate squared length of
+ * @returns {Number} squared length of a
+ * @function
+ */
+
+export var squaredLength = quat.squaredLength;
+/**
+ * Alias for {@link quat2.squaredLength}
+ * @function
+ */
+
+export var sqrLen = squaredLength;
+/**
+ * Normalize a dual quat
+ *
+ * @param {quat2} out the receiving dual quaternion
+ * @param {ReadonlyQuat2} a dual quaternion to normalize
+ * @returns {quat2} out
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function normalize(out, a) {
@@ -785,33 +1150,59 @@ export function normalize(out, a) {
 
   return out;
 }
+<<<<<<< HEAD
 /**
  * Returns a string representation of a dual quatenion
  *
  * @param {ReadonlyQuat2} a dual quaternion to represent as a string
  * @returns {String} string representation of the dual quat
+=======
+/**
+ * Returns a string representation of a dual quatenion
+ *
+ * @param {ReadonlyQuat2} a dual quaternion to represent as a string
+ * @returns {String} string representation of the dual quat
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function str(a) {
   return "quat2(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ")";
 }
+<<<<<<< HEAD
 /**
  * Returns whether or not the dual quaternions have exactly the same elements in the same position (when compared with ===)
  *
  * @param {ReadonlyQuat2} a the first dual quaternion.
  * @param {ReadonlyQuat2} b the second dual quaternion.
  * @returns {Boolean} true if the dual quaternions are equal, false otherwise.
+=======
+/**
+ * Returns whether or not the dual quaternions have exactly the same elements in the same position (when compared with ===)
+ *
+ * @param {ReadonlyQuat2} a the first dual quaternion.
+ * @param {ReadonlyQuat2} b the second dual quaternion.
+ * @returns {Boolean} true if the dual quaternions are equal, false otherwise.
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function exactEquals(a, b) {
   return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3] && a[4] === b[4] && a[5] === b[5] && a[6] === b[6] && a[7] === b[7];
 }
+<<<<<<< HEAD
 /**
  * Returns whether or not the dual quaternions have approximately the same elements in the same position.
  *
  * @param {ReadonlyQuat2} a the first dual quat.
  * @param {ReadonlyQuat2} b the second dual quat.
  * @returns {Boolean} true if the dual quats are equal, false otherwise.
+=======
+/**
+ * Returns whether or not the dual quaternions have approximately the same elements in the same position.
+ *
+ * @param {ReadonlyQuat2} a the first dual quat.
+ * @param {ReadonlyQuat2} b the second dual quat.
+ * @returns {Boolean} true if the dual quats are equal, false otherwise.
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function equals(a, b) {

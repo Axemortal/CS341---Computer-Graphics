@@ -7,6 +7,7 @@ title: Theory Exercise RT2 – Lighting and Light Rays
 ## Lighting and Light Rays
 
 ### Derivation of the Iterative Formula
+<<<<<<< HEAD
 
 We are given that the resulting colour for a given pixel $c_b$ is expressed as:
 
@@ -46,3 +47,9 @@ $$
     c_b = \sum_{i=0}^{N} (1 - \alpha_i) \left(\prod_{k=0}^{i-1} \alpha_k \right) c_i
 \end{equation}
 $$
+=======
+Write your solution here.
+
+### Simplification for $N$ Reflections
+Write your solution here.
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879

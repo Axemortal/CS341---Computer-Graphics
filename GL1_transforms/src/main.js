@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 import { createREGL } from "../lib/regljs_2.1.0/regl.module.js"
 import { vec2, vec3, vec4, mat3, mat4 } from "../lib/gl-matrix_3.3.0/esm/index.js"
 
@@ -9,6 +10,18 @@ import { SystemRenderGrid } from "./icg_grid.js"
 import { SystemRenderFrame } from "./icg_frame.js"
 
 import { create_scene_content, SysOrbitalMovement, SysRenderPlanetsUnshaded } from "./planets.js"
+=======
+import {createREGL} from "../lib/regljs_2.1.0/regl.module.js"
+import {vec2, vec3, vec4, mat3, mat4} from "../lib/gl-matrix_3.3.0/esm/index.js"
+
+import {DOM_loaded_promise, load_text, load_texture, register_keyboard_action} from "./icg_web.js"
+import {deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many} from "./icg_math.js"
+import {icg_mesh_make_uv_sphere} from "./icg_mesh.js"
+import {SystemRenderGrid} from "./icg_grid.js"
+import {SystemRenderFrame} from "./icg_frame.js"
+
+import {create_scene_content, SysOrbitalMovement, SysRenderPlanetsUnshaded} from "./planets.js"
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 
 
 async function load_resources(regl) {
@@ -30,6 +43,7 @@ async function load_resources(regl) {
 
 	// Start downloads in parallel
 	const resource_promises = {}
+<<<<<<< HEAD
 
 	const textures_to_load = [
 		'sun.jpg', 'moon.jpg', 'mars.jpg',
@@ -39,13 +53,28 @@ async function load_resources(regl) {
 		resource_promises[tex_name] = load_texture(regl, `./textures/${tex_name}`)
 	}
 	resource_promises['earth_clouds.jpg'] = load_texture(regl, `./textures/earth_clouds.jpg`, { wrapS: 'repeat' })
+=======
+	
+	const textures_to_load = [
+		'sun.jpg', 'moon.jpg', 'mars.jpg', 
+		'earth_day.jpg', 'earth_night.jpg', 'earth_gloss.jpg',
+	]
+	for(const tex_name of textures_to_load) {
+		resource_promises[tex_name] = load_texture(regl, `./textures/${tex_name}`)
+	}
+	resource_promises['earth_clouds.jpg'] =  load_texture(regl, `./textures/earth_clouds.jpg`, {wrapS: 'repeat'})
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 
 
 	const shaders_to_load = [
 		'unshaded.vert.glsl', 'unshaded.frag.glsl',
 		'earth.frag.glsl', 'sun.vert.glsl',
 	]
+<<<<<<< HEAD
 	for (const shader_name of shaders_to_load) {
+=======
+	for(const shader_name of shaders_to_load) {
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 		resource_promises[shader_name] = load_text(`./src/shaders/${shader_name}`)
 	}
 
@@ -55,7 +84,11 @@ async function load_resources(regl) {
 	// UV sphere https://docs.blender.org/manual/en/latest/modeling/meshes/primitives.html#uv-sphere
 	// we create it in code instead of loading from a file
 	resources['mesh_uvsphere'] = icg_mesh_make_uv_sphere(15)
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 	// Wait for all downloads to complete
 	for (const [key, promise] of Object.entries(resource_promises)) {
 		resources[key] = await promise
@@ -82,7 +115,11 @@ async function main() {
 	/*---------------------------------------------------------------
 		Scene and systems
 	---------------------------------------------------------------*/
+<<<<<<< HEAD
 	const resources = await load_resources(regl)
+=======
+	const resources = await load_resources(regl)	
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 
 	const scene_info = create_scene_content()
 
@@ -94,7 +131,11 @@ async function main() {
 
 	const sys_render_frame = new SystemRenderFrame(regl, resources)
 
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 
 	/*---------------------------------------------------------------
 		Frame info
@@ -124,6 +165,7 @@ async function main() {
 	const cam_distance_base = 15.
 
 	function update_cam_transform(frame_info) {
+<<<<<<< HEAD
 		const { cam_angle_z, cam_angle_y, cam_distance_factor } = frame_info
 
 		/* TODO GL1.2.2
@@ -148,6 +190,42 @@ async function main() {
 		mat4_matmul_many(mat_turntable, look_at, rotateY, rotateZ)
 		frame_info.mat_turntable = mat_turntable
 	}
+=======
+		const { cam_angle_z, cam_angle_y, cam_distance_factor } = frame_info;
+
+		// Clamp the pitch angle to avoid a sudden flip on the initial click.
+		
+		const r = cam_distance_base * cam_distance_factor; // distance from (0,0,0)
+	  
+		/* TODO GL1.2.2
+		  Calculate the world-to-camera transformation matrix for turntable camera.
+		  The camera orbits the scene 
+		  * cam_distance_base * cam_distance_factor = distance of the camera from the (0, 0, 0) point
+		  * cam_angle_z - camera ray's angle around the Z axis
+		  * cam_angle_y - camera ray's angle around the Y axis
+		*/
+	  
+		const eye = [
+		  -r * Math.cos(-cam_angle_y) * Math.cos(cam_angle_z),
+		  r * Math.cos(-cam_angle_y) * Math.sin(cam_angle_z),
+		  r * Math.sin(-cam_angle_y)
+		];
+		
+		let forward = vec3.normalize([], vec3.negate([], eye));
+		let up_reference = [0,0, -Math.cos(-cam_angle_y)];
+		let right = vec3.normalize([], vec3.cross([],up_reference, forward));
+		let up = vec3.normalize([], vec3.cross([], right, forward));
+		// Use lookAt to compute the view matrix.
+		// The target is fixed at [0,0,0] and the up vector remains [0,0,1].
+		const look_at = mat4.lookAt(
+			mat4.create(),
+			eye,
+			[0, 0, 0],
+			up
+		)
+		frame_info.mat_turntable = look_at;
+	  }
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 
 	update_cam_transform(frame_info)
 
@@ -155,8 +233,13 @@ async function main() {
 	canvas_elem.addEventListener('mousemove', (event) => {
 		// if left or middle button is pressed
 		if (event.buttons & 1 || event.buttons & 4) {
+<<<<<<< HEAD
 			frame_info.cam_angle_z += event.movementX * 0.005
 			frame_info.cam_angle_y += -event.movementY * 0.005
+=======
+			frame_info.cam_angle_z += event.movementX*0.005
+			frame_info.cam_angle_y += -event.movementY*0.005
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 
 			update_cam_transform(frame_info)
 		}
@@ -165,7 +248,11 @@ async function main() {
 	canvas_elem.addEventListener('wheel', (event) => {
 		// scroll wheel to zoom in or out
 		const factor_mul_base = 1.08
+<<<<<<< HEAD
 		const factor_mul = (event.deltaY > 0) ? factor_mul_base : 1. / factor_mul_base
+=======
+		const factor_mul = (event.deltaY > 0) ? factor_mul_base : 1./factor_mul_base
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 		frame_info.cam_distance_factor *= factor_mul
 		frame_info.cam_distance_factor = Math.max(0.02, Math.min(frame_info.cam_distance_factor, 4))
 		// console.log('wheel', event.deltaY, event.deltaMode);
@@ -180,7 +267,11 @@ async function main() {
 	const debug_overlay = document.getElementById('debug-overlay')
 	const debug_text = document.getElementById('debug-text')
 	register_keyboard_action('h', () => debug_overlay.classList.toggle('hidden'))
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 	// Pause
 	let is_paused = false;
 	register_keyboard_action('p', () => is_paused = !is_paused);
@@ -200,7 +291,11 @@ async function main() {
 	function set_selected_planet(name) {
 		console.log('Selecting', name);
 		selected_planet_name = name;
+<<<<<<< HEAD
 		frame_info.cam_distance_factor = 3 * scene_info.actors_by_name[name].size / cam_distance_base;
+=======
+		frame_info.cam_distance_factor = 3*scene_info.actors_by_name[name].size / cam_distance_base;
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 		update_cam_transform(frame_info)
 	}
 
@@ -270,23 +365,37 @@ async function main() {
 
 	regl.frame((frame) => {
 
+<<<<<<< HEAD
 		const { mat_view, mat_projection, mat_turntable, light_position_cam, light_position_world, camera_position } = frame_info
 
 		if (!is_paused) {
+=======
+		const {mat_view, mat_projection, mat_turntable, light_position_cam, light_position_world, camera_position} = frame_info
+
+		if (! is_paused) {
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 			const dt = frame.time - prev_regl_time
 			scene_info.sim_time += dt
 		}
 		frame_info.sim_time = scene_info.sim_time
 		prev_regl_time = frame.time;
 
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 		// Update planet transforms
 		sys_orbital_movement.simulate(scene_info)
 
 
 		// Calculate view matrix, view centered on chosen planet
 		{
+<<<<<<< HEAD
 			mat4.perspective(mat_projection,
+=======
+			mat4.perspective(mat_projection, 
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 				deg_to_rad * 60, // fov y
 				frame.framebufferWidth / frame.framebufferHeight, // aspect ratio
 				0.01, // near
@@ -321,6 +430,7 @@ async function main() {
 		}
 
 		// Set the whole image to black
+<<<<<<< HEAD
 		regl.clear({ color: [0, 0, 0, 1] });
 
 		sys_render_unshaded.render(frame_info, scene_info)
@@ -330,13 +440,28 @@ async function main() {
 		}
 
 		if (frame_on) {
+=======
+		regl.clear({color: [0, 0, 0, 1]});
+
+		sys_render_unshaded.render(frame_info, scene_info)
+
+		if ( grid_on ) {
+			sys_render_grid.render(frame_info, scene_info)
+		}
+
+		if ( frame_on ) {
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 			sys_render_frame.render(frame_info, scene_info)
 		}
 
 
 		debug_text.textContent = `
 Hello! Sim time is ${scene_info.sim_time.toFixed(2)} s
+<<<<<<< HEAD
 Camera: angle_z ${(frame_info.cam_angle_z / deg_to_rad).toFixed(1)}, angle_y ${(frame_info.cam_angle_y / deg_to_rad).toFixed(1)}, distance ${(frame_info.cam_distance_factor * cam_distance_base).toFixed(1)}
+=======
+Camera: angle_z ${(frame_info.cam_angle_z / deg_to_rad).toFixed(1)}, angle_y ${(frame_info.cam_angle_y / deg_to_rad).toFixed(1)}, distance ${(frame_info.cam_distance_factor*cam_distance_base).toFixed(1)}
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 cam pos ${vec_to_string(camera_position)}
 `;
 	})

@@ -1,5 +1,6 @@
 # Solution Description
 
+<<<<<<< HEAD
 GL2.1.1: The triangle normal was computed using the cross product of two edge vectors, followed by normalization. The opening angles at each vertex were determined using the vec3.angle() function. Finally, the normal was stored in tri_normals, and the angles were saved in angle_weights.
 
 GL2.1.2: The vertex normals were computed by accumulating weighted triangle normals for each vertex. Each normal was scaled by its corresponding angle weight before being added to the respective vertex normal.
@@ -19,3 +20,14 @@ Yifan Wu (402391): 1/3
 Eunice Lee (402359): 1/3
 
 Howell Chan (402360): 1/3
+=======
+TODO: add a brief description (approximately 10 to 20 lines) of how you solved the proposed exercises
+
+# Contributions
+
+Name1 Surname1 (000001): 1/3
+
+Name2 Surname2 (000002): 1/3
+
+Name3 Surname3 (000003): 1/3
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879

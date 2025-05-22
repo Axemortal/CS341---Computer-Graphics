@@ -1,10 +1,19 @@
 
+<<<<<<< HEAD
 import { createREGL } from "../lib/regljs_2.1.0/regl.module.js"
 
 import { vec2, vec3, vec4, mat3, mat4 } from "../lib/gl-matrix_3.3.0/esm/index.js"
 
 import { DOM_loaded_promise } from "./icg_web.js"
 import { deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many } from "./icg_math.js"
+=======
+import {createREGL} from "../lib/regljs_2.1.0/regl.module.js"
+
+import {vec2, vec3, vec4, mat3, mat4} from "../lib/gl-matrix_3.3.0/esm/index.js"
+
+import {DOM_loaded_promise} from "./icg_web.js"
+import {deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many} from "./icg_math.js"
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 
 
 async function main() {
@@ -62,7 +71,11 @@ async function main() {
 			*/
 			mouse_offset: regl.prop('mouse_offset'),
 			color: regl.prop('color'),
+<<<<<<< HEAD
 		},
+=======
+		},	
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 
 		/* 
 		Vertex shader program
@@ -79,10 +92,16 @@ async function main() {
 		void main() {
 			// #TODO GL1.1.1.1 Edit the vertex shader to apply mouse_offset translation to the vertex position.
 			// We have to return a vec4, because homogenous coordinates are being used.
+<<<<<<< HEAD
 			vec2 new_position = position + mouse_offset;
 			gl_Position = vec4(new_position, 0, 1);
 		}`,
 
+=======
+			gl_Position = vec4(position + mouse_offset, 0, 1);
+		}`,
+			
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 		/* 
 		Fragment shader program
 		Calculates the color of each pixel covered by the mesh.
@@ -123,10 +142,16 @@ async function main() {
 
 		void main() {
 			// #TODO GL1.1.2.1 Edit the vertex shader to apply mat_transform to the vertex position.
+<<<<<<< HEAD
 			gl_Position = mat_transform * vec4(position, 0.0, 1.0);
 
 		}`,
 
+=======
+			gl_Position = mat_transform * vec4(position, 0, 1);
+		}`,
+		
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 		frag: /*glsl*/`
 		precision mediump float;
 		
@@ -140,7 +165,11 @@ async function main() {
 		uniforms: {
 			mat_transform: regl.prop('mat_transform'),
 			color: regl.prop('color'),
+<<<<<<< HEAD
 		},
+=======
+		},	
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 	})
 
 	/*---------------------------------------------------------------
@@ -188,11 +217,19 @@ async function main() {
 		const sim_time = frame.time;
 
 		// Set the whole image to black
+<<<<<<< HEAD
 		regl.clear({ color: [0, 0, 0, 1] })
 
 
 		// #TODO GL1.1.1.2 Draw the blue triangle translated by mouse_offset
 
+=======
+		regl.clear({color: [0, 0, 0, 1]})
+
+
+		// #TODO GL1.1.1.2 Draw the blue triangle translated by mouse_offset
+		
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 		draw_triangle_with_offset({
 			mouse_offset: mouse_offset,
 			color: color_blue,
@@ -203,6 +240,7 @@ async function main() {
 			Construct a translation matrix for vector [0.5, 0, 0], 
 			and a rotation around Z for angle (time * 30 deg). 
 			Multiply the matrices in appropriate order and call the pipeline to obtain:
+<<<<<<< HEAD
 				* a green triangle orbiting the center point
 				* a red triangle spinning at [0.5, 0, 0]
 			You do not have to apply the mouse_offset to them.
@@ -222,6 +260,37 @@ async function main() {
 			color: color_red,
 		});
 
+=======
+    			* a green triangle orbiting the center point
+				* a red triangle spinning at [0.5, 0, 0]
+			You do not have to apply the mouse_offset to them.
+		*/
+
+		// Construct a translation matrix for vector [0.5, 0, 0]
+		mat4.fromTranslation(mat_translation, [0.5, 0, 0]);
+		// Construct a rotation matrix around Z for angle (time * 30 deg)
+		mat4.fromZRotation(mat_rotation, deg_to_rad * sim_time * 30);
+
+		// Green triangle: Orbiting motion (rotate, then translate)
+		const mat_orbit = mat4.create();
+		mat4.multiply(mat_orbit, mat_rotation, mat_translation);
+
+		// Red triangle: Spins at offset (translate, then rotate)
+		const mat_spin = mat4.create();
+		mat4.multiply(mat_spin, mat_translation, mat_rotation);
+
+		// Draw the green triangle (orbiting)
+		draw_triangle_with_transform({
+			mat_transform: mat_orbit,
+			color: color_green,
+		});
+
+		// Draw the red triangle (spinning)
+		draw_triangle_with_transform({
+			mat_transform: mat_spin,
+			color: color_red,
+		});
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
 		// You can write whatever you need in the debug box
 		debug_text.textContent = `
 Hello! Sim time: ${sim_time.toFixed(2)} s | Mouse offset: ${vec_to_string(mouse_offset, 2)}

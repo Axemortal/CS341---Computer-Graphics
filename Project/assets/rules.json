@@ -1,0 +1,49 @@
+{
+  "tiles": [
+    {
+      "id": "city_block1",
+      "model": "city_block1.obj",
+      "faces": {
+        "top": "outside",
+        "bottom": "connectable",
+        "left": "connectable",
+        "right": "connectable",
+        "front": "connectable",
+        "back": "connectable"
+      },
+      "rotationAxis": "z",
+      "rotations": 4
+    },
+    {
+      "id": "city_block2",
+      "model": ["city_block2.obj", "city_block4.obj"],
+      "faces": {
+        "top": "connectable",
+        "bottom": "connectable",
+        "left": "connectable",
+        "right": "connectable",
+        "front": "outside",
+        "back": "outside"
+      },
+      "rotationAxis": "z",
+      "rotations": 4
+    },
+    {
+      "id": "city_block3",
+      "model": "city_block3.obj",
+      "faces": {
+        "top": "connectable",
+        "bottom": "connectable",
+        "left": "outside",
+        "right": "connectable",
+        "front": "outside",
+        "back": "outside"
+      },
+      "rotations": 4
+    }
+  ],
+  "compatibility": {
+    "connectable": ["connectable"],
+    "outside": ["outside"]
+  }
+}

@@ -6,7 +6,7 @@ const COLORS = {
   BLACK: [0.0, 0.0, 0.0],
   RED: [0.8, 0.2, 0.2],
   GREEN: [0.2, 0.8, 0.2],
-  BLUE: [0.2, 0.2, 0.8],
+  BLUE: [0.682, 0.949, 1],
   GRAY: [0.2, 0.2, 0.2],
   MAGENTA: [1.0, 0.0, 1.0],
   GOLD: [1.0, 0.84, 0.0],
@@ -170,6 +170,37 @@ export const terrain = new TerrainMaterial({
 });
 
 export const mirror = new ReflectiveMaterial({
-  color: COLORS.WHITE,
+  color: COLORS.BLUE,
   shininess: 127.75,
 });
+
+export const concrete = new DiffuseMaterial({
+  texture: "concrete.jpg",
+  color: COLORS.WHITE,
+  shininess: 0.5,
+});
+
+export const neon = new DiffuseMaterial({
+  texture: "neon.png",
+  color: COLORS.WHITE,
+  shininess: 1.0,
+});
+
+export const futuristic_concrete = new DiffuseMaterial({
+  texture: "futuristic_concrete.png",
+  color: COLORS.WHITE,
+  shininess: 1.0,
+});
+
+export const futuristic_orange = new DiffuseMaterial({
+  texture: "futuristic_orange.png",
+  color: COLORS.WHITE,
+  shininess: 1.0,
+});
+
+export const tower_concrete = new DiffuseMaterial({
+  texture: "tower_concrete.jpg",
+  color: COLORS.WHITE,
+  shininess: 1.0,
+});
+

@@ -1,4 +1,5 @@
 import * as glMatrix from "./common.js";
+<<<<<<< HEAD
 /**
  * 2x2 Matrix
  * @module mat2
@@ -8,6 +9,17 @@ import * as glMatrix from "./common.js";
  * Creates a new identity mat2
  *
  * @returns {mat2} a new 2x2 matrix
+=======
+/**
+ * 2x2 Matrix
+ * @module mat2
+ */
+
+/**
+ * Creates a new identity mat2
+ *
+ * @returns {mat2} a new 2x2 matrix
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function create() {
@@ -22,11 +34,19 @@ export function create() {
   out[3] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a new mat2 initialized with values from an existing matrix
  *
  * @param {ReadonlyMat2} a matrix to clone
  * @returns {mat2} a new 2x2 matrix
+=======
+/**
+ * Creates a new mat2 initialized with values from an existing matrix
+ *
+ * @param {ReadonlyMat2} a matrix to clone
+ * @returns {mat2} a new 2x2 matrix
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function clone(a) {
@@ -37,12 +57,21 @@ export function clone(a) {
   out[3] = a[3];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Copy the values from one mat2 to another
  *
  * @param {mat2} out the receiving matrix
  * @param {ReadonlyMat2} a the source matrix
  * @returns {mat2} out
+=======
+/**
+ * Copy the values from one mat2 to another
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the source matrix
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function copy(out, a) {
@@ -52,11 +81,19 @@ export function copy(out, a) {
   out[3] = a[3];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Set a mat2 to the identity matrix
  *
  * @param {mat2} out the receiving matrix
  * @returns {mat2} out
+=======
+/**
+ * Set a mat2 to the identity matrix
+ *
+ * @param {mat2} out the receiving matrix
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function identity(out) {
@@ -66,6 +103,7 @@ export function identity(out) {
   out[3] = 1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Create a new mat2 with the given values
  *
@@ -74,6 +112,16 @@ export function identity(out) {
  * @param {Number} m10 Component in column 1, row 0 position (index 2)
  * @param {Number} m11 Component in column 1, row 1 position (index 3)
  * @returns {mat2} out A new 2x2 matrix
+=======
+/**
+ * Create a new mat2 with the given values
+ *
+ * @param {Number} m00 Component in column 0, row 0 position (index 0)
+ * @param {Number} m01 Component in column 0, row 1 position (index 1)
+ * @param {Number} m10 Component in column 1, row 0 position (index 2)
+ * @param {Number} m11 Component in column 1, row 1 position (index 3)
+ * @returns {mat2} out A new 2x2 matrix
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromValues(m00, m01, m10, m11) {
@@ -84,6 +132,7 @@ export function fromValues(m00, m01, m10, m11) {
   out[3] = m11;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Set the components of a mat2 to the given values
  *
@@ -93,6 +142,17 @@ export function fromValues(m00, m01, m10, m11) {
  * @param {Number} m10 Component in column 1, row 0 position (index 2)
  * @param {Number} m11 Component in column 1, row 1 position (index 3)
  * @returns {mat2} out
+=======
+/**
+ * Set the components of a mat2 to the given values
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {Number} m00 Component in column 0, row 0 position (index 0)
+ * @param {Number} m01 Component in column 0, row 1 position (index 1)
+ * @param {Number} m10 Component in column 1, row 0 position (index 2)
+ * @param {Number} m11 Component in column 1, row 1 position (index 3)
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function set(out, m00, m01, m10, m11) {
@@ -102,12 +162,21 @@ export function set(out, m00, m01, m10, m11) {
   out[3] = m11;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Transpose the values of a mat2
  *
  * @param {mat2} out the receiving matrix
  * @param {ReadonlyMat2} a the source matrix
  * @returns {mat2} out
+=======
+/**
+ * Transpose the values of a mat2
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the source matrix
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function transpose(out, a) {
@@ -126,12 +195,21 @@ export function transpose(out, a) {
 
   return out;
 }
+<<<<<<< HEAD
 /**
  * Inverts a mat2
  *
  * @param {mat2} out the receiving matrix
  * @param {ReadonlyMat2} a the source matrix
  * @returns {mat2} out
+=======
+/**
+ * Inverts a mat2
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the source matrix
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function invert(out, a) {
@@ -153,12 +231,21 @@ export function invert(out, a) {
   out[3] = a0 * det;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Calculates the adjugate of a mat2
  *
  * @param {mat2} out the receiving matrix
  * @param {ReadonlyMat2} a the source matrix
  * @returns {mat2} out
+=======
+/**
+ * Calculates the adjugate of a mat2
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the source matrix
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function adjoint(out, a) {
@@ -170,16 +257,25 @@ export function adjoint(out, a) {
   out[3] = a0;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Calculates the determinant of a mat2
  *
  * @param {ReadonlyMat2} a the source matrix
  * @returns {Number} determinant of a
+=======
+/**
+ * Calculates the determinant of a mat2
+ *
+ * @param {ReadonlyMat2} a the source matrix
+ * @returns {Number} determinant of a
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function determinant(a) {
   return a[0] * a[3] - a[2] * a[1];
 }
+<<<<<<< HEAD
 /**
  * Multiplies two mat2's
  *
@@ -187,6 +283,15 @@ export function determinant(a) {
  * @param {ReadonlyMat2} a the first operand
  * @param {ReadonlyMat2} b the second operand
  * @returns {mat2} out
+=======
+/**
+ * Multiplies two mat2's
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the first operand
+ * @param {ReadonlyMat2} b the second operand
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function multiply(out, a, b) {
@@ -204,6 +309,7 @@ export function multiply(out, a, b) {
   out[3] = a1 * b2 + a3 * b3;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Rotates a mat2 by the given angle
  *
@@ -211,6 +317,15 @@ export function multiply(out, a, b) {
  * @param {ReadonlyMat2} a the matrix to rotate
  * @param {Number} rad the angle to rotate the matrix by
  * @returns {mat2} out
+=======
+/**
+ * Rotates a mat2 by the given angle
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the matrix to rotate
+ * @param {Number} rad the angle to rotate the matrix by
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function rotate(out, a, rad) {
@@ -226,6 +341,7 @@ export function rotate(out, a, rad) {
   out[3] = a1 * -s + a3 * c;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Scales the mat2 by the dimensions in the given vec2
  *
@@ -233,6 +349,15 @@ export function rotate(out, a, rad) {
  * @param {ReadonlyMat2} a the matrix to rotate
  * @param {ReadonlyVec2} v the vec2 to scale the matrix by
  * @returns {mat2} out
+=======
+/**
+ * Scales the mat2 by the dimensions in the given vec2
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the matrix to rotate
+ * @param {ReadonlyVec2} v the vec2 to scale the matrix by
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  **/
 
 export function scale(out, a, v) {
@@ -248,6 +373,7 @@ export function scale(out, a, v) {
   out[3] = a3 * v1;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a matrix from a given angle
  * This is equivalent to (but much faster than):
@@ -258,6 +384,18 @@ export function scale(out, a, v) {
  * @param {mat2} out mat2 receiving operation result
  * @param {Number} rad the angle to rotate the matrix by
  * @returns {mat2} out
+=======
+/**
+ * Creates a matrix from a given angle
+ * This is equivalent to (but much faster than):
+ *
+ *     mat2.identity(dest);
+ *     mat2.rotate(dest, dest, rad);
+ *
+ * @param {mat2} out mat2 receiving operation result
+ * @param {Number} rad the angle to rotate the matrix by
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromRotation(out, rad) {
@@ -269,6 +407,7 @@ export function fromRotation(out, rad) {
   out[3] = c;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Creates a matrix from a vector scaling
  * This is equivalent to (but much faster than):
@@ -279,6 +418,18 @@ export function fromRotation(out, rad) {
  * @param {mat2} out mat2 receiving operation result
  * @param {ReadonlyVec2} v Scaling vector
  * @returns {mat2} out
+=======
+/**
+ * Creates a matrix from a vector scaling
+ * This is equivalent to (but much faster than):
+ *
+ *     mat2.identity(dest);
+ *     mat2.scale(dest, dest, vec);
+ *
+ * @param {mat2} out mat2 receiving operation result
+ * @param {ReadonlyVec2} v Scaling vector
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function fromScaling(out, v) {
@@ -288,32 +439,57 @@ export function fromScaling(out, v) {
   out[3] = v[1];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Returns a string representation of a mat2
  *
  * @param {ReadonlyMat2} a matrix to represent as a string
  * @returns {String} string representation of the matrix
+=======
+/**
+ * Returns a string representation of a mat2
+ *
+ * @param {ReadonlyMat2} a matrix to represent as a string
+ * @returns {String} string representation of the matrix
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function str(a) {
   return "mat2(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ")";
 }
+<<<<<<< HEAD
 /**
  * Returns Frobenius norm of a mat2
  *
  * @param {ReadonlyMat2} a the matrix to calculate Frobenius norm of
  * @returns {Number} Frobenius norm
+=======
+/**
+ * Returns Frobenius norm of a mat2
+ *
+ * @param {ReadonlyMat2} a the matrix to calculate Frobenius norm of
+ * @returns {Number} Frobenius norm
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function frob(a) {
   return Math.hypot(a[0], a[1], a[2], a[3]);
 }
+<<<<<<< HEAD
 /**
  * Returns L, D and U matrices (Lower triangular, Diagonal and Upper triangular) by factorizing the input matrix
  * @param {ReadonlyMat2} L the lower triangular matrix
  * @param {ReadonlyMat2} D the diagonal matrix
  * @param {ReadonlyMat2} U the upper triangular matrix
  * @param {ReadonlyMat2} a the input matrix to factorize
+=======
+/**
+ * Returns L, D and U matrices (Lower triangular, Diagonal and Upper triangular) by factorizing the input matrix
+ * @param {ReadonlyMat2} L the lower triangular matrix
+ * @param {ReadonlyMat2} D the diagonal matrix
+ * @param {ReadonlyMat2} U the upper triangular matrix
+ * @param {ReadonlyMat2} a the input matrix to factorize
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function LDU(L, D, U, a) {
@@ -323,6 +499,7 @@ export function LDU(L, D, U, a) {
   U[3] = a[3] - L[2] * U[1];
   return [L, D, U];
 }
+<<<<<<< HEAD
 /**
  * Adds two mat2's
  *
@@ -330,6 +507,15 @@ export function LDU(L, D, U, a) {
  * @param {ReadonlyMat2} a the first operand
  * @param {ReadonlyMat2} b the second operand
  * @returns {mat2} out
+=======
+/**
+ * Adds two mat2's
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the first operand
+ * @param {ReadonlyMat2} b the second operand
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function add(out, a, b) {
@@ -339,6 +525,7 @@ export function add(out, a, b) {
   out[3] = a[3] + b[3];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Subtracts matrix b from matrix a
  *
@@ -346,6 +533,15 @@ export function add(out, a, b) {
  * @param {ReadonlyMat2} a the first operand
  * @param {ReadonlyMat2} b the second operand
  * @returns {mat2} out
+=======
+/**
+ * Subtracts matrix b from matrix a
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the first operand
+ * @param {ReadonlyMat2} b the second operand
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function subtract(out, a, b) {
@@ -355,23 +551,41 @@ export function subtract(out, a, b) {
   out[3] = a[3] - b[3];
   return out;
 }
+<<<<<<< HEAD
 /**
  * Returns whether or not the matrices have exactly the same elements in the same position (when compared with ===)
  *
  * @param {ReadonlyMat2} a The first matrix.
  * @param {ReadonlyMat2} b The second matrix.
  * @returns {Boolean} True if the matrices are equal, false otherwise.
+=======
+/**
+ * Returns whether or not the matrices have exactly the same elements in the same position (when compared with ===)
+ *
+ * @param {ReadonlyMat2} a The first matrix.
+ * @param {ReadonlyMat2} b The second matrix.
+ * @returns {Boolean} True if the matrices are equal, false otherwise.
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function exactEquals(a, b) {
   return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
 }
+<<<<<<< HEAD
 /**
  * Returns whether or not the matrices have approximately the same elements in the same position.
  *
  * @param {ReadonlyMat2} a The first matrix.
  * @param {ReadonlyMat2} b The second matrix.
  * @returns {Boolean} True if the matrices are equal, false otherwise.
+=======
+/**
+ * Returns whether or not the matrices have approximately the same elements in the same position.
+ *
+ * @param {ReadonlyMat2} a The first matrix.
+ * @param {ReadonlyMat2} b The second matrix.
+ * @returns {Boolean} True if the matrices are equal, false otherwise.
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function equals(a, b) {
@@ -385,6 +599,7 @@ export function equals(a, b) {
       b3 = b[3];
   return Math.abs(a0 - b0) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) && Math.abs(a3 - b3) <= glMatrix.EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3));
 }
+<<<<<<< HEAD
 /**
  * Multiply each element of the matrix by a scalar.
  *
@@ -392,6 +607,15 @@ export function equals(a, b) {
  * @param {ReadonlyMat2} a the matrix to scale
  * @param {Number} b amount to scale the matrix's elements by
  * @returns {mat2} out
+=======
+/**
+ * Multiply each element of the matrix by a scalar.
+ *
+ * @param {mat2} out the receiving matrix
+ * @param {ReadonlyMat2} a the matrix to scale
+ * @param {Number} b amount to scale the matrix's elements by
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function multiplyScalar(out, a, b) {
@@ -401,6 +625,7 @@ export function multiplyScalar(out, a, b) {
   out[3] = a[3] * b;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Adds two mat2's after multiplying each element of the second operand by a scalar value.
  *
@@ -409,6 +634,16 @@ export function multiplyScalar(out, a, b) {
  * @param {ReadonlyMat2} b the second operand
  * @param {Number} scale the amount to scale b's elements by before adding
  * @returns {mat2} out
+=======
+/**
+ * Adds two mat2's after multiplying each element of the second operand by a scalar value.
+ *
+ * @param {mat2} out the receiving vector
+ * @param {ReadonlyMat2} a the first operand
+ * @param {ReadonlyMat2} b the second operand
+ * @param {Number} scale the amount to scale b's elements by before adding
+ * @returns {mat2} out
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export function multiplyScalarAndAdd(out, a, b, scale) {
@@ -418,6 +653,7 @@ export function multiplyScalarAndAdd(out, a, b, scale) {
   out[3] = a[3] + b[3] * scale;
   return out;
 }
+<<<<<<< HEAD
 /**
  * Alias for {@link mat2.multiply}
  * @function
@@ -427,6 +663,17 @@ export var mul = multiply;
 /**
  * Alias for {@link mat2.subtract}
  * @function
+=======
+/**
+ * Alias for {@link mat2.multiply}
+ * @function
+ */
+
+export var mul = multiply;
+/**
+ * Alias for {@link mat2.subtract}
+ * @function
+>>>>>>> c614f2a9b3c6d245a00542f9390f14ef2ab70879
  */
 
 export var sub = subtract;

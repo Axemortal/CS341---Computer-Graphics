@@ -1,4 +1,3 @@
-
 const SCENES = [
 	{
 		name: "creature",
