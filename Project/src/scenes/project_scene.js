@@ -49,7 +49,8 @@ export class ProjectScene extends Scene {
     let rotQ = quat.create(); quat.fromEuler(rotQ,90,0,0);
     this.dynamic_objects.push(
       { translation:[0,2,2], scale:[1,1,1], rotation:rotQ, meshReference:"donut.obj", material:MATERIALS.BasicColors.gray },
-      { translation:[0,0,0], scale:[100,1,100], rotation:rotQ, meshReference:"plane.obj", material:MATERIALS.mirror }
+      { translation:[0,0,0], scale:[100,1,100], rotation:rotQ, meshReference:"plane.obj", material:MATERIALS.mirror },
+      { translation:[0,0,0], scale:[0.0003,0.0003,0.0003], rotation:rotQ, meshReference:"khalifa.obj", material:MATERIALS.mirror }
     );
 
     const pine_positions = [
@@ -131,8 +132,8 @@ export class ProjectScene extends Scene {
       const now = performance.now();
       if(now - this.lastCameraUpdateTime > 100) {
         updateInstancedObjectsVisibility(this);
-    // Preserve static and dynamic demo objects
-    this.objects = this.static_objects.concat(this.dynamic_objects, this.objects);
+        // Preserve static and dynamic demo objects
+        this.objects = this.static_objects.concat(this.dynamic_objects, this.objects);
         this.lastCameraUpdateTime = now;
       }
     }
@@ -155,11 +156,11 @@ export class ProjectScene extends Scene {
     createSlider("Central Width",  [1,20], v=>{ this.centralDims[0]=Number(v); this.reloadScene(); });
     createSlider("Central Depth",  [1,20], v=>{ this.centralDims[1]=Number(v); this.reloadScene(); });
     createSlider("Central Height", [1,10], v=>{ this.centralDims[2]=Number(v); this.reloadScene(); });
+    const toggleLabel = () => this.showSmall?"Hide Small":"Show Small";
+    const btn = createButton(toggleLabel(), ()=>{ this.showSmall=!this.showSmall; btn.querySelector('button').textContent=toggleLabel(); this.reloadScene(); });
     createSlider("Small Width",    [1,10], v=>{ this.smallDims[0]=Number(v); this.reloadScene(); });
     createSlider("Small Depth",    [1,10], v=>{ this.smallDims[1]=Number(v); this.reloadScene(); });
     createSlider("Small Height",   [1,10], v=>{ this.smallDims[2]=Number(v); this.reloadScene(); });
-    const toggleLabel = () => this.showSmall?"Hide Small":"Show Small";
-    const btn = createButton(toggleLabel(), ()=>{ this.showSmall=!this.showSmall; btn.querySelector('button').textContent=toggleLabel(); this.reloadScene(); });
 
     // Reload button
     createButton(

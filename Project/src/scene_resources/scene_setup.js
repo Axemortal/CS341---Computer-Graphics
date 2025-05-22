@@ -49,13 +49,6 @@ function addSkyDome(resource_manager, scene) {
 }
 
 /**
-* Add billboard plane mesh
-*/
-function addBillboardPlane(resource_manager) {
- resource_manager.addProceduralMesh("plane", makePlane());
-}
-
-/**
 * Run WFC to generate central and small grids
 */
 async function generateGrids(centralDims, smallDims) {
@@ -72,7 +65,7 @@ async function generateGrids(centralDims, smallDims) {
 /**
 * Collect tiles into instances and compute bounding box
 */
-function collectInstances(grids, dims) {
+async function collectInstances(grids, dims) {
   const { centralGrid, smallGrid } = grids;
   const { cw, cd, ch, sw, sd, sh } = dims;
 
@@ -93,15 +86,9 @@ function collectInstances(grids, dims) {
     '-X': { dx: -0.5, dy: 0,   dz: 0.5, yaw: Math.PI / 2 }, // Left face
     '+Y': { dx: 0,   dy: 0.5, dz: 0.5, yaw: 0      }, // Front face
     '-Y': { dx: 0,   dy: -0.5, dz: 0.5, yaw: Math.PI   }, // Back face
-      // Add '+Z' (top) and '-Z' (bottom) if you want billboards on horizontal surfaces
-      // For top: { dx: 0, dy: 0, dz: 1, yaw: 0, pitch: -Math.PI/2 } (adjust tiltQuat or use pitch)
   };
-  // Tilt for billboards (e.g., if they are angled signs rather than flat against face)
-  // This tilt is around X-axis. If billboards are always perpendicular to faces,
-  // you might not need this, or adjust yaw/pitch per face in `dirs`.
- const tiltQuat = quatFromAxisAngle([1,0,0], -Math.PI/2); // Tilts billboards to be vertical if original plane is XY
-
-function addTile(tile, currentGridWorldOffsetX, currentGridWorldOffsetY) {
+  
+  function addTile(tile, currentGridWorldOffsetX, currentGridWorldOffsetY) {
     // tile.position is [gridX, gridY, gridZ] from WFC solver (local to its grid)
     const [gridX, gridY, gridZ] = tile.position;
 
@@ -131,75 +118,53 @@ function addTile(tile, currentGridWorldOffsetX, currentGridWorldOffsetY) {
             originalPos:  [wx, wy, wz]     // Store for culling or other logic
         });
     }
-
-    // Process billboards for exposed faces
-    if (tile.exposedFaces && Array.isArray(tile.exposedFaces)) {
-        for (const exposedFace of tile.exposedFaces) {
-            // Use cardinalKey (e.g., '+X') to look up billboard orientation
-            const d = dirs[exposedFace.cardinalKey];
-            if (!d) continue; // No billboard definition for this face direction
-
-            // Calculate billboard position: tile's world origin + offset to face center
-            const px = wx + d.dx;
-            const py = wy + d.dy;
-            const pz = wz + d.dz; // Assumes tile origin is bottom-corner, billboard at mid-height of face
-
-            // Calculate billboard rotation
-            const yawQuat = quatFromAxisAngle([0,0,1], d.yaw); // Billboards typically rotate around Z in their local space
-            const billboardRotation = quatFromAxisAngle([0,1,0], d.yaw); // Rotate around world Y for facing
-
-            const rot = multiplyQuat(quatFromAxisAngle([0,1,0], d.yaw), tiltQuat); // Original logic
-
-            const bbKey = `billboard_default`; // Group all billboards or create types
-            billboardInstances[bbKey] = billboardInstances[bbKey] || [];
-            billboardInstances[bbKey].push({
-                translation:  [px, py, pz],
-                rotation:     rot,
-                scale:        [0.5, 0.5, 0.5], // Adjust billboard scale
-                originalPos:  [px, py, pz]
-            });
-        }
-    }
- }
-
- // Process central grid
- for (let x = 0; x < cw; x++) for (let y = 0; y < cd; y++) for (let z = 0; z < ch; z++) {
-  const tile = centralGrid[x][y][z];
-    if (!tile) continue;
-    // tile.position is already [x,y,z] from WFC
-  addTile(tile, centralOffset[0], centralOffset[1]);
- }
-
- // Process surrounding ring of small grids
- const ringSize = 3; // How many rings of small grids
- const gapBetweenGrids = 3; // Units of gap between central and small, and between small grids
-  // Distance from center of central grid to center of an adjacent small grid
- const xSmallGridDisplacement = cw / 2 + gapBetweenGrids + sw / 2;
- const ySmallGridDisplacement = cd / 2 + gapBetweenGrids + sd / 2;
-  // Offset to center a small grid relative to its calculated origin point
- const smallGridInternalOffset = [-sw / 2, -sd / 2];
-
- for (let i = -ringSize; i <= ringSize; i++) {
-    for (let j = -ringSize; j <= ringSize; j++) {
-        if (i === 0 && j === 0) continue; // Skip the central area itself
-
-        // Calculate the world origin for the current small grid block
-        const currentSmallGridWorldOriginX = i * xSmallGridDisplacement;
-        const currentSmallGridWorldOriginY = j * ySmallGridDisplacement;
-
-        // Iterate through cells of the current small grid
-        for (let x = 0; x < sw; x++) for (let y = 0; y < sd; y++) for (let z = 0; z < sh; z++) {
-            const tile = smallGrid[x][y][z];
-            if (!tile) continue;
-            // tile.position is [x,y,z] local to smallGrid. Add offsets.
-            const offsetXForThisGrid = currentSmallGridWorldOriginX + smallGridInternalOffset[0];
-            const offsetYForThisGrid = currentSmallGridWorldOriginY + smallGridInternalOffset[1];
-            addTile(tile, offsetXForThisGrid, offsetYForThisGrid);
-        }
-    }
   }
 
- return { buildingInstances, billboardInstances, box };
+  // Process central grid
+  for (let x = 0; x < cw; x++) for (let y = 0; y < cd; y++) for (let z = 0; z < ch; z++) {
+    const tile = centralGrid[x][y][z];
+      if (!tile) continue;
+      // tile.position is already [x,y,z] from WFC
+    addTile(tile, centralOffset[0], centralOffset[1]);
+  }
+
+  // Process surrounding ring of small grids
+  // Process three concentric rings of small-grid buildings
+  const numRings = 4;
+  const gapBetweenGrids = 2;
+  const centralGap      = 6;
+  for (let ring = 1; ring <= numRings; ring++) {
+      // 1) generate a new grid for this ring
+    if (sw > 0 && sd > 0 && sh > 0){
+      const ringGrid = await runWFC(sw, sd, sh);
+  
+      // 2) compute this ring’s radius
+      const baseRadius = Math.max(cw, cd)/2 + centralGap;
+      const radius     = baseRadius + ring * (sw + gapBetweenGrids);
+  
+      // 3) collect all tiles into a flat array
+      const tiles = [];
+      for (let x = 0; x < sw; x++) {
+        for (let y = 0; y < sd; y++) {
+          for (let z = 0; z < sh; z++) {
+            const tile = ringGrid[x][y][z];
+            if (tile) tiles.push(tile);
+          }
+        }
+      }
+  
+      // 4) equally distribute them around the circle
+      const count = tiles.length;
+      tiles.forEach((tile, i) => {
+        const θ = (i / count) * 2 * Math.PI;
+        const originX = Math.cos(θ) * radius;
+        const originY = Math.sin(θ) * radius;
+        addTile(tile, originX, originY);
+      });
+    }
+  }
+  
+  return { buildingInstances, billboardInstances, box };
 }
 
 /**
@@ -260,10 +225,9 @@ function setupLightingAndBounds(scene, box) {
 */
 export async function setupCityScene(resource_manager, scene, centralDims = [10,4,5], smallDims = [3,3,3]) {
   addSkyDome(resource_manager, scene);
-  addBillboardPlane(resource_manager); // Ensure 'plane' mesh is loaded for billboards
 
   const grids = await generateGrids(centralDims, smallDims);
-  const { buildingInstances, billboardInstances, box } = collectInstances(grids, grids.dims);
+  const { buildingInstances, billboardInstances, box } = await collectInstances(grids, grids.dims);
   registerInstances(scene, buildingInstances, billboardInstances);
 
   // Initialize camera position and visibility if not already set by a controller
@@ -281,7 +245,7 @@ export async function setupCityScene(resource_manager, scene, centralDims = [10,
 export function updateInstancedObjectsVisibility(scene) {
   // Ensure cameraPosition and visibilityDistance are valid
  const cameraPos = scene.cameraPosition || [0,0,0]; // Default if not set
- const visDist = typeof scene.visibilityDistance === 'number' ? scene.visibilityDistance : 100; // Default if not set
+ const visDist = typeof scene.visibilityDistance === 'number' ? scene.visibilityDistance : 50; // Default if not set
 
  const keep = scene.objects.filter(o => o.meshReference === "mesh_sphere_env_map"); // Always keep skydome
 

@@ -35,7 +35,7 @@
         "top": "connectable",
         "bottom": "connectable",
         "left": "outside",
-        "right": "outside",
+        "right": "connectable",
         "front": "outside",
         "back": "outside"
       },

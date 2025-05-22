@@ -1,4 +1,10 @@
 // Load rule set from JSON
+const BLOCK_WEIGHTS = {
+  city_block1: 1,
+  city_block2: 10,
+  city_block3: 1
+};
+
 export async function loadRules(url = '/Project/assets/rules.json') {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to load rules.json: ${res.statusText}`);
@@ -86,24 +92,48 @@ export function propagate(grid, compatibility) {
 
 // Collapse the lowest-entropy cell
 export function collapseCell(grid) {
-  let min = Infinity;
-  let target = null;
-  for (let x = 0; x < grid.length; x++) {
-    for (let y = 0; y < grid[x].length; y++) {
-      for (let z = 0; z < grid[x][y].length; z++) {
-        const cell = grid[x][y][z];
-        if (!cell.collapsed && cell.options.length > 0 && cell.options.length < min) {
-          min = cell.options.length;
-          target = { x, y, z };
+  // 1) Find the minimum entropy
+  let minEntropy = Infinity;
+  for (const slice of grid) {
+    for (const row of slice) {
+      for (const cell of row) {
+        if (!cell.collapsed && cell.options.length > 0 && cell.options.length < minEntropy) {
+          minEntropy = cell.options.length;
         }
       }
     }
   }
-  if (!target) return false;
+  if (minEntropy === Infinity) return false;
 
-  const { x, y, z } = target;
+  // 2) Collect all cells with that entropy
+  const candidates = [];
+  for (let x = 0; x < grid.length; x++) {
+    for (let y = 0; y < grid[x].length; y++) {
+      for (let z = 0; z < grid[x][y].length; z++) {
+        const cell = grid[x][y][z];
+        if (!cell.collapsed && cell.options.length === minEntropy) {
+          candidates.push({ x, y, z });
+        }
+      }
+    }
+  }
+
+  // 3) Pick one at random
+  const { x, y, z } = candidates[Math.floor(Math.random() * candidates.length)];
   const cell = grid[x][y][z];
-  const choice = cell.options[Math.floor(Math.random() * cell.options.length)];
+
+  // 4) Build a weighted pool and choose
+  const weightedPool = [];
+  for (const variant of cell.options) {
+    // strip off any "_rotN" suffix to get base ID
+    const baseId = variant.id.split("_rot")[0];
+    const weight = BLOCK_WEIGHTS[baseId] || 1;
+    for (let i = 0; i < weight; i++) {
+      weightedPool.push(variant);
+    }
+  }
+
+  const choice = weightedPool[Math.floor(Math.random() * weightedPool.length)];
   cell.options = [choice];
   cell.collapsed = true;
   return true;
@@ -133,19 +163,6 @@ export function quatFromAxisAngle(axis, angle) {
   const half = angle * 0.5;
   const s = Math.sin(half);
   return [axis[0] * s, axis[1] * s, axis[2] * s, Math.cos(half)];
-}
-
-// Convert direction name to cardinal key
-function dirToCardinalKey(dir) {
-  const dirToKey = {
-    'right': '+x',
-    'left': '-x',
-    'front': '+y',
-    'back': '-y',
-    'top': '+z',
-    'bottom': '-z'
-  };
-  return dirToKey[dir];
 }
 
 // Execute WFC and identify boundary-facing cells for plane attachments
@@ -184,7 +201,7 @@ export async function runWFC(dimX = 10, dimY = 10, dimZ = 1) {
     )
   );
 
-  // Process the grid to identify exposed faces
+  // Process the grid
   for (let x = 0; x < dimX; x++) {
     for (let y = 0; y < dimY; y++) {
       for (let z = 0; z < dimZ; z++) {
@@ -192,48 +209,10 @@ export async function runWFC(dimX = 10, dimY = 10, dimZ = 1) {
         if (!cell || !cell.collapsed) continue;
         const variant = cell.options[0];
         
-        // Create a structure to store exposed faces with their normals and directions
-        const exposedFaces = [];
-        
-        // Check all six directions (not just the cardinal 4)
-        for (const dirKey of Object.keys(CARDINALS)) {
-          const { dx, dy, dz, dir, normal } = CARDINALS[dirKey];
-          const nx = x + dx;
-          const ny = y + dy;
-          const nz = z + dz;
-          
-          // Check if this is an exterior face (either out of bounds or no neighbor)
-          const isOutOfBounds = (
-            nx < 0 || nx >= dimX || 
-            ny < 0 || ny >= dimY || 
-            nz < 0 || nz >= dimZ
-          );
-          
-          const neighbor = isOutOfBounds ? null : grid[nx][ny][nz];
-          const isExposed = isOutOfBounds || !neighbor || !neighbor.collapsed;
-          
-          if (isExposed) {
-            // This face is exposed, store info about its direction and normal
-            exposedFaces.push({
-              direction: dir,
-              cardinalKey: dirKey,
-              normal: normal
-            });
-          }
-        }
-        
-        // Only store asset if it exists and has exposed faces
-        if (variant && exposedFaces.length > 0) {
+        // Only store asset if it exists
+        if (variant) {
           result[x][y][z] = {
             ...variant,
-            exposedFaces: exposedFaces,
-            position: [x, y, z]
-          };
-        } else if (variant) {
-          // Still store the asset even if it has no exposed faces (interior asset)
-          result[x][y][z] = {
-            ...variant,
-            exposedFaces: [],
             position: [x, y, z]
           };
         }
