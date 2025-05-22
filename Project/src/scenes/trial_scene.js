@@ -104,6 +104,7 @@ export class TrialScene extends Scene {
 
     // Now add WFC-generated city blocks
     const smallDims = this.showSmall ? this.smallDims : [0,0,0];
+    MODEL_MATERIAL_MAP["city_block4.obj"] = zippy_material
     await setupCityScene(this.resourceManager, this, this.centralDims, smallDims);
     updateInstancedObjectsVisibility(this);
 
