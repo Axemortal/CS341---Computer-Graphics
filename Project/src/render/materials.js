@@ -215,7 +215,7 @@ export const square_material = new ProceduralMaterial({
 })
 
 export const futuristic_concrete = new DiffuseMaterial({
-  texture: "futuristic_concrete.jpg",
+  texture: "futuristic_concrete.png",
   color: COLORS.WHITE,
   shininess: 1.0
 })

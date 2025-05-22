@@ -135,7 +135,7 @@ export class ResourceManager {
 
   // Resources to be loaded
   textures_to_load() {
-    return ["kloppenheim_07_puresky_blur.jpg", "pine.png", "futuristic_concrete.jpg"];
+    return ["kloppenheim_07_puresky_blur.jpg", "pine.png", "futuristic_concrete.png"];
   }
 
   shaders_to_load() {
