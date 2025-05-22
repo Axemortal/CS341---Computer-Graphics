@@ -143,7 +143,7 @@ export class TrialScene extends Scene {
     quat.fromEuler(rotQ, 90, 0, 0);
   
     this.dynamic_objects.push({
-      translation: [0, 0, -2],
+      translation: [0, 0, 0],
       scale: [100, 1, 100],
       rotation: rotQ,
       meshReference: "plane.obj",

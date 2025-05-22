@@ -19,41 +19,45 @@ export class ScreenSpaceReflectionShaderRenderer extends ShaderRenderer {
    * Render the objects of the sceneState with its shader
    * @param {*} sceneState
    */
-  render(sceneState, { positionTexture, normalTexture }) {
-    const scene = sceneState.scene;
-    const inputs = [];
+render(sceneState, { positionTexture, normalTexture }) {
+  const scene = sceneState.scene;
+  const inputs = [];
 
-    const texWidth = positionTexture._texture.width;
-    const texHeight = positionTexture._texture.height;
-    const texSize = [texWidth, texHeight];
+  const texWidth = positionTexture._texture.width;
+  const texHeight = positionTexture._texture.height;
+  const texSize = [texWidth, texHeight];
 
-    for (const object of scene.objects) {
-      if (this.excludeObject(object)) continue;
+  // Safely pull params with defaults
+  const {
+    maxDistance = 5.0,
+    thickness = 0.1,
+    resolution = 1.0,
+    steps = 10,
+  } = scene.UIParams || {};
 
-      const mesh = this.resourceManager.getMesh(object.meshReference);
+  for (const object of scene.objects) {
+    if (this.excludeObject(object)) continue;
 
-      const { matModelViewProjection } =
-        scene.camera.objectMatrices.get(object);
+    const mesh = this.resourceManager.getMesh(object.meshReference);
+    const { matModelViewProjection } = scene.camera.objectMatrices.get(object);
 
-      inputs.push({
-        mesh: mesh,
-
-        matModelViewProjection: matModelViewProjection,
-
-        lensProjection: scene.camera.mat.projection,
-        positionTexture: positionTexture,
-        normalTexture: normalTexture,
-        texSize: texSize,
-
-        maxDistance: scene.UIParams.maxDistance,
-        thickness: scene.UIParams.thickness,
-        resolution: scene.UIParams.resolution,
-        steps: scene.UIParams.steps,
-      });
-    }
-
-    this.pipeline(inputs);
+    inputs.push({
+      mesh,
+      matModelViewProjection,
+      lensProjection: scene.camera.mat.projection,
+      positionTexture,
+      normalTexture,
+      texSize,
+      maxDistance,
+      thickness,
+      resolution,
+      steps,
+    });
   }
+
+  this.pipeline(inputs);
+}
+
 
   excludeObject(obj) {
     return !obj.material.properties.includes("reflective");
