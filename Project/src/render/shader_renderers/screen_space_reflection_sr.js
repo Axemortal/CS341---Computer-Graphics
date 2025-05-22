@@ -1,7 +1,7 @@
 import { ShaderRenderer } from "./shader_renderer.js";
 
 export class ScreenSpaceReflectionShaderRenderer extends ShaderRenderer {
-  /**
+  /** 
    * Its render function can be used to render a scene with screen space reflection
    * @param {*} regl
    * @param {ResourceManager} resourceManager
@@ -15,7 +15,7 @@ export class ScreenSpaceReflectionShaderRenderer extends ShaderRenderer {
     );
   }
 
-  /**
+  /** 
    * Render the objects of the sceneState with its shader
    * @param {*} sceneState
    */

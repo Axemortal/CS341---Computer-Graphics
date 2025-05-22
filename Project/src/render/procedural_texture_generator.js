@@ -1,5 +1,9 @@
 import { NoiseShaderRenderer } from "./shader_renderers/noise_sr.js";
 import { BufferToScreenShaderRenderer } from "./shader_renderers/buffer_to_screen_sr.js";
+import { WorleyShaderRenderer } from "./shader_renderers/worley_sr.js";
+import { ZippyShaderRenderer } from "./shader_renderers/zippy_sr.js";
+import { BloomShaderRenderer } from "./shader_renderers/bloom_sr.js";
+import { SquareShaderRenderer } from "./shader_renderers/square_sr.js";
 
 import { vec2 } from "../../lib/gl-matrix_3.3.0/esm/index.js";
 
@@ -20,6 +24,10 @@ export class ProceduralTextureGenerator {
 
     // The shader that generates the noise
     this.noise = new NoiseShaderRenderer(regl, resourceManager);
+    this.worley = new WorleyShaderRenderer(regl, resourceManager);
+    this.bloom = new BloomShaderRenderer(regl, resourceManager);
+    this.zippy = new ZippyShaderRenderer(regl, resourceManager);
+    this.square = new SquareShaderRenderer(regl, resourceManager);
     // The shader that can display the content of a buffer of the screen
     this.buffer_to_screen = new BufferToScreenShaderRenderer(
       regl,
@@ -78,8 +86,14 @@ export class ProceduralTextureGenerator {
       vec2.negate([0, 0], mouse_offset)
     );
 
-    // Convert the buffer to an array of float data that can be queried
-    const texture = buffer_to_data_array(this.regl, buffer);
+    // Convert the buffer to a regl texture
+    const texture = this.regl.texture({
+      width: buffer.width,
+      height: buffer.height,
+      data: buffer_to_data_array(this.regl, buffer).data, // Use the data from the buffer
+      format: "rgba",
+      type: "float",
+    });
     this.resourceManager.resources[name] = texture;
     return texture;
   }
@@ -112,6 +126,132 @@ export class ProceduralTextureGenerator {
     this.buffer_to_screen.render(this.mesh_quad_2d, buffer);
   }
 
+  generate_worley_texture(
+    name,
+    {
+      viewer_position = [0, 0],
+      viewer_scale = 1.0,
+      width = 1024,
+      height = 1024,
+      u_time = 0,
+      apply_bloom = true
+    }
+  ) {
+    const baseBuffer = this.new_buffer();
+    baseBuffer.resize(width, height);
+  
+    this.worley.render(
+      this.mesh_quad_2d,
+      baseBuffer,
+      viewer_scale,
+      viewer_position,
+      u_time
+    );
+  
+    let finalBuffer = baseBuffer;
+  
+    if (apply_bloom) {
+      const bloomOutput = this.new_buffer();
+      this.bloom.apply(this.mesh_quad_2d, baseBuffer, bloomOutput);
+      finalBuffer = bloomOutput;
+    }
+  
+    const texture = this.regl.texture({
+      width: finalBuffer.width,
+      height: finalBuffer.height,
+      data: buffer_to_data_array(this.regl, finalBuffer).data,
+      format: "rgba",
+      type: "float",
+    });
+  
+    this.resourceManager.resources[name] = texture;
+    return texture;
+  }
+  
+  generate_zippy_texture(
+    name,
+    {
+      viewer_position = [0, 0],
+      viewer_scale = 1.0,
+      width = 1024,
+      height = 1024,
+      u_time = 0,
+      apply_bloom = true
+    }
+  ) {
+    const baseBuffer = this.new_buffer();
+    baseBuffer.resize(width, height);
+  
+    this.zippy.render(
+      this.mesh_quad_2d,
+      baseBuffer,
+      viewer_scale,
+      viewer_position,
+      u_time
+    );
+  
+    let finalBuffer = baseBuffer;
+  
+    if (apply_bloom) {
+      const bloomOutput = this.new_buffer();
+      this.bloom.apply(this.mesh_quad_2d, baseBuffer, bloomOutput);
+      finalBuffer = bloomOutput;
+    }
+  
+    const texture = this.regl.texture({
+      width: finalBuffer.width,
+      height: finalBuffer.height,
+      data: buffer_to_data_array(this.regl, finalBuffer).data,
+      format: "rgba",
+      type: "float",
+    });
+  
+    this.resourceManager.resources[name] = texture;
+    return texture;
+  }
+
+  generate_square_texture(
+    name,
+    {
+      viewer_position = [0, 0],
+      viewer_scale = 1.0,
+      width = 1024,
+      height = 1024,
+      u_time = 0,
+      apply_bloom = true
+    }
+  ) {
+    const baseBuffer = this.new_buffer();
+    baseBuffer.resize(width, height);
+  
+    this.square.render(
+      this.mesh_quad_2d,
+      baseBuffer,
+      viewer_scale,
+      viewer_position,
+      u_time
+    );
+  
+    let finalBuffer = baseBuffer;
+  
+    if (apply_bloom) {
+      const bloomOutput = this.new_buffer();
+      this.bloom.apply(this.mesh_quad_2d, baseBuffer, bloomOutput);
+      finalBuffer = bloomOutput;
+    }
+  
+    const texture = this.regl.texture({
+      width: finalBuffer.width,
+      height: finalBuffer.height,
+      data: buffer_to_data_array(this.regl, finalBuffer).data,
+      format: "rgba",
+      type: "float",
+    });
+  
+    this.resourceManager.resources[name] = texture;
+    return texture;
+  }
+
   /**
    * Create the simple square mesh on which the texture is displayed
    * @returns
@@ -120,10 +260,10 @@ export class ProceduralTextureGenerator {
     return {
       vertex_positions: [
         // 4 vertices with 2 coordinates each
-        [-1, -1],
-        [1, -1],
-        [1, 1],
-        [-1, 1],
+        [-1, -1, 0],
+        [1, -1, 0],
+        [1, 1, 0],
+        [-1, 1, 0],
       ],
       faces: [
         [0, 1, 2], // top right

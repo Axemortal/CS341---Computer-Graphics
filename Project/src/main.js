@@ -17,7 +17,7 @@ import { ProceduralTextureGenerator } from "./render/procedural_texture_generato
 import { TutorialScene } from "./scenes/tutorial_scene.js";
 import { DemoScene } from "./scenes/demo_scene.js";
 import { ProjectScene } from "./scenes/project_scene.js";
-import { CityScene } from "./scenes/city_scene.js";
+import { TrialScene } from "./scenes/trial_scene.js";
 
 /**
  * Application class to manage the WebGL rendering application
@@ -56,15 +56,13 @@ class Application {
 
     // Setup scenes
     this.setupScenes();
-    this.activeScene = this.scenes.project;
-    // this.activeScene = this.scenes.city;
+    this.activeScene = this.scenes.Trial;
 
     // Setup input and UI
     this.setupCameraListeners();
     clearOverlay();
     this.setupUIGlobalParamsListeners();
     this.activeScene.initializeUIParams();
-    // this.activeScene.initialize_ui_params();
 
     // Start the render loop
     this.startRenderLoop();
@@ -106,10 +104,6 @@ class Application {
    */
   setupScenes() {
     this.scenes = {
-      demo: new DemoScene(
-        this.resourceManager,
-        this.proceduralTextureGenerator
-      ),
       tutorial: new TutorialScene(
         this.resourceManager,
         this.proceduralTextureGenerator
@@ -118,10 +112,7 @@ class Application {
         this.resourceManager,
         this.proceduralTextureGenerator
       ),
-      city: new CityScene(
-        this.resourceManager,
-        this.proceduralTextureGenerator
-      ),
+      Trial: new TrialScene(this.regl, this.resourceManager),
     };
   }
 
@@ -176,9 +167,8 @@ class Application {
       prevREGLTime = frame.time;
 
       if (!this.uiGlobalParams.isPaused) {
-        // 1) let the scene do its per‐frame update (culling, camera checks…)
-        this.activeScene.update(dt, this.activeScene.camera);
         this.updateSceneActors(dt);
+        this.activeScene.updateSceneState(dt, frame.time);
       }
 
       // Build scene state and render

@@ -4,6 +4,7 @@ import {
 } from "../cg_libraries/cg_mesh.js";
 import { loadImage, loadText, loadTexture } from "../cg_libraries/cg_web.js";
 import { vec3 } from "../../lib/gl-matrix_3.3.0/esm/index.js";
+import { futuristic_concrete } from "../render/materials.js";
 
 export class ResourceManager {
   /**
@@ -134,7 +135,7 @@ export class ResourceManager {
 
   // Resources to be loaded
   textures_to_load() {
-    return ["kloppenheim_07_puresky_blur.jpg", "pine.png", "concrete.jpg", "neon.png", "futuristic_concrete.png", "futuristic_orange.png", "tower_concrete.jpg"];
+    return ["kloppenheim_07_puresky_blur.jpg", "pine.png", "futuristic_concrete.jpg"];
   }
 
   shaders_to_load() {
@@ -169,10 +170,16 @@ export class ResourceManager {
       "texture.frag.glsl",
       "pre_processing.frag.glsl",
       "box_blur.frag.glsl",
+      "worley.frag.glsl",
+      "zippy.frag.glsl",
+      "square.frag.glsl"
     ];
   }
 
   meshes_to_load() {
-    return ["pine.obj", "suzanne.obj", "donut.obj", "plane.obj", "city_block1.obj", "city_block2.obj", "city_block3.obj", "city_block4.obj", "khalifa.obj"];
+    return ["pine.obj", "suzanne.obj", "donut.obj", "plane.obj", "city_block1.obj",
+        "city_block2.obj",
+        "city_block3.obj",
+        "city_block4.obj",];
   }
 }

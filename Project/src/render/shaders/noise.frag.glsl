@@ -1,5 +1,6 @@
 // this version is needed for: indexing an array, const array, modulo %
 precision highp float;
+uniform float u_time;
 
 //=============================================================================
 //	Exercise code for "Introduction to Computer Graphics 2018"
@@ -322,6 +323,70 @@ vec3 tex_marble(vec2 point) {
 
 	vec3 color = mix(white, brown_dark, a);
 	return color;
+}
+
+float length2(vec2 p){
+    return dot(p,p);
+}
+
+float w_noise(vec2 p){
+	return fract(sin(fract(sin(p.x) * (43.13311)) + p.y) * 31.0011);
+}
+
+float worley(vec2 p) {
+    //Set our distance to infinity
+	float d = 1e30;
+    //For the 9 surrounding grid points
+	for (int xo = -1; xo <= 1; ++xo) {
+		for (int yo = -1; yo <= 1; ++yo) {
+            //Floor our vec2 and add an offset to create our point
+			vec2 tp = floor(p) + vec2(xo, yo);
+            //Calculate the minimum distance for this grid point
+            //Mix in the noise value too!
+			d = min(d, length2(p - (tp + vec2(w_noise(tp), w_noise(tp + 1.0)))));
+
+		}
+	}
+	return 3.0*exp(-4.0*abs(2.5*d - 1.0));
+}
+
+float fworley(vec2 p) {
+    //Stack noise layers 
+	return sqrt(sqrt(sqrt(
+		worley(p*5.0 + 0.05*u_time) *
+		sqrt(worley(p * 50.0 + 0.12 + -0.01*u_time)) *
+		sqrt(sqrt(worley(p * -10.0 + 0.03*u_time))))));
+}
+
+vec3 full_worley(vec2 point) {
+    vec2 uv = point;
+
+    // Basic Worley noise
+    float t = fworley(uv * 4.0); // Worley texture
+
+    // --- Glitchy UV distortions ---
+    vec2 glitchUV = uv;
+    glitchUV.y += sin(glitchUV.x * 20.0) * 0.05;
+    glitchUV.x += sin(glitchUV.y * 10.0) * 0.03;
+
+    // --- Glitchy color bands using high-frequency sine ---
+    float r = sin(glitchUV.x * 8.0);
+    float g = sin(glitchUV.y * 8.0);
+    float b = sin((glitchUV.x + glitchUV.y) * 20.0);
+    vec3 glitchColor = vec3(r, g, b);
+    glitchColor = 0.5 + 0.5 * glitchColor; // normalize to 0–1
+
+    // Optional stripes/texture
+    float stripes = sin(uv.y * 400.0);
+    glitchColor *= 0.9 + 0.1 * stripes;
+
+    // Worley-based blending between two base colors
+    vec3 color_pink = vec3(0.4, 0.0, 0.3); // darker magenta-pink
+	vec3 color_blue = vec3(0.0, 0.3, 0.5); // deeper cyan-blue
+    vec3 baseBlend = mix(color_pink, color_blue, t);
+
+    // Mix in glitch color as a splash (not full overlay)
+    return mix(baseBlend, glitchColor, 0.4);
 }
 
 

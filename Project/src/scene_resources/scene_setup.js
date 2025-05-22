@@ -4,7 +4,7 @@ import { makePlane, makeSphereUV } from "../cg_libraries/cg_mesh.js";
 import { runWFC, quatFromAxisAngle } from "../scene_resources/wfc_solver.js";
 
 // --- Define Model to Material Mapping ---
-const MODEL_MATERIAL_MAP = {
+export const MODEL_MATERIAL_MAP = {
     "city_block1.obj": MATERIALS.futuristic_concrete,
     "city_block2.obj": MATERIALS.futuristic_concrete,
     "city_block3.obj": MATERIALS.futuristic_concrete,
@@ -129,38 +129,33 @@ async function collectInstances(grids, dims) {
   }
 
   // Process surrounding ring of small grids
-  // Process three concentric rings of small-grid buildings
-  const numRings = 4;
-  const gapBetweenGrids = 2;
-  const centralGap      = 6;
-  for (let ring = 1; ring <= numRings; ring++) {
-      // 1) generate a new grid for this ring
-    if (sw > 0 && sd > 0 && sh > 0){
-      const ringGrid = await runWFC(sw, sd, sh);
+  const ringSize = 4; // How many rings of small grids
+  const gapBetweenGrids = 4; // Units of gap between central and small, and between small grids
+  // Distance from center of central grid to center of an adjacent small grid
+  const xSmallGridDisplacement = cw / 2 + gapBetweenGrids + sw / 2;
+  const ySmallGridDisplacement = cd / 2 + gapBetweenGrids + sd / 2;
+  // Offset to center a small grid relative to its calculated origin point
+  const smallGridInternalOffset = [-sw / 2, -sd / 2];
   
-      // 2) compute this ring’s radius
-      const baseRadius = Math.max(cw, cd)/2 + centralGap;
-      const radius     = baseRadius + ring * (sw + gapBetweenGrids);
+  for (let i = -ringSize; i <= ringSize; i++) {
+    for (let j = -ringSize; j <= ringSize; j++) {
+      if (i === 0 && j === 0) continue;
+
+      // 1) generate a new smallGrid for this cell
+      if (sw > 0 && sd > 0 && sh > 0) {
+        const smallGrid = await runWFC(sw, sd, sh);
   
-      // 3) collect all tiles into a flat array
-      const tiles = [];
-      for (let x = 0; x < sw; x++) {
-        for (let y = 0; y < sd; y++) {
-          for (let z = 0; z < sh; z++) {
-            const tile = ringGrid[x][y][z];
-            if (tile) tiles.push(tile);
-          }
+        // 2) compute this cell’s world‐offsets…
+        const originX = i * xSmallGridDisplacement + smallGridInternalOffset[0];
+        const originY = j * ySmallGridDisplacement + smallGridInternalOffset[1];
+  
+        // 3) now add every tile from this smallGrid just like before
+        for (let x = 0; x < sw; x++) for (let y = 0; y < sd; y++) for (let z = 0; z < sh; z++) {
+          const tile = smallGrid[x][y][z];
+          if (!tile) continue;
+          addTile(tile, originX, originY);
         }
       }
-  
-      // 4) equally distribute them around the circle
-      const count = tiles.length;
-      tiles.forEach((tile, i) => {
-        const θ = (i / count) * 2 * Math.PI;
-        const originX = Math.cos(θ) * radius;
-        const originY = Math.sin(θ) * radius;
-        addTile(tile, originX, originY);
-      });
     }
   }
   

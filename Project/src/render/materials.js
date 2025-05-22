@@ -6,7 +6,7 @@ const COLORS = {
   BLACK: [0.0, 0.0, 0.0],
   RED: [0.8, 0.2, 0.2],
   GREEN: [0.2, 0.8, 0.2],
-  BLUE: [0.682, 0.949, 1],
+  BLUE: [0.701, 0.956, 0.937],
   GRAY: [0.2, 0.2, 0.2],
   MAGENTA: [1.0, 0.0, 1.0],
   GOLD: [1.0, 0.84, 0.0],
@@ -134,6 +134,22 @@ class TerrainMaterial extends Material {
   }
 }
 
+class ProceduralMaterial extends Material {
+
+  constructor({
+      texture = null, 
+      color = default_base_color, 
+      shininess = default_shininess,
+      uniforms = {}
+  }){
+      super()
+      this.texture = texture;
+      this.color = color;
+      this.shininess = shininess;
+      this.uniforms = uniforms;
+  }
+}
+
 /*---------------------------------------------------------------
     Material Instantiation - Predefined Materials
 ---------------------------------------------------------------*/
@@ -174,33 +190,32 @@ export const mirror = new ReflectiveMaterial({
   shininess: 127.75,
 });
 
-export const concrete = new DiffuseMaterial({
-  texture: "concrete.jpg",
-  color: COLORS.WHITE,
+export const worley_material = new ProceduralMaterial({
+  color: [1, 1, 1],
   shininess: 0.5,
+  uniforms: {
+    u_time: { value: 0.0 }
+  }
 });
 
-export const neon = new DiffuseMaterial({
-  texture: "neon.png",
-  color: COLORS.WHITE,
-  shininess: 1.0,
-});
+export const zippy_material = new ProceduralMaterial({
+  color: [1, 1, 1],
+  shininess: 0.5,
+  uniforms: {
+    u_time: { value: 0.0 }
+  }
+})
+
+export const square_material = new ProceduralMaterial({
+  color: [1, 1, 1],
+  shininess: 0.5,
+  uniforms: {
+    u_time: { value: 0.0 }
+  }
+})
 
 export const futuristic_concrete = new DiffuseMaterial({
-  texture: "futuristic_concrete.png",
+  texture: "futuristic_concrete.jpg",
   color: COLORS.WHITE,
-  shininess: 1.0,
-});
-
-export const futuristic_orange = new DiffuseMaterial({
-  texture: "futuristic_orange.png",
-  color: COLORS.WHITE,
-  shininess: 1.0,
-});
-
-export const tower_concrete = new DiffuseMaterial({
-  texture: "tower_concrete.jpg",
-  color: COLORS.WHITE,
-  shininess: 1.0,
-});
-
+  shininess: 1.0
+})
