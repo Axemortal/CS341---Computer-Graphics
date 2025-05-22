@@ -1,7 +1,7 @@
 import { ShaderRenderer } from "./shader_renderer.js";
 
 export class ScreenSpaceReflectionShaderRenderer extends ShaderRenderer {
-  /**
+  /** 
    * Its render function can be used to render a scene with screen space reflection
    * @param {*} regl
    * @param {ResourceManager} resourceManager
@@ -15,7 +15,7 @@ export class ScreenSpaceReflectionShaderRenderer extends ShaderRenderer {
     );
   }
 
-  /**
+  /** 
    * Render the objects of the sceneState with its shader
    * @param {*} sceneState
    */
@@ -44,6 +44,11 @@ export class ScreenSpaceReflectionShaderRenderer extends ShaderRenderer {
         positionTexture: positionTexture,
         normalTexture: normalTexture,
         texSize: texSize,
+
+        maxDistance: scene.UIParams.maxDistance,
+        thickness: scene.UIParams.thickness,
+        resolution: scene.UIParams.resolution,
+        steps: scene.UIParams.steps,
       });
     }
 
@@ -75,6 +80,11 @@ export class ScreenSpaceReflectionShaderRenderer extends ShaderRenderer {
       normal_texture: regl.prop("normalTexture"),
 
       tex_size: regl.prop("texSize"),
+
+      MAX_DISTANCE: regl.prop("maxDistance"),
+      THICKNESS: regl.prop("thickness"),
+      RESOLUTION: regl.prop("resolution"),
+      STEPS: regl.prop("steps"),
     };
   }
 }
