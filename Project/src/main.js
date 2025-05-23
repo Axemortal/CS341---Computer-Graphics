@@ -155,33 +155,40 @@ class Application {
    * Start the main rendering loop
    */
   startRenderLoop() {
-    let dt = 0;
-    let prevREGLTime = 0;
+  let dt = 0;
+  let prevREGLTime = 0;
+  let lastUpdateTime = 0;
+  const minUpdateInterval = 1 / 60; // ~33.3ms = 30 fps
 
-    this.regl.frame((frame) => {
-      // Reset canvas
-      const backgroundColor = [0.0, 0.0, 0.0, 1];
-      this.regl.clear({ color: backgroundColor });
+  this.regl.frame((frame) => {
+    // Reset canvas
+    const backgroundColor = [0.0, 0.0, 0.0, 1];
+    this.regl.clear({ color: backgroundColor });
 
-      dt = frame.time - prevREGLTime;
-      prevREGLTime = frame.time;
+    dt = frame.time - prevREGLTime;
+    prevREGLTime = frame.time;
 
-      if (!this.uiGlobalParams.isPaused) {
-        this.updateSceneActors(dt);
+    if (!this.uiGlobalParams.isPaused) {
+      this.updateSceneActors(dt);
+
+      // Update scene state at 30 FPS
+      if ((frame.time - lastUpdateTime) >= minUpdateInterval) {
         this.activeScene.updateSceneState(dt, frame.time);
+        lastUpdateTime = frame.time;
       }
+    }
 
-      // Build scene state and render
-      const sceneState = {
-        scene: this.activeScene,
-        frame: frame,
-        backgroundColor: backgroundColor,
-        UIParams: { ...this.uiGlobalParams, ...this.activeScene.UIParams },
-      };
+    const sceneState = {
+      scene: this.activeScene,
+      frame: frame,
+      backgroundColor: backgroundColor,
+      UIParams: { ...this.uiGlobalParams, ...this.activeScene.UIParams },
+    };
 
-      this.sceneRenderer.render(sceneState);
-    });
-  }
+    this.sceneRenderer.render(sceneState);
+  });
+}
+
 
   /**
    * Update all actors in the active scene

@@ -9,7 +9,6 @@ import { vec2 } from "../../lib/gl-matrix_3.3.0/esm/index.js";
 
 export class ProceduralTextureGenerator {
   /**
-   * A class that allow procedural texture computation
    * @param {*} regl
    * @param {*} resourceManager
    */
@@ -17,36 +16,44 @@ export class ProceduralTextureGenerator {
     this.regl = regl;
     this.resourceManager = resourceManager;
 
-    // A simple square mesh used to draw texture on it
+    // Full-screen quad mesh
     this.mesh_quad_2d = this.create_mesh_quad();
-    // A noise buffer used to store the content that needs to be displayed on screen
-    this.noise_buffer = this.new_buffer();
 
-    // The shader that generates the noise
-    this.noise = new NoiseShaderRenderer(regl, resourceManager);
+    // Shader renderers
     this.worley = new WorleyShaderRenderer(regl, resourceManager);
-    this.bloom = new BloomShaderRenderer(regl, resourceManager);
     this.zippy = new ZippyShaderRenderer(regl, resourceManager);
     this.square = new SquareShaderRenderer(regl, resourceManager);
-    // The shader that can display the content of a buffer of the screen
-    this.buffer_to_screen = new BufferToScreenShaderRenderer(
-      regl,
-      resourceManager
-    );
+    this.bloom = new BloomShaderRenderer(regl, resourceManager);
+    this.buffer_to_screen = new BufferToScreenShaderRenderer(regl, resourceManager);
+
+    // LOD and resolution settings
+    this.baseWidth = 512;
+    this.baseHeight = 512;
+    this.currentWidth = this.baseWidth;
+    this.currentHeight = this.baseHeight;
+
+    // Pre-allocate primary and secondary FBOs for ping-pong
+    this._worleyFbo = this.new_buffer(this.baseWidth, this.baseHeight);
+    this._worleyFbo2 = this.new_buffer(this.baseWidth, this.baseHeight);
+    this._zippyFbo = this.new_buffer(this.baseWidth, this.baseHeight);
+    this._zippyFbo2 = this.new_buffer(this.baseWidth, this.baseHeight);
+    this._squareFbo = this.new_buffer(this.baseWidth, this.baseHeight);
+    this._squareFbo2 = this.new_buffer(this.baseWidth, this.baseHeight);
+
+    // Register primary FBOs as textures
+    resourceManager.resources["worley_texture"] = this._worleyFbo;
+    resourceManager.resources["zippy_texture"] = this._zippyFbo;
+    resourceManager.resources["square_texture"] = this._squareFbo;
   }
 
   /**
-   * Create a new buffer in which to draw the result of the render
-   * @returns
+   * Create a new regl framebuffer
    */
-  new_buffer() {
-    // Safari (at least older versions of it) does not support reading float buffers
-    let isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
-    // Shared buffer to which the texture are rendered
-    const buffer = this.regl.framebuffer({
-      width: 768,
-      height: 768,
+  new_buffer(width = 256, height = 256) {
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    return this.regl.framebuffer({
+      width,
+      height,
       colorFormat: "rgba",
       colorType: isSafari ? "uint8" : "float",
       stencil: false,
@@ -54,259 +61,117 @@ export class ProceduralTextureGenerator {
       mag: "linear",
       min: "linear",
     });
-
-    return buffer;
   }
 
   /**
-   * Generate a new procedural texture
-   * @param {*} name the name associated to the texture resource
-   * @param {*} function_type the name of the noise function, see the ones defined in noise_sr.js.
-   * @param {*} param {mouse_offset, zoom_factor, width, height}
-   * optional additional parameters to parametrize the computation of the noise
-   * @returns
+   * Resize buffers if needed
    */
-  compute_texture(
-    name,
-    function_type,
-    { mouse_offset = [0, 0], zoom_factor = 1.0, width = 256, height = 256 }
-  ) {
-    // Create a new buffer in which we will generate the texture
-    const buffer = this.new_buffer();
-    if (buffer.width != width || buffer.height != height) {
-      buffer.resize(width, height);
-    }
-
-    // Render the texture in the buffer
-    this.noise.render(
-      this.mesh_quad_2d,
-      buffer,
-      function_type,
-      zoom_factor,
-      vec2.negate([0, 0], mouse_offset)
-    );
-
-    // Convert the buffer to a regl texture
-    const texture = this.regl.texture({
-      width: buffer.width,
-      height: buffer.height,
-      data: buffer_to_data_array(this.regl, buffer).data, // Use the data from the buffer
-      format: "rgba",
-      type: "float",
-    });
-    this.resourceManager.resources[name] = texture;
-    return texture;
+  prepare(width, height) {
+    this.currentWidth = width;
+    this.currentHeight = height;
+    [
+      this._worleyFbo, this._worleyFbo2,
+      this._zippyFbo, this._zippyFbo2,
+      this._squareFbo, this._squareFbo2
+    ].forEach(fbo => fbo.resize(width, height));
   }
 
   /**
-   * Display the result of the desired noise function on the canvas
-   * @param {*} function_type the name of the noise function, see the ones defined in noise_sr.js.
-   * @param {*} param {mouse_offset, zoom_factor, width, height}
-   * optional additional parameters to parametrize the computation of the noise
+   * Adjust resolution based on viewer_scale LOD
    */
-  display_texture(
-    function_type,
-    { mouse_offset = [0, 0], zoom_factor = 1.0, width = 256, height = 256 }
-  ) {
-    // Render the texture in the buffer
-    const buffer = this.noise_buffer;
-    if (buffer.width != width || buffer.height != height) {
-      buffer.resize(width, height);
+  _adjustResolution(viewer_scale) {
+    // Dynamic LOD: reduce resolution when zoomed out
+    const scale = Math.min(1, Math.max(0.25, viewer_scale));
+    const newRes = Math.floor(this.baseWidth * scale);
+    if (newRes !== this.currentWidth) {
+      this.prepare(newRes, newRes);
     }
-
-    this.noise.render(
-      this.mesh_quad_2d,
-      buffer,
-      function_type,
-      zoom_factor,
-      vec2.negate([0, 0], mouse_offset)
-    );
-
-    // Display
-    this.buffer_to_screen.render(this.mesh_quad_2d, buffer);
   }
 
-  generate_worley_texture(
-    name,
-    {
-      viewer_position = [0, 0],
-      viewer_scale = 1.0,
-      width = 1024,
-      height = 1024,
-      u_time = 0,
-      apply_bloom = true
-    }
-  ) {
-    const baseBuffer = this.new_buffer();
-    baseBuffer.resize(width, height);
-  
+  /**
+   * Update procedural textures each frame
+   * @param {number} time
+   * @param {number[]} viewer_position
+   * @param {number} viewer_scale
+   * @param {boolean} apply_bloom
+   */
+  update(time, viewer_position = [0, 0], viewer_scale = 1.0, apply_bloom = true) {
+    // Skip if context lost
+    if (this.regl._gl.isContextLost && this.regl._gl.isContextLost()) return;
+
+    // Apply dynamic LOD resolution
+    this._adjustResolution(viewer_scale);
+
+    // Optionally skip all passes if nearly invisible
+    if (viewer_scale < 0.2) return;
+
+    // --- Worley pass ---
     this.worley.render(
       this.mesh_quad_2d,
-      baseBuffer,
+      this._worleyFbo,
       viewer_scale,
       viewer_position,
-      u_time
+      time
     );
-  
-    let finalBuffer = baseBuffer;
-  
     if (apply_bloom) {
-      const bloomOutput = this.new_buffer();
-      this.bloom.apply(this.mesh_quad_2d, baseBuffer, bloomOutput);
-      finalBuffer = bloomOutput;
+      this.bloom.apply(this.mesh_quad_2d, this._worleyFbo, this._worleyFbo2);
+      [this._worleyFbo, this._worleyFbo2] = [this._worleyFbo2, this._worleyFbo];
+      this.resourceManager.resources["worley_texture"] = this._worleyFbo;
     }
-  
-    const texture = this.regl.texture({
-      width: finalBuffer.width,
-      height: finalBuffer.height,
-      data: buffer_to_data_array(this.regl, finalBuffer).data,
-      format: "rgba",
-      type: "float",
-    });
-  
-    this.resourceManager.resources[name] = texture;
-    return texture;
-  }
-  
-  generate_zippy_texture(
-    name,
-    {
-      viewer_position = [0, 0],
-      viewer_scale = 1.0,
-      width = 1024,
-      height = 1024,
-      u_time = 0,
-      apply_bloom = true
-    }
-  ) {
-    const baseBuffer = this.new_buffer();
-    baseBuffer.resize(width, height);
-  
+
+    // --- Zippy pass ---
     this.zippy.render(
       this.mesh_quad_2d,
-      baseBuffer,
+      this._zippyFbo,
       viewer_scale,
       viewer_position,
-      u_time
+      time
     );
-  
-    let finalBuffer = baseBuffer;
-  
     if (apply_bloom) {
-      const bloomOutput = this.new_buffer();
-      this.bloom.apply(this.mesh_quad_2d, baseBuffer, bloomOutput);
-      finalBuffer = bloomOutput;
+      this.bloom.apply(this.mesh_quad_2d, this._zippyFbo, this._zippyFbo2);
+      [this._zippyFbo, this._zippyFbo2] = [this._zippyFbo2, this._zippyFbo];
+      this.resourceManager.resources["zippy_texture"] = this._zippyFbo;
     }
-  
-    const texture = this.regl.texture({
-      width: finalBuffer.width,
-      height: finalBuffer.height,
-      data: buffer_to_data_array(this.regl, finalBuffer).data,
-      format: "rgba",
-      type: "float",
-    });
-  
-    this.resourceManager.resources[name] = texture;
-    return texture;
-  }
 
-  generate_square_texture(
-    name,
-    {
-      viewer_position = [0, 0],
-      viewer_scale = 1.0,
-      width = 1024,
-      height = 1024,
-      u_time = 0,
-      apply_bloom = true
-    }
-  ) {
-    const baseBuffer = this.new_buffer();
-    baseBuffer.resize(width, height);
-  
+    // --- Square pass ---
     this.square.render(
       this.mesh_quad_2d,
-      baseBuffer,
+      this._squareFbo,
       viewer_scale,
       viewer_position,
-      u_time
+      time
     );
-  
-    let finalBuffer = baseBuffer;
-  
     if (apply_bloom) {
-      const bloomOutput = this.new_buffer();
-      this.bloom.apply(this.mesh_quad_2d, baseBuffer, bloomOutput);
-      finalBuffer = bloomOutput;
+      this.bloom.apply(this.mesh_quad_2d, this._squareFbo, this._squareFbo2);
+      [this._squareFbo, this._squareFbo2] = [this._squareFbo2, this._squareFbo];
+      this.resourceManager.resources["square_texture"] = this._squareFbo;
     }
-  
-    const texture = this.regl.texture({
-      width: finalBuffer.width,
-      height: finalBuffer.height,
-      data: buffer_to_data_array(this.regl, finalBuffer).data,
-      format: "rgba",
-      type: "float",
-    });
-  
-    this.resourceManager.resources[name] = texture;
-    return texture;
   }
 
   /**
-   * Create the simple square mesh on which the texture is displayed
-   * @returns
+   * Optionally render a buffer to screen for debugging
+   */
+  display(name) {
+    let buf;
+    if (name === "worley") buf = this._worleyFbo;
+    else if (name === "zippy") buf = this._zippyFbo;
+    else if (name === "square") buf = this._squareFbo;
+    else return;
+    this.buffer_to_screen.render(this.mesh_quad_2d, buf);
+  }
+
+  /**
+   * Create a simple full-screen quad
    */
   create_mesh_quad() {
     return {
       vertex_positions: [
-        // 4 vertices with 2 coordinates each
         [-1, -1, 0],
         [1, -1, 0],
         [1, 1, 0],
-        [-1, 1, 0],
+        [-1, 1, 0]
       ],
-      faces: [
-        [0, 1, 2], // top right
-        [0, 2, 3], // bottom left
-      ],
+      faces: [ [0,1,2], [0,2,3] ],
     };
-  }
-}
-
-/**
- * Helper function to convert a regl buffer content to a data array
- * that can be queried for values at specific coordinates.
- * @param {*} regl
- * @param {*} buffer
- * @returns
- */
-export function buffer_to_data_array(regl, buffer) {
-  return new BufferData(regl, buffer);
-}
-
-/**
- * Helper class to convert a regl buffer to a data array
- * that can be queried for values at specific coordinates.
- */
-class BufferData {
-  constructor(regl, buffer) {
-    this.width = buffer.width;
-    this.height = buffer.height;
-    this.data = regl.read({ framebuffer: buffer });
-
-    // this can read both float and uint8 buffers
-    if (this.data instanceof Uint8Array) {
-      // uint8 array is in range 0...255
-      this.scale = 1 / 255;
-    } else {
-      this.scale = 1;
-    }
-  }
-
-  get(x, y) {
-    x = Math.min(Math.max(x, 0), this.width - 1);
-    y = Math.min(Math.max(y, 0), this.height - 1);
-
-    return this.data[(x + y * this.width) << 2] * this.scale;
   }
 }
