@@ -10,7 +10,7 @@ const COLORS = {
   GRAY: [0.2, 0.2, 0.2],
   MAGENTA: [1.0, 0.0, 1.0],
   GOLD: [1.0, 0.84, 0.0],
-  WATER_BLUE: [0.29, 0.51, 0.62],
+  WATER_BLUE: [0.027, 0.094, 0.129],
   GRASS_GREEN: [0.33, 0.43, 0.18],
   PEAK_SNOW: [0.9, 0.9, 0.9],
   PEAK_ROCK: [0.8, 0.5, 0.4],
@@ -188,6 +188,9 @@ export const terrain = new TerrainMaterial({
 export const mirror = new ReflectiveMaterial({
   color: COLORS.WATER_BLUE,
   shininess: 127.75,
+  uniforms: {
+    u_time: { value: 0.0 }
+  }
 });
 
 export const worley_material = new ProceduralMaterial({

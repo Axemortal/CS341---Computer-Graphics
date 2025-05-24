@@ -4,6 +4,7 @@ import { WorleyShaderRenderer } from "./shader_renderers/worley_sr.js";
 import { ZippyShaderRenderer } from "./shader_renderers/zippy_sr.js";
 import { BloomShaderRenderer } from "./shader_renderers/bloom_sr.js";
 import { SquareShaderRenderer } from "./shader_renderers/square_sr.js";
+import { WaterShaderRenderer } from "./shader_renderers/water_sr.js";
 
 import { vec2 } from "../../lib/gl-matrix_3.3.0/esm/index.js";
 
@@ -23,6 +24,7 @@ export class ProceduralTextureGenerator {
     this.worley = new WorleyShaderRenderer(regl, resourceManager);
     this.zippy = new ZippyShaderRenderer(regl, resourceManager);
     this.square = new SquareShaderRenderer(regl, resourceManager);
+    this.water = new WaterShaderRenderer(regl, resourceManager);
     this.bloom = new BloomShaderRenderer(regl, resourceManager);
     this.buffer_to_screen = new BufferToScreenShaderRenderer(regl, resourceManager);
 
@@ -39,11 +41,14 @@ export class ProceduralTextureGenerator {
     this._zippyFbo2 = this.new_buffer(this.baseWidth, this.baseHeight);
     this._squareFbo = this.new_buffer(this.baseWidth, this.baseHeight);
     this._squareFbo2 = this.new_buffer(this.baseWidth, this.baseHeight);
+    this._waterFbo = this.new_buffer(this.baseWidth, this.baseHeight);
+    this._waterFbo2 = this.new_buffer(this.baseWidth, this.baseHeight);
 
     // Register primary FBOs as textures
     resourceManager.resources["worley_texture"] = this._worleyFbo;
     resourceManager.resources["zippy_texture"] = this._zippyFbo;
     resourceManager.resources["square_texture"] = this._squareFbo;
+    resourceManager.resources["water_texture"] = this._waterFbo
   }
 
   /**
@@ -72,7 +77,8 @@ export class ProceduralTextureGenerator {
     [
       this._worleyFbo, this._worleyFbo2,
       this._zippyFbo, this._zippyFbo2,
-      this._squareFbo, this._squareFbo2
+      this._squareFbo, this._squareFbo2,
+      this._waterFbo, this._waterFbo2
     ].forEach(fbo => fbo.resize(width, height));
   }
 
@@ -146,6 +152,14 @@ export class ProceduralTextureGenerator {
       [this._squareFbo, this._squareFbo2] = [this._squareFbo2, this._squareFbo];
       this.resourceManager.resources["square_texture"] = this._squareFbo;
     }
+
+    this.water.render(
+      this.mesh_quad_2d,
+      this._waterFbo,
+      viewer_scale,
+      viewer_position,
+      time
+    );
   }
 
   /**

@@ -13,7 +13,7 @@ export class BloomShaderRenderer {
           void main() {
             vec4 color = texture2D(u_input, v_uv);
             float brightness = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
-            gl_FragColor = brightness > 0.45 ? color : vec4(0.0);
+            gl_FragColor = brightness > 0.25 ? color : vec4(0.0);
           }
         `,
         vert: basicVert(),

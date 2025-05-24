@@ -15,6 +15,7 @@ import { ResourceManager } from "../scene_resources/resource_manager.js";
 import { worley_material } from "../render/materials.js";
 import { zippy_material } from "../render/materials.js";
 import { square_material } from "../render/materials.js";
+import { mirror } from "../render/materials.js";
 import { ProceduralTextureGenerator } from "../render/procedural_texture_generator.js";
 import { setupCityScene, updateInstancedObjectsVisibility, MODEL_MATERIAL_MAP } from "../scene_resources/scene_setup.js";
 
@@ -78,6 +79,7 @@ export class TrialScene extends Scene {
     worley_material.texture = "worley_texture";
     zippy_material.texture = "zippy_texture";
     square_material.texture = "square_texture";
+    mirror.texture = "water_texture";
 
     // Now add WFC-generated city blocks
     const smallDims = this.showSmall ? this.smallDims : [0,0,0];

@@ -172,7 +172,8 @@ export class ResourceManager {
       "box_blur.frag.glsl",
       "worley.frag.glsl",
       "zippy.frag.glsl",
-      "square.frag.glsl"
+      "square.frag.glsl",
+      "water.frag.glsl"
     ];
   }
 
