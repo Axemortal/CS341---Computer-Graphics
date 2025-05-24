@@ -49,7 +49,7 @@ export class TrialScene extends Scene {
     this.instancedObjects = {};
     this.cameraPosition   = [0,0,0];
     this.lastCameraUpdateTime = 0;
-    this.visibilityDistance   = 30;
+    this.visibilityDistance   = 10;
 
 
     this.initialize_scene();
@@ -73,37 +73,15 @@ export class TrialScene extends Scene {
 
     this.addWaterPlane();
 
-    this.proceduralTextureGenerator.generate_worley_texture("worley_texture", {
-      viewer_position: [0, 0],
-      viewer_scale: 1.0,
-      width: 512,
-      height: 512,
-      u_time: 0, // Will update in update()
-      apply_bloom: true
-    });
-    worley_material.texture = "worley_texture";
+    this.proceduralTextureGenerator.prepare(128, 128);
 
-    this.proceduralTextureGenerator.generate_zippy_texture("zippy_texture", {
-      viewer_position: [0, 0],
-      viewer_scale: 1.0,
-      width: 512,
-      height: 512,
-      u_time: 0, // Will update in update()
-      apply_bloom: true
-    });
+    worley_material.texture = "worley_texture";
     zippy_material.texture = "zippy_texture";
-    this.proceduralTextureGenerator.generate_square_texture("square_texture", {
-      viewer_position: [0, 0],
-      viewer_scale: 1.0,
-      width: 512,
-      height: 512,
-      u_time: 0, // Will update in update()
-      apply_bloom: true
-    });
     square_material.texture = "square_texture";
 
     // Now add WFC-generated city blocks
     const smallDims = this.showSmall ? this.smallDims : [0,0,0];
+    MODEL_MATERIAL_MAP["city_block4.obj"] = zippy_material
     await setupCityScene(this.resourceManager, this, this.centralDims, smallDims);
     updateInstancedObjectsVisibility(this);
 
@@ -111,31 +89,18 @@ export class TrialScene extends Scene {
   }
 
   updateSceneState(dt, time) {
-    // Regenerate the texture for animation
-    this.proceduralTextureGenerator.generate_worley_texture("worley_texture", {
-      viewer_position: [0, 0],
-      viewer_scale: 1.0,
-      width: 512,
-      height: 512,
-      u_time: time,
-      apply_bloom: true
-    });
-    this.proceduralTextureGenerator.generate_zippy_texture("zippy_texture", {
-      viewer_position: [0, 0],
-      viewer_scale: 1.0,
-      width: 512,
-      height: 512,
-      u_time: time, // Will update in update()
-      apply_bloom: true
-    });
-    this.proceduralTextureGenerator.generate_square_texture("square_texture", {
-      viewer_position: [0, 0],
-      viewer_scale: 1.0,
-      width: 512,
-      height: 512,
-      u_time: time, // Will update in update()
-      apply_bloom: true
-    });
+    // update all three procedural textures in-place
+    const camPos = this.camera?.position || this.cameraPosition;
+    const dist = Math.hypot(camPos[0], camPos[1], camPos[2]);
+    if (dist > this.visibilityDistance) {
+      return;
+    }
+    this.proceduralTextureGenerator.update(
+      time,
+      [0,0],    // viewer_position
+      1.0,      // viewer_scale
+      true      // apply_bloom
+    );
   }
 
   addWaterPlane() {
