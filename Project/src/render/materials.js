@@ -186,7 +186,7 @@ export const terrain = new TerrainMaterial({
 });
 
 export const mirror = new ReflectiveMaterial({
-  color: COLORS.BLUE,
+  color: COLORS.WATER_BLUE,
   shininess: 127.75,
 });
 

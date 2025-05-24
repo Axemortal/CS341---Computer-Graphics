@@ -226,10 +226,10 @@ export class SceneRenderer {
       });
     });
 
-    this.renderInTexture("shadows", () => {
-      renderers.preProcessing.render(sceneState);
-      renderers.shadows.render(sceneState);
-    });
+    // this.renderInTexture("shadows", () => {
+    //   renderers.preProcessing.render(sceneState);
+    //   renderers.shadows.render(sceneState);
+    // });
 
     renderers.preProcessing.render(sceneState);
     switch (sceneState.UIParams.renderTexture) {
