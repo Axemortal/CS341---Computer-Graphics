@@ -198,16 +198,95 @@ billboard texture generation with noise</h3>
 <h3 id="screen-space-reflections-ssr">Screen-Space Reflections
 (SSR)</h3>
 <h4 id="implementation-3">Implementation</h4>
-<p>TODO</p>
+<p>For a more in-depth explanation, please refer to the <a
+href="#references">SSR Guide by David Lettier</a>, which served as the
+primary inspiration for this feature’s implementation.</p>
+<p>Our approach follows these main steps:</p>
+<ol type="1">
+<li><strong>Render the base image</strong> without any reflections or
+shadows into a texture.</li>
+<li><strong>Generate a reflection map</strong> to determine which points
+in the base texture should be sampled for reflections. This involves:
+<ol type="a">
+<li>Calculating the position, normal, and reflection vector for each
+point on a reflective surface.</li>
+<li>Using the position and reflection vector to determine the start and
+end points for ray marching.</li>
+<li>Converting these coordinates into screen space for performance
+efficiency, as ray marching in screen space reduces redundant
+sampling.</li>
+<li>Performing ray marching, with a sampling rate defined by a
+resolution factor.</li>
+<li>Recording hits by checking whether any scene geometry is
+sufficiently close to the sampled points along the reflection ray.</li>
+<li>Refining the hit point to accurately determine where to sample the
+reflection color.</li>
+<li>Applying fade factors based on edge proximity, distance from the
+reflection plane, and other conditions to create a more natural
+reflection effect.</li>
+</ol></li>
+<li><strong>Sample reflection colors</strong> from the base texture
+using the UV indices generated from the ray-marched hits. We also fill
+in gaps between sample points to reduce visual noise in the
+reflection.</li>
+<li><strong>Apply a blur</strong> to the sampled reflection colors and
+store the result in a separate texture.</li>
+<li><strong>Combine everything</strong> to produce the final reflection
+output by blending the base image with both the original and blurred
+reflection textures, using weighting factors for a smooth and realistic
+result.</li>
+</ol>
 <h4 id="validation-3">Validation</h4>
-<p>TODO</p>
+<div
+style="display: flex; justify-content: space-around; align-items: center;">
+<div>
+<p><img src="images/ssr_reflection_uv.png" height="210px" style="vertical-align: middle;"></p>
+</div>
+</div>
+<figcaption style="text-align: center;">
+Visualised UV coordinates sampled for SSR
+</figcaption>
+<div
+style="display: flex; justify-content: space-around; align-items: center;">
+<div>
+<p><img src="images/ssr_validation_1.png" height="210px" style="vertical-align: middle;"></p>
+</div>
+<div>
+<p><img src="images/ssr_validation_2.png" height="210px" style="vertical-align: middle;"></p>
+</div>
+</div>
+<figcaption style="text-align: center;">
+Validating SSR implementation on sample scene
+</figcaption>
+<div
+style="display: flex; justify-content: space-around; align-items: center;">
+<div>
+<p><img src="images/ssr_validation_final.png" height="210px" style="vertical-align: middle;"></p>
+</div>
+</div>
+<figcaption style="text-align: center;">
+Final integration of SSR into the complete project scene
+</figcaption>
 <h2 id="discussion">Discussion</h2>
 <h3 id="additional-components">Additional Components</h3>
 <p>TODO</p>
 <h3 id="failed-experiments">Failed Experiments</h3>
 <p>TODO</p>
 <h3 id="challenges">Challenges</h3>
-<p>TODO</p>
+<p>At the start, navigating the codebase was quite challenging, even
+with the existing guide. To improve clarity and consistency for the
+entire team, we carried out a major refactor of the codebase —
+introducing standardized naming conventions and a unified structure for
+handling vertex and fragment shaders.</p>
+<p>In particular, we streamlined the use of vertex shaders by
+consolidating repeated versions into a single, reusable shader
+(<code>pass_through.vert.glsl</code>), reducing redundancy across
+different shader renderers.</p>
+<p>Furthermore, to streamline the debugging process, we rendered many of
+the computer-generated images to textures, allowing us to directly
+choose which texture to render to. This made it much easier to inspect
+specific texture layers and directly debug individual shader
+renderers.</p>
 <h2 id="contributions">Contributions</h2>
 <table>
 <caption>
@@ -376,12 +455,22 @@ Yifan Wu (402391)
 </tbody>
 </table>
 <h4 id="comments">Comments</h4>
-<p>TODO</p>
+<p>For this project:</p>
+<ul>
+<li>Eunice focused on generating dynamic textures using noise and
+contributed to integrating the final scene.</li>
+<li>Howell implemented dynamic building generation using <strong>Wave
+Function Collapse</strong> and also worked on integrating the final
+scene.</li>
+<li>Yifan refactored the initial codebase to ensure a consistent and
+unified implementation, and developed the <strong>Screen-Space
+Reflection Feature</strong>.</li>
+</ul>
 <h2 id="references">References</h2>
 <ul>
 <li><a
-href="https://github.com/lettier/3d-game-shaders-for-beginners/blob/master/sections/screen-space-reflection.md">David
-Lettier’s Guide for SSR</a></li>
+href="https://github.com/lettier/3d-game-shaders-for-beginners/blob/master/sections/screen-space-reflection.md">SSR
+Guide by David Lettier</a></li>
 </ul>
         </div>
       </div>
