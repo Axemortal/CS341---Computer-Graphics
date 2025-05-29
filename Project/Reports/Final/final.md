@@ -119,6 +119,24 @@ Our approach is as follows:
 WFC-Generated Layout (12×10×10) Featuring Variant 2 with Billboards — Zippy noise is applied exclusively to <code>city_block4</code>, the plane used for billboard attachments. This confirms our successful experiment of using planes as dynamic procedural surfaces in this WFC setup.
 </em></p>
 
+<p align="center">
+  <img src="images/wfc_variant2_side.jpg" height="300px" alt="Variant 2 Side View">
+  <img src="images/wfc_variant2.jpg" height="300px" alt="Variant 2 Front View">
+</p>
+<p align="center"><em>WFC-Generated Layout (15×15×8) — Variant 3 with billboard surfaces enabled.</em></p>
+
+<p align="center">
+  <img src="images/wfc_sideview_no_chimney.jpg" width="500px" height="400px" alt="Side View No Chimney">
+  <img src="images/wfc_topview_no_chimney.jpg" width="500px" height="400px" alt="Top View No Chimney">
+</p>
+<p align="center"><em>Chimney is not visible as the top face of <code>city_block1</code> is not exposed to the outside.</em></p>
+
+<p align="center">
+  <img src="images/wfc_sideview_no_plane.png" height="300px" alt="No Billboard Variant">
+</p>
+<p align="center"><em>WFC variant without billboard planes — confirms clean geometry when billboard layers are omitted.</em></p>
+
+
 ### Dynamic billboard texture generation with noise and bloom effects
 
 #### Implementation
