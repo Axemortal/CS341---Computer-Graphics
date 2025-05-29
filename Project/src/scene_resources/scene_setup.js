@@ -1,7 +1,6 @@
-// scene_setup.js
 import * as MATERIALS from "../render/materials.js";
-import { makePlane, makeSphereUV } from "../cg_libraries/cg_mesh.js";
-import { runWFC, quatFromAxisAngle } from "../scene_resources/wfc_solver.js";
+import { makeSphereUV } from "../cg_libraries/cg_mesh.js";
+import { runWFC } from "../scene_resources/wfc_solver.js";
 
 // --- Define Model to Material Mapping ---
 export const MODEL_MATERIAL_MAP = {

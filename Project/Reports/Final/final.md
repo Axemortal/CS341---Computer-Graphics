@@ -103,7 +103,7 @@ Our approach is as follows:
   <img src="images/wfc_validation_2.jpg" width = "300px" height="300px" alt="WFC Validation 2">
 </div>
 
-<p style="text-align: center;"><em>WFC-Generated Building Variant 1 (8x9x10)</em></p>
+<p style="text-align: center;"><em>WFC-Generated Building Variant 1 (8x9x10 & Without Billboards)</em></p>
 
 <div style="display: flex; justify-content: center; gap: 20px; align-items: center;">
   <img src="images/wfc_validation_3_1.png" height="300px" alt="WFC Validation 1">
@@ -115,7 +115,7 @@ Our approach is as follows:
   <img src="images/wfc_validation_3_4.png" width = "250px" height="300px" alt="WFC Validation 2">
 </div>
 
-<p style="text-align: center;"><em>WFC-Generated Building Variant 2 (12x10x10)</em></p>
+<p style="text-align: center;"><em>WFC-Generated Building Variant 2 (12x10x10 & With Billboards)</em></p>
 
 ### Dynamic billboard texture generation with noise and bloom effects
 
