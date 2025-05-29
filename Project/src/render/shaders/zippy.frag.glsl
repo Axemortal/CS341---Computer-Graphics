@@ -32,7 +32,7 @@ void main() {
     vec2 uv = (fragCoord - viewer_position) / (u_resolution * viewer_scale);
     uv *= 30.0; // Controls tiling / density
 
-    // Animate flow (e.g. traffic flow lines)
+    // Animate flow 
     uv.y += u_time * 0.2;
 
     float noise = worley(uv);

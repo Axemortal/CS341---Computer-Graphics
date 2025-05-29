@@ -50,7 +50,7 @@ export class TrialScene extends Scene {
     this.instancedObjects = {};
     this.cameraPosition   = [0,0,0];
     this.lastCameraUpdateTime = 0;
-    this.visibilityDistance   = 10;
+    this.visibilityDistance   = 30;
 
 
     this.initialize_scene();
@@ -71,6 +71,20 @@ export class TrialScene extends Scene {
       translation: [0,0,0], scale:[100,100,100], rotation:[0,0,0,1],
       meshReference: "mesh_sphere_env_map", material: MATERIALS.sunset_sky
     });
+    
+    let rotQ = quat.create(); quat.fromEuler(rotQ,90,0,0);
+    this.static_objects.push({
+      translation: [0,0,0], scale:[0.0003,0.0003,0.0002], rotation:rotQ,
+      meshReference: "khalifa.obj", material: square_material
+    });
+    this.static_objects.push({
+      translation: [8,0,0], scale:[0.02,0.02,0.02], rotation:rotQ,
+      meshReference: "tall1.obj", material: worley_material
+    });
+    this.static_objects.push({
+      translation: [5,9,0], scale:[0.01,0.01,0.01], rotation:rotQ,
+      meshReference: "tall2.obj", material: worley_material
+    });
 
     this.addWaterPlane();
 
@@ -83,7 +97,6 @@ export class TrialScene extends Scene {
 
     // Now add WFC-generated city blocks
     const smallDims = this.showSmall ? this.smallDims : [0,0,0];
-    MODEL_MATERIAL_MAP["city_block4.obj"] = zippy_material
     await setupCityScene(this.resourceManager, this, this.centralDims, smallDims);
     updateInstancedObjectsVisibility(this);
 
@@ -191,7 +204,7 @@ export class TrialScene extends Scene {
       (v) => {
         switch(v) {
           case "Default":
-            MODEL_MATERIAL_MAP["city_block1.obj"];
+            MODEL_MATERIAL_MAP["city_block1.obj"] = MATERIALS.futuristic_concrete;
             break;
           case "Worley":
             MODEL_MATERIAL_MAP["city_block1.obj"] = worley_material;
@@ -213,7 +226,7 @@ export class TrialScene extends Scene {
       (v) => {
         switch(v) {
           case "Default":
-            MODEL_MATERIAL_MAP["city_block2.obj"];
+            MODEL_MATERIAL_MAP["city_block2.obj"] = MATERIALS.futuristic_concrete;
             break;
           case "Worley":
             MODEL_MATERIAL_MAP["city_block2.obj"] = worley_material;
@@ -235,7 +248,7 @@ export class TrialScene extends Scene {
       (v) => {
         switch(v) {
           case "Default":
-            MODEL_MATERIAL_MAP["city_block3.obj"];
+            MODEL_MATERIAL_MAP["city_block3.obj"] = MATERIALS.futuristic_concrete;
             break;
           case "Worley":
             MODEL_MATERIAL_MAP["city_block3.obj"] = worley_material;
@@ -253,17 +266,14 @@ export class TrialScene extends Scene {
 
     createDropdown(
       "Assign Texture For City Block 4",
-      ["Default","Worley", "Square", "Zippy"],
+      ["Zippy", "Worley", "Square"],
       (v) => {
         switch(v) {
-          case "Default":
-            MODEL_MATERIAL_MAP["city_block4.obj"];
+          case "Zippy":
+            MODEL_MATERIAL_MAP["city_block4.obj"] = zippy_material;
             break;
           case "Worley":
             MODEL_MATERIAL_MAP["city_block4.obj"] = worley_material;
-            break;
-          case "Zippy":
-            MODEL_MATERIAL_MAP["city_block4.obj"] = zippy_material;
             break;
           case "Square":
             MODEL_MATERIAL_MAP["city_block4.obj"] = square_material;

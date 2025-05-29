@@ -164,7 +164,7 @@ export const BasicColors = {
 };
 
 export const sunset_sky = new BackgroundMaterial({
-  texture: "kloppenheim_07_puresky_blur.jpg",
+  texture: "sky.jpg",
 });
 
 export const gold = new DiffuseMaterial({

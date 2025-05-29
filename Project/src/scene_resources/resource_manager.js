@@ -135,7 +135,7 @@ export class ResourceManager {
 
   // Resources to be loaded
   textures_to_load() {
-    return ["kloppenheim_07_puresky_blur.jpg", "pine.png", "futuristic_concrete.png"];
+    return ["kloppenheim_07_puresky_blur.jpg", "pine.png", "futuristic_concrete.png", "sky.jpg"];
   }
 
   shaders_to_load() {
@@ -181,6 +181,8 @@ export class ResourceManager {
     return ["pine.obj", "suzanne.obj", "donut.obj", "plane.obj", "city_block1.obj",
         "city_block2.obj",
         "city_block3.obj",
-        "city_block4.obj",];
+        "city_block4.obj",
+      "khalifa.obj",
+    "tall1.obj", "tall2.obj"];
   }
 }
