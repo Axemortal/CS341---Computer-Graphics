@@ -166,6 +166,8 @@ Our approach to implementing procedural textures is as follows:
 
    The implementation uses multiple framebuffers to ping-pong intermediate results efficiently without reallocating resources each frame. The blur weights and kernel size are carefully chosen for a balanced blur that is visually pleasing but not too expensive. This modular design with separate shader stages for bright-pass, blur, and combine allows flexible reuse and tuning, making it a performant and visually effective bloom solution for real-time rendering in WebGL applications.
 
+   The visual outcome of the bloom effect varies significantly depending on the underlying texture. On Worley textures, bloom emphasizes the existing high-contrast cells and ridges, adding an extra layer of dimensionality and artistic flair. In contrast, Zippy textures—which flicker between red and blue without bloom—transform into bright white flickers when bloom is applied, and at full strength, even the black background is gently illuminated, giving a glowing ambiance. For Square textures, bloom doesn't drastically change the structure but does boost color intensity, making everything appear more vibrant. These differences highlight how bloom can be used creatively, not just as a lighting enhancement, but as a stylistic tool to shape the mood and character of each procedural material.
+   
 #### Validation
 **Results**:
 <div style="display: flex; justify-content: center; align-items: center; gap: 0px;">
