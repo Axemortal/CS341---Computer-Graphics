@@ -223,6 +223,7 @@ Our approach follows these main steps:
 ### Additional Components
 
 **UI Controls**: Sliders and dropdowns let users tweak central/small grid dimensions, toggle small-grid rings, and reassign per-block materials (Worley, Zippy, Square) on the fly.
+
 **Scene Reloading**: `reloadScene` and `reloadCityScene` clear and reinitialize objects, ensuring that parameter changes apply immediately without full page reloads.
 
 ### Failed Experiments
