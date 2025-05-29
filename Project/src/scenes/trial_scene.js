@@ -1,6 +1,5 @@
-import { TurntableCamera } from "../scene_resources/camera.js";
 import * as MATERIALS from "../render/materials.js";
-import { makePlane, makeSphereUV } from "../cg_libraries/cg_mesh.js";
+import { makeSphereUV } from "../cg_libraries/cg_mesh.js";
 import { quat } from "../../lib/gl-matrix_3.3.0/esm/index.js";
 import {
   createSlider,
