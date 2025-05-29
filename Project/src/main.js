@@ -15,8 +15,6 @@ import { ProceduralTextureGenerator } from "./render/procedural_texture_generato
 
 // Scene definitions
 import { TutorialScene } from "./scenes/tutorial_scene.js";
-import { DemoScene } from "./scenes/demo_scene.js";
-import { ProjectScene } from "./scenes/project_scene.js";
 import { TrialScene } from "./scenes/trial_scene.js";
 
 /**
@@ -105,10 +103,6 @@ class Application {
   setupScenes() {
     this.scenes = {
       tutorial: new TutorialScene(
-        this.resourceManager,
-        this.proceduralTextureGenerator
-      ),
-      project: new ProjectScene(
         this.resourceManager,
         this.proceduralTextureGenerator
       ),
