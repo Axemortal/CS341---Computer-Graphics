@@ -561,42 +561,43 @@ simplified runtime placement, allowing us to treat the billboard as a
 second instanced mesh while preserving visual coherence.</p>
 <h3 id="challenges">Challenges</h3>
 <ol type="1">
-<li><p>Constraint Design &amp; Modularity Integrating Wave Function
-Collapse (WFC) with procedural textures required careful architectural
-planning to ensure modularity without compromising visual coherence.
-Crafting rules.json involved encoding spatial constraints—like forcing
-chimneys or billboard mounts to face outward—while avoiding
-overconstraining the generation space. Balancing logic and aesthetics
-was especially tricky when defining how tiles could rotate and connect
-across different layers and rings of the city.</p></li>
-<li><p>Runtime Texture Integration Another major challenge was coupling
-the WFC-generated layout with our real-time procedural texture system.
-Textures such as Worley, Zippy, and Square had to be rendered to
-framebuffers and dynamically applied to billboard surfaces without
-breaking the instancing system used for performance. Since multiple tile
-variants could share the same geometry but differ in texture depending
-on face exposure, we needed precise control over material mappings,
-ensuring that billboard planes consistently displayed the correct
-animated shader output per frame.</p></li>
-<li><p>Codebase Complexity &amp; Shader Refactor At the project’s start,
-navigating the inherited codebase was a significant barrier. To
-streamline development, we initiated a full codebase refactor: enforcing
-standardized naming conventions, extracting reusable components, and
-unifying shader handling logic. For instance, we consolidated multiple
-vertex shaders into a single generic pass_through.vert.glsl, reducing
-redundancy and simplifying pipeline management across shader
-renderers.</p></li>
-<li><p>Performance Bottlenecks As we began combining WFC logic, dynamic
-instancing, procedural shaders, and screen-space effects (like SSR and
-bloom), performance became a growing concern—especially on lower-end or
-driver-sensitive systems (such as RTX 4080). Excessive draw calls,
-redundant framebuffer switches, and unnecessary texture updates were
-identified as bottlenecks. We responded with several optimizations:
-grouping identical mesh-material pairs into instanced batches, skipping
-texture rendering when off-screen, and using framebuffer ping-ponging to
-avoid memory churn. These changes brought down our total frame times and
-ensured smooth interactions on integrated GPUs like the M2 MacBook
-Air.</p></li>
+<li><p><strong>Constraint Design &amp; Modularity</strong>: Integrating
+Wave Function Collapse (WFC) with procedural textures required careful
+architectural planning to ensure modularity without compromising visual
+coherence. Crafting rules.json involved encoding spatial
+constraints—like forcing chimneys or billboard mounts to face
+outward—while avoiding overconstraining the generation space. Balancing
+logic and aesthetics was especially tricky when defining how tiles could
+rotate and connect across different layers and rings of the
+city.</p></li>
+<li><p><strong>Runtime Texture Integration</strong>: Another major
+challenge was coupling the WFC-generated layout with our real-time
+procedural texture system. Textures such as Worley, Zippy, and Square
+had to be rendered to framebuffers and dynamically applied to billboard
+surfaces without breaking the instancing system used for performance.
+Since multiple tile variants could share the same geometry but differ in
+texture depending on face exposure, we needed precise control over
+material mappings, ensuring that billboard planes consistently displayed
+the correct animated shader output per frame.</p></li>
+<li><p><strong>Codebase Complexity &amp; Shader Refactor</strong>: At
+the project’s start, navigating the inherited codebase was a significant
+barrier. To streamline development, we initiated a full codebase
+refactor: enforcing standardized naming conventions, extracting reusable
+components, and unifying shader handling logic. For instance, we
+consolidated multiple vertex shaders into a single generic
+pass_through.vert.glsl, reducing redundancy and simplifying pipeline
+management across shader renderers.</p></li>
+<li><p><strong>Performance Bottlenecks</strong>: As we began combining
+WFC logic, dynamic instancing, procedural shaders, and screen-space
+effects (like SSR and bloom), performance became a growing
+concern—especially on lower-end or driver-sensitive systems (such as RTX
+4080). Excessive draw calls, redundant framebuffer switches, and
+unnecessary texture updates were identified as bottlenecks. We responded
+with several optimizations: grouping identical mesh-material pairs into
+instanced batches, skipping texture rendering when off-screen, and using
+framebuffer ping-ponging to avoid memory churn. These changes brought
+down our total frame times and ensured smooth interactions on integrated
+GPUs like the M2 MacBook Air.</p></li>
 </ol>
 <h2 id="contributions">Contributions</h2>
 <table>
