@@ -27,7 +27,7 @@ This project presents an immersive, ever-evolving cyberpunk city. Key features i
 </div>
 <figcaption style="text-align: center;">Snippets of our Final Project Scene</figcaption>
 
-Our project presents a procedurally generated cyberpunk city powered by WebGL and GLSL shaders. At its core is a custom implementation of the **Wave Function Collapse (WFC)** algorithm, adapted to generate large-scale, constraint-satisfying 3D city layouts arranged in concentric circular rings. These structures are rendered using efficient instanced meshes to reduce draw calls, while distance-based visibility culling ensures real-time performance remains smooth. To enhance the atmosphere, we developed a suite of **animated procedural textures** (Worley, Zippy, and Square noise patterns) used to simulate neon billboards, flickering lights, and urban facades with dynamic energy.
+Our project presents a procedurally generated cyberpunk city powered by WebGL and GLSL shaders. At its core is a custom implementation of the **Wave Function Collapse (WFC)** algorithm, adapted to generate large-scale, constraint-satisfying 3D city layouts arranged in concentric circular rings. These structures are rendered using efficient instanced meshes to reduce draw calls, while distance-based visibility culling ensures real-time performance remains smooth. To enhance the atmosphere, we developed a suite of **animated procedural textures** (Worley, Zippy, Square and water noise patterns) used to simulate neon billboards, flickering lights, and urban facades with dynamic energy.
 
 In addition to procedural generation, one of the visual cornerstones of the project is our **screen-space reflection (SSR) system**. SSR simulates real-time planar reflections by ray marching in screen space, allowing reflective surfaces like water to dynamically mirror parts of the scene without the overhead of full environment mapping. This significantly boosts visual realism, especially in a cityscape filled with glowing lights and vibrant textures. We later extended our procedural noise system beyond billboards, applying it directly to some building textures as well. The result is a city that not only evolves in structure but also in motion and light, alive with flickers, glows, and reflections that respond organically to camera movement and time.
 
@@ -73,18 +73,18 @@ In addition to procedural generation, one of the visual cornerstones of the proj
 
 #### Implementation
 
-The Wave Function Collapse (WFC) solver presented here is a fully asynchronous, three-dimensional procedural generation system implemented designed to generate diverse, constraint-satisfying city layouts in real time within a WebGL environment. Our primary goals were modularity (to ensure new tiles and rules can be added via JSON without touching core code) and performance, targeting sub-second generation on modern hardware. To validate cross-platform consistency, we measured Largest Contentful Paint (LCP) and per-frame interaction latencies on both an RTX 4080–equipped Swift X 14 laptop and an M2 MacBook Air; the Mac’s timings deviated by less than 20% from the RTX 4080.
+The Wave Function Collapse (WFC) solver presented here is a fully asynchronous, three-dimensional procedural generation system implemented designed to generate diverse, constraint-satisfying city layouts in real time within a WebGL environment. Our primary goals were modularity (to ensure new tiles and rules can be added via JSON without touching core code) and performance, targeting sub-second generation on modern hardware. To validate cross-platform consistency, we measured Largest Contentful Paint (LCP) and per-frame interaction latencies on both an RTX 4080–equipped Swift X 14 laptop and an M2 MacBook Air; the Mac’s timings deviated by less than 20% from the RTX 4080. These timings were all recorded using the performance profiler in Chrome DevTools.
 
 Our approach is as follows:
 
 <div style="display: flex; justify-content: center; gap: 20px; align-items: center;">
   <img src="images/wfc_assets.png" height="300px" alt="WFC Assets">
 </div>
-<p style="text-align: center;"><em>A comparison of the 3D assets used for procedural city generation: city_block1.obj (left), city_block2.obj (top-right), and city_block3.obj (bottom-right)</em></p>
+<p style="text-align: center;"><em>A comparison of the 3D assets used for procedural city generation: city_block1.obj (left), city_block2.obj (top-right, with city_block4.obj as the attached front-facing plane), and city_block3.obj (bottom-right).</em></p>
 
-1. **Asset Preparation**: Each modular city block was modeled in Blender and exported as individual .obj files, with precise alignment to ensure they could be procedurally placed and tiled. For city_block2, a separate flat plane—city_block4—was introduced as a dedicated surface for animated billboard textures. This plane was positioned snugly against the front of city_block2 and exported as a separate model. By loading both into the scene with their relative positions preserved, we were able to apply animated shaders such as Worley or Zippy only to the billboard surface, allowing for flexible visual effects without altering the core building geometry.
+1. **Asset Preparation**: Each modular city block was modeled in Blender ([design inspired by Youtube video](#references)) and exported as individual .obj files, with precise alignment to ensure they could be procedurally placed and tiled. For `city_block2`, a separate flat plane, `city_block4`, was introduced as a dedicated surface for animated billboard textures. This plane was positioned snugly against the front of `city_block2` and exported as a separate model. By loading both into the scene with their relative positions preserved, we were able to apply animated shaders such as Worley or Zippy only to the billboard surface, allowing for flexible visual effects without altering the core building geometry.
 
-   To ensure these visual elements remained visible during procedural generation, we marked both the front and back of city_block2 as “outside” in our tile configuration. This guaranteed that the billboard-facing sides would remain unobstructed. The remaining sides were marked as “connectable” to allow seamless tiling with adjacent buildings. A similar design was used for city_block1, where a rooftop chimney was always exposed by specifying its top face as “outside.” For city_block3, the faces with protrusions were also marked to face outward for better visibility and variation.
+   To ensure these visual elements remained visible during procedural generation, we marked both the front and back of `city_block2` as “outside” in our tile configuration. This guaranteed that the billboard-facing sides would remain unobstructed. The remaining sides were marked as “connectable” to allow seamless tiling with adjacent buildings. A similar design was used for `city_block1`, where a rooftop chimney was always exposed by specifying its top face as “outside.” For `city_block3`, the faces with protrusions were also marked to face outward for better visibility and variation.
 
 
 2. **Rule Loading & Variant Preparation**: We begin by loading a JSON configuration that specifies each tile’s model file, face‐type labels, allowed rotations, and a global compatibility map of which face types can neighbor each other. For every tile definition, we produce up to four rotated variants by calculating its new orientation and adjusting the associated face labels accordingly. By embedding both the geometric rotation and updated face metadata into each variant ahead of time, the solver can later perform compatibility checks quickly and drive instanced rendering without costly runtime transformations.
@@ -146,38 +146,9 @@ WFC-Generated Layout (12×10×10) Featuring Variant 2 with Billboards — Zippy 
 
 ### Dynamic billboard texture generation with noise and bloom effects
 
-#### Implementation
+#### Implementation & Validation
 
 Our approach to implementing procedural textures is as follows:
-
-1. **Worley Noise**: This procedural texture is generated using a fragment shader that produces animated Worley noise (a cellular noise pattern) and enhances it with glitchy color distortions and dynamic visual effects. The shader first calculates Worley noise by scattering pseudo-random feature points in a grid and computing the minimum squared distance from each fragment to these points. Multiple layers of this noise—scaled and offset differently—are composed and non-linearly combined using nested sqrt functions to add complexity and richness to the pattern.
-
-   To stylise the output, the shader applies UV distortions (based on sine waves and time) and blends two base colors (a pink and a blue) based on the Worley value. Additionally, glitchy RGB bands and fast vertical stripes modulate the final look, creating a techno-organic, vibrant visual suitable for cyberpunk elements like animated billboards or energy fields. This texture is rendered to a framebuffer using a full-screen quad and a WebGL pipeline set up in the WorleyShaderRenderer class, allowing it to be dynamically updated each frame using time, scale, and camera offsets.
-
-2. **Zippy**: This procedural texture generates animated glimmering flow lines, resembling headlights moving along a dark road or illuminated windows flickering across a cityscape, using a 2D Worley noise function. The fragment shader transforms screen coordinates into UV space and applies a vertical time-based offset to simulate movement, evoking the feel of continuous traffic flow. The Worley noise function places pseudo-random feature points within a grid and calculates the minimum distance from each fragment to these points, creating a cellular pattern. This distance is inverted and sharpened using smoothstep to isolate small, bright spots that represent glimmering lights.
-   A flickering effect is introduced using a deterministic pseudo-random function modulated by time, ensuring that only some of the lights blink on and off to create a dynamic feel. The result is a visually engaging, animated texture ideal for simulating vehicle lights or ambient illumination in a cyberpunk environment.
-
-3. **Square**: This procedural texture is generated by layering multiple grids of flickering neon-like blocks at different scales, creating a vibrant, dynamic pattern. Each grid divides the UV space into cells of varying sizes—from large blocks to tiny flicks—and uses a hash function to randomly determine which cells light up and their color hues. By animating the hash inputs over time, the shader produces a lively flickering effect that simulates neon signs or LED displays.
-
-   Additionally, subtle vertical drifting and horizontal scanline shimmer are applied to mimic the imperfect movement and refresh artifacts of real electronic panels. Finally, the colors are boosted with a glow effect and gamma correction to enhance brightness and contrast, resulting in a richly animated, colorful texture that can evoke the look of a bustling cyberpunk cityscape or futuristic neon signage.
-
-4. **Water**: This fragment shader generates a dynamic, deep blue water-like procedural texture using layered and warped fractal noise. It starts by computing smooth noise at multiple scales to create fractal noise, then distorts it further with time-varying offsets to simulate fluid movement. The shader compares closely spaced noise samples to create sharp bump-like highlights and shadows, enhancing the illusion of small waves or ripples on the water surface. These bumps are intensified nonlinearly to add contrast and subtle detail to the texture.
-
-   The final color blends a deep blue base with soft bluish highlights influenced by the noise bumps, giving a natural variation to the water’s surface. A slight gamma correction (square root) is applied to adjust brightness and contrast, making the texture visually richer and more realistic. Overall, this shader creates an organic, gently shifting water pattern that can be used for effects like lakes, pools, or sci-fi liquid surfaces in a procedural graphics context.
-
-5. **Performance Optimisation**: Our **ProceduralTextureGenerator** class manages the creation and updating of multiple procedural textures using different shader renderers such as Worley, Zippy, Square, and Water. It sets up full-screen quad meshes and framebuffers (FBOs) for rendering each procedural texture offscreen. Each texture is rendered separately, optionally enhanced with a bloom effect, and the results are stored as GPU resources for use elsewhere in the application. The class supports dynamic resizing of textures based on the viewer’s zoom level, allowing for level-of-detail (LOD) adjustments that balance visual quality and performance.
-
-   Performance is optimised through several strategies: first, dynamic resolution scaling reduces the texture size when the viewer is zoomed out, cutting GPU load without sacrificing visible detail; second, framebuffer ping-ponging allows bloom effects to be applied efficiently by alternating between two buffers without costly memory allocations; finally, rendering is skipped entirely if the texture would be too small to be noticeable (when zoomed far out). These measures together keep the procedural texture updates smooth and performant, especially important for real-time or interactive scenes.
-
-6. **Bloom Effect**: Our BloomShaderRenderer implements a classic bloom post-processing effect using multiple shader passes with regl. It starts with a bright-pass filter that isolates the brightest parts of the input texture by thresholding pixel luminance, effectively extracting glow-worthy highlights. Then, it applies a two-pass Gaussian blur—first horizontally, then vertically—using weighted texture samples to create a smooth, soft glow around those bright areas. Finally, the blurred bloom texture is combined additively with the original input to produce the final image, enhancing the perceived brightness and creating the characteristic bloom glow effect.
-
-   The implementation uses multiple framebuffers to ping-pong intermediate results efficiently without reallocating resources each frame. The blur weights and kernel size are carefully chosen for a balanced blur that is visually pleasing but not too expensive. This modular design with separate shader stages for bright-pass, blur, and combine allows flexible reuse and tuning, making it a performant and visually effective bloom solution for real-time rendering in WebGL applications.
-
-   The visual outcome of the bloom effect varies significantly depending on the underlying texture. On Worley textures, bloom emphasises the existing high-contrast cells and ridges, adding an extra layer of dimensionality and artistic flair. In contrast, Zippy textures—which flicker between red and blue without bloom—transform into bright white flickers when bloom is applied, and at full strength, even the black background is gently illuminated, giving a glowing ambiance. For Square textures, bloom doesn't drastically change the structure but does boost color intensity, making everything appear more vibrant. These differences highlight how bloom can be used creatively, not just as a lighting enhancement, but as a stylistic tool to shape the mood and character of each procedural material.
-
-#### Validation
-
-**Results**:
 
 <div style="display: flex; justify-content: center; align-items: center; gap: 0px;">
   <video src="videos/worleyfullbloom.mp4" width="200" autoplay loop muted></video>
@@ -194,6 +165,10 @@ Our approach to implementing procedural textures is as follows:
 
 <p style="text-align: center;"><em>Components of Worley Texture (Left to Right: Pure Worley Noise, Distorted Worley Noise, Glitchy Distortions)</em></p>
 
+1. **Worley Noise**: This procedural texture is generated using a fragment shader that produces animated Worley noise (a cellular noise pattern) and enhances it with glitchy color distortions and dynamic visual effects. The shader first calculates Worley noise by scattering pseudo-random feature points in a grid and computing the minimum squared distance from each fragment to these points. Multiple layers of this noise—scaled and offset differently—are composed and non-linearly combined using nested sqrt functions to add complexity and richness to the pattern.
+
+   To stylise the output, the shader applies UV distortions (based on sine waves and time) and blends two base colors (a pink and a blue) based on the Worley value. Additionally, glitchy RGB bands and fast vertical stripes modulate the final look, creating a techno-organic, vibrant visual suitable for cyberpunk elements like animated billboards or energy fields. This texture is rendered to a framebuffer using a full-screen quad and a WebGL pipeline set up in the WorleyShaderRenderer class, allowing it to be dynamically updated each frame using time, scale, and camera offsets.
+
 <div style="display: flex; justify-content: center; align-items: center; gap: 0px;">
   <video src="videos/zippyfullbloom.mp4" width="200" autoplay loop muted></video>
   <video src="videos/zippy.mp4" width="200" alt="Worley Texture" autoplay loop muted></video>
@@ -201,12 +176,20 @@ Our approach to implementing procedural textures is as follows:
 </div>
 <p style="text-align: center;"><em>Bloom on Zippy Texture (Left to Right: 100%, 25% [Used in Scene], 0%)</em></p>
 
+2. **Zippy**: This procedural texture generates animated glimmering flow lines, resembling headlights moving along a dark road or illuminated windows flickering across a cityscape, using a 2D Worley noise function. The fragment shader transforms screen coordinates into UV space and applies a vertical time-based offset to simulate movement, evoking the feel of continuous traffic flow. The Worley noise function places pseudo-random feature points within a grid and calculates the minimum distance from each fragment to these points, creating a cellular pattern. This distance is inverted and sharpened using smoothstep to isolate small, bright spots that represent glimmering lights.
+   A flickering effect is introduced using a deterministic pseudo-random function modulated by time, ensuring that only some of the lights blink on and off to create a dynamic feel. The result is a visually engaging, animated texture ideal for simulating vehicle lights or ambient illumination in a cyberpunk environment.
+
 <div style="display: flex; justify-content: center; align-items: center; gap: 0px;">
   <video src="videos/squarefullbloom.mp4" width="200" autoplay loop muted ></video>
   <video src="videos/square.mp4" width="200" alt="Worley Texture" autoplay loop muted ></video>
   <video src="videos/squarenobloom.mp4" width="200" autoplay loop muted></video>
 </div>
 <p style="text-align: center;"><em>Bloom on Square Texture (Left to Right: 100%, 25% [Used in Scene], 0%)</em></p>
+
+3. **Square**: This procedural texture is generated by layering multiple grids of flickering neon-like blocks at different scales, creating a vibrant, dynamic pattern. Each grid divides the UV space into cells of varying sizes—from large blocks to tiny flicks—and uses a hash function to randomly determine which cells light up and their color hues. By animating the hash inputs over time, the shader produces a lively flickering effect that simulates neon signs or LED displays.
+
+   Additionally, subtle vertical drifting and horizontal scanline shimmer are applied to mimic the imperfect movement and refresh artifacts of real electronic panels. Finally, the colors are boosted with a glow effect and gamma correction to enhance brightness and contrast, resulting in a richly animated, colorful texture that can evoke the look of a bustling cyberpunk cityscape or futuristic neon signage.
+
 
 <div style="display: flex; justify-content: center; align-items: center; gap: 0px;">
   <video src="videos/flat_water.mp4" width="300" autoplay loop muted ></video>
@@ -225,6 +208,20 @@ Our approach to implementing procedural textures is as follows:
 </div>
 
 <p style="text-align: center;"><em>Water Texture in Scene</em></p>
+
+4. **Water**: This fragment shader generates a dynamic, deep blue water-like procedural texture using layered and warped fractal noise. It starts by computing smooth noise at multiple scales to create fractal noise, then distorts it further with time-varying offsets to simulate fluid movement. The shader compares closely spaced noise samples to create sharp bump-like highlights and shadows, enhancing the illusion of small waves or ripples on the water surface. These bumps are intensified nonlinearly to add contrast and subtle detail to the texture.
+
+   The final color blends a deep blue base with soft bluish highlights influenced by the noise bumps, giving a natural variation to the water’s surface. A slight gamma correction (square root) is applied to adjust brightness and contrast, making the texture visually richer and more realistic. Overall, this shader creates an organic, gently shifting water pattern that can be used for effects like lakes, pools, or sci-fi liquid surfaces in a procedural graphics context.
+
+5. **Performance Optimisation**: Our **ProceduralTextureGenerator** class manages the creation and updating of multiple procedural textures using different shader renderers such as Worley, Zippy, Square, and Water. It sets up full-screen quad meshes and framebuffers (FBOs) for rendering each procedural texture offscreen. Each texture is rendered separately, optionally enhanced with a bloom effect, and the results are stored as GPU resources for use elsewhere in the application. The class supports dynamic resizing of textures based on the viewer’s zoom level, allowing for level-of-detail (LOD) adjustments that balance visual quality and performance.
+
+   Performance is optimised through several strategies: first, dynamic resolution scaling reduces the texture size when the viewer is zoomed out, cutting GPU load without sacrificing visible detail; second, framebuffer ping-ponging allows bloom effects to be applied efficiently by alternating between two buffers without costly memory allocations; finally, rendering is skipped entirely if the texture would be too small to be noticeable (when zoomed far out). These measures together keep the procedural texture updates smooth and performant, especially important for real-time or interactive scenes.
+
+6. **Bloom Effect**: Our BloomShaderRenderer implements a classic bloom post-processing effect using multiple shader passes with regl. It starts with a bright-pass filter that isolates the brightest parts of the input texture by thresholding pixel luminance, effectively extracting glow-worthy highlights. Then, it applies a two-pass Gaussian blur—first horizontally, then vertically—using weighted texture samples to create a smooth, soft glow around those bright areas. Finally, the blurred bloom texture is combined additively with the original input to produce the final image, enhancing the perceived brightness and creating the characteristic bloom glow effect.
+
+   The implementation uses multiple framebuffers to ping-pong intermediate results efficiently without reallocating resources each frame. The blur weights and kernel size are carefully chosen for a balanced blur that is visually pleasing but not too expensive. This modular design with separate shader stages for bright-pass, blur, and combine allows flexible reuse and tuning, making it a performant and visually effective bloom solution for real-time rendering in WebGL applications.
+
+   The visual outcome of the bloom effect varies significantly depending on the underlying texture. On Worley textures, bloom emphasises the existing high-contrast cells and ridges, adding an extra layer of dimensionality and artistic flair. In contrast, Zippy textures—which flicker between red and blue without bloom—transform into bright white flickers when bloom is applied, and at full strength, even the black background is gently illuminated, giving a glowing ambiance. For Square textures, bloom doesn't drastically change the structure but does boost color intensity, making everything appear more vibrant. These differences highlight how bloom can be used creatively, not just as a lighting enhancement, but as a stylistic tool to shape the mood and character of each procedural material.
 
 ### Screen-Space Reflections (SSR)
 

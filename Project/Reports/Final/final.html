@@ -127,8 +127,8 @@ concentric circular rings. These structures are rendered using efficient
 instanced meshes to reduce draw calls, while distance-based visibility
 culling ensures real-time performance remains smooth. To enhance the
 atmosphere, we developed a suite of <strong>animated procedural
-textures</strong> (Worley, Zippy, and Square noise patterns) used to
-simulate neon billboards, flickering lights, and urban facades with
+textures</strong> (Worley, Zippy, Square and water noise patterns) used
+to simulate neon billboards, flickering lights, and urban facades with
 dynamic energy.</p>
 <p>In addition to procedural generation, one of the visual cornerstones
 of the project is our <strong>screen-space reflection (SSR)
@@ -220,7 +220,8 @@ code) and performance, targeting sub-second generation on modern
 hardware. To validate cross-platform consistency, we measured Largest
 Contentful Paint (LCP) and per-frame interaction latencies on both an
 RTX 4080–equipped Swift X 14 laptop and an M2 MacBook Air; the Mac’s
-timings deviated by less than 20% from the RTX 4080.</p>
+timings deviated by less than 20% from the RTX 4080. These timings were
+all recorded using the performance profiler in Chrome DevTools.</p>
 <p>Our approach is as follows:</p>
 <div
 style="display: flex; justify-content: center; gap: 20px; align-items: center;">
@@ -228,29 +229,33 @@ style="display: flex; justify-content: center; gap: 20px; align-items: center;">
 </div>
 <p style="text-align: center;">
 <em>A comparison of the 3D assets used for procedural city generation:
-city_block1.obj (left), city_block2.obj (top-right), and city_block3.obj
-(bottom-right)</em>
+city_block1.obj (left), city_block2.obj (top-right, with city_block4.obj
+as the attached front-facing plane), and city_block3.obj
+(bottom-right).</em>
 </p>
 <ol type="1">
 <li><p><strong>Asset Preparation</strong>: Each modular city block was
-modeled in Blender and exported as individual .obj files, with precise
-alignment to ensure they could be procedurally placed and tiled. For
-city_block2, a separate flat plane—city_block4—was introduced as a
-dedicated surface for animated billboard textures. This plane was
-positioned snugly against the front of city_block2 and exported as a
-separate model. By loading both into the scene with their relative
-positions preserved, we were able to apply animated shaders such as
-Worley or Zippy only to the billboard surface, allowing for flexible
-visual effects without altering the core building geometry.</p>
+modeled in Blender (<a href="#references">design inspired by Youtube
+video</a>) and exported as individual .obj files, with precise alignment
+to ensure they could be procedurally placed and tiled. For
+<code>city_block2</code>, a separate flat plane,
+<code>city_block4</code>, was introduced as a dedicated surface for
+animated billboard textures. This plane was positioned snugly against
+the front of <code>city_block2</code> and exported as a separate model.
+By loading both into the scene with their relative positions preserved,
+we were able to apply animated shaders such as Worley or Zippy only to
+the billboard surface, allowing for flexible visual effects without
+altering the core building geometry.</p>
 <p>To ensure these visual elements remained visible during procedural
-generation, we marked both the front and back of city_block2 as
-“outside” in our tile configuration. This guaranteed that the
-billboard-facing sides would remain unobstructed. The remaining sides
-were marked as “connectable” to allow seamless tiling with adjacent
-buildings. A similar design was used for city_block1, where a rooftop
-chimney was always exposed by specifying its top face as “outside.” For
-city_block3, the faces with protrusions were also marked to face outward
-for better visibility and variation.</p></li>
+generation, we marked both the front and back of
+<code>city_block2</code> as “outside” in our tile configuration. This
+guaranteed that the billboard-facing sides would remain unobstructed.
+The remaining sides were marked as “connectable” to allow seamless
+tiling with adjacent buildings. A similar design was used for
+<code>city_block1</code>, where a rooftop chimney was always exposed by
+specifying its top face as “outside.” For <code>city_block3</code>, the
+faces with protrusions were also marked to face outward for better
+visibility and variation.</p></li>
 <li><p><strong>Rule Loading &amp; Variant Preparation</strong>: We begin
 by loading a JSON configuration that specifies each tile’s model file,
 face‐type labels, allowed rotations, and a global compatibility map of
@@ -354,8 +359,28 @@ billboard layers are omitted.</em>
 <h3
 id="dynamic-billboard-texture-generation-with-noise-and-bloom-effects">Dynamic
 billboard texture generation with noise and bloom effects</h3>
-<h4 id="implementation-1">Implementation</h4>
+<h4 id="implementation-validation">Implementation &amp; Validation</h4>
 <p>Our approach to implementing procedural textures is as follows:</p>
+<div
+style="display: flex; justify-content: center; align-items: center; gap: 0px;">
+<p><video src="videos/worleyfullbloom.mp4" width="200" autoplay loop muted></video>
+<video src="videos/worley.mp4" width="200" alt="Worley Texture" autoplay loop muted></video>
+<video src="videos/worley_no_bloom.mp4" width="200" alt="Worley Texture No Bloom" autoplay loop muted></video></p>
+</div>
+<p style="text-align: center;">
+<em>Bloom on Worley Noise (Left to Right: 100%, 25% [Used in Scene],
+0%)</em>
+</p>
+<div
+style="display: flex; justify-content: center; gap: 0px; align-items: center;">
+<p><video src="videos/pure_worley.mp4" height="200px" alt="Pure Worley" autoplay loop muted></video>
+<video src="videos/worley_distort.mp4" height="200px" alt="Zippy Texture" autoplay loop muted></video>
+<video src="videos/glitch.mp4" height="200px" alt="Zippy Texture" autoplay loop muted></video></p>
+</div>
+<p style="text-align: center;">
+<em>Components of Worley Texture (Left to Right: Pure Worley Noise,
+Distorted Worley Noise, Glitchy Distortions)</em>
+</p>
 <ol type="1">
 <li><p><strong>Worley Noise</strong>: This procedural texture is
 generated using a fragment shader that produces animated Worley noise (a
@@ -375,22 +400,45 @@ or energy fields. This texture is rendered to a framebuffer using a
 full-screen quad and a WebGL pipeline set up in the WorleyShaderRenderer
 class, allowing it to be dynamically updated each frame using time,
 scale, and camera offsets.</p></li>
-<li><p><strong>Zippy</strong>: This procedural texture generates
-animated glimmering flow lines, resembling headlights moving along a
-dark road or illuminated windows flickering across a cityscape, using a
-2D Worley noise function. The fragment shader transforms screen
-coordinates into UV space and applies a vertical time-based offset to
-simulate movement, evoking the feel of continuous traffic flow. The
-Worley noise function places pseudo-random feature points within a grid
-and calculates the minimum distance from each fragment to these points,
-creating a cellular pattern. This distance is inverted and sharpened
-using smoothstep to isolate small, bright spots that represent
-glimmering lights. A flickering effect is introduced using a
-deterministic pseudo-random function modulated by time, ensuring that
-only some of the lights blink on and off to create a dynamic feel. The
-result is a visually engaging, animated texture ideal for simulating
-vehicle lights or ambient illumination in a
-cyberpunk environment.</p></li>
+</ol>
+<div
+style="display: flex; justify-content: center; align-items: center; gap: 0px;">
+<p><video src="videos/zippyfullbloom.mp4" width="200" autoplay loop muted></video>
+<video src="videos/zippy.mp4" width="200" alt="Worley Texture" autoplay loop muted></video>
+<video src="videos/zippy_no_bloom.mp4" width="200" autoplay loop muted></video></p>
+</div>
+<p style="text-align: center;">
+<em>Bloom on Zippy Texture (Left to Right: 100%, 25% [Used in Scene],
+0%)</em>
+</p>
+<ol start="2" type="1">
+<li><strong>Zippy</strong>: This procedural texture generates animated
+glimmering flow lines, resembling headlights moving along a dark road or
+illuminated windows flickering across a cityscape, using a 2D Worley
+noise function. The fragment shader transforms screen coordinates into
+UV space and applies a vertical time-based offset to simulate movement,
+evoking the feel of continuous traffic flow. The Worley noise function
+places pseudo-random feature points within a grid and calculates the
+minimum distance from each fragment to these points, creating a cellular
+pattern. This distance is inverted and sharpened using smoothstep to
+isolate small, bright spots that represent glimmering lights. A
+flickering effect is introduced using a deterministic pseudo-random
+function modulated by time, ensuring that only some of the lights blink
+on and off to create a dynamic feel. The result is a visually engaging,
+animated texture ideal for simulating vehicle lights or ambient
+illumination in a cyberpunk environment.</li>
+</ol>
+<div
+style="display: flex; justify-content: center; align-items: center; gap: 0px;">
+<p><video src="videos/squarefullbloom.mp4" width="200" autoplay loop muted ></video>
+<video src="videos/square.mp4" width="200" alt="Worley Texture" autoplay loop muted ></video>
+<video src="videos/squarenobloom.mp4" width="200" autoplay loop muted></video></p>
+</div>
+<p style="text-align: center;">
+<em>Bloom on Square Texture (Left to Right: 100%, 25% [Used in Scene],
+0%)</em>
+</p>
+<ol start="3" type="1">
 <li><p><strong>Square</strong>: This procedural texture is generated by
 layering multiple grids of flickering neon-like blocks at different
 scales, creating a vibrant, dynamic pattern. Each grid divides the UV
@@ -406,6 +454,31 @@ with a glow effect and gamma correction to enhance brightness and
 contrast, resulting in a richly animated, colorful texture that can
 evoke the look of a bustling cyberpunk cityscape or
 futuristic neon signage.</p></li>
+</ol>
+<div
+style="display: flex; justify-content: center; align-items: center; gap: 0px;">
+<p><video src="videos/flat_water.mp4" width="300" autoplay loop muted ></video>
+<video src="videos/water.mp4" width="300" alt="Worley Texture" autoplay loop muted ></video></p>
+</div>
+<p style="text-align: center;">
+<em>Comparison between Water Textures (Left to Right: Flat Noise &amp;
+Bumped Noise [Used in Scene])</em>
+</p>
+<div
+style="display: flex; justify-content: center; gap: 0px; align-items: center;">
+<p><video src="videos/layered_water.mp4" width="300" autoplay loop muted ></video></p>
+</div>
+<p style="text-align: center;">
+<em>Fractal Layering for Water Texture</em>
+</p>
+<div
+style="display: flex; justify-content: center; gap: 0px; align-items: center;">
+<p><img src="videos/water.gif" height="300px" alt="Water Texture"></p>
+</div>
+<p style="text-align: center;">
+<em>Water Texture in Scene</em>
+</p>
+<ol start="4" type="1">
 <li><p><strong>Water</strong>: This fragment shader generates a dynamic,
 deep blue water-like procedural texture using layered and warped fractal
 noise. It starts by computing smooth noise at multiple scales to create
@@ -473,74 +546,9 @@ differences highlight how bloom can be used creatively, not just as a
 lighting enhancement, but as a stylistic tool to shape the mood and
 character of each procedural material.</p></li>
 </ol>
-<h4 id="validation-1">Validation</h4>
-<p><strong>Results</strong>:</p>
-<div
-style="display: flex; justify-content: center; align-items: center; gap: 0px;">
-<p><video src="videos/worleyfullbloom.mp4" width="200" autoplay loop muted></video>
-<video src="videos/worley.mp4" width="200" alt="Worley Texture" autoplay loop muted></video>
-<video src="videos/worley_no_bloom.mp4" width="200" alt="Worley Texture No Bloom" autoplay loop muted></video></p>
-</div>
-<p style="text-align: center;">
-<em>Bloom on Worley Noise (Left to Right: 100%, 25% [Used in Scene],
-0%)</em>
-</p>
-<div
-style="display: flex; justify-content: center; gap: 0px; align-items: center;">
-<p><video src="videos/pure_worley.mp4" height="200px" alt="Pure Worley" autoplay loop muted></video>
-<video src="videos/worley_distort.mp4" height="200px" alt="Zippy Texture" autoplay loop muted></video>
-<video src="videos/glitch.mp4" height="200px" alt="Zippy Texture" autoplay loop muted></video></p>
-</div>
-<p style="text-align: center;">
-<em>Components of Worley Texture (Left to Right: Pure Worley Noise,
-Distorted Worley Noise, Glitchy Distortions)</em>
-</p>
-<div
-style="display: flex; justify-content: center; align-items: center; gap: 0px;">
-<p><video src="videos/zippyfullbloom.mp4" width="200" autoplay loop muted></video>
-<video src="videos/zippy.mp4" width="200" alt="Worley Texture" autoplay loop muted></video>
-<video src="videos/zippy_no_bloom.mp4" width="200" autoplay loop muted></video></p>
-</div>
-<p style="text-align: center;">
-<em>Bloom on Zippy Texture (Left to Right: 100%, 25% [Used in Scene],
-0%)</em>
-</p>
-<div
-style="display: flex; justify-content: center; align-items: center; gap: 0px;">
-<p><video src="videos/squarefullbloom.mp4" width="200" autoplay loop muted ></video>
-<video src="videos/square.mp4" width="200" alt="Worley Texture" autoplay loop muted ></video>
-<video src="videos/squarenobloom.mp4" width="200" autoplay loop muted></video></p>
-</div>
-<p style="text-align: center;">
-<em>Bloom on Square Texture (Left to Right: 100%, 25% [Used in Scene],
-0%)</em>
-</p>
-<div
-style="display: flex; justify-content: center; align-items: center; gap: 0px;">
-<p><video src="videos/flat_water.mp4" width="300" autoplay loop muted ></video>
-<video src="videos/water.mp4" width="300" alt="Worley Texture" autoplay loop muted ></video></p>
-</div>
-<p style="text-align: center;">
-<em>Comparison between Water Textures (Left to Right: Flat Noise &amp;
-Bumped Noise [Used in Scene])</em>
-</p>
-<div
-style="display: flex; justify-content: center; gap: 0px; align-items: center;">
-<p><video src="videos/layered_water.mp4" width="300" autoplay loop muted ></video></p>
-</div>
-<p style="text-align: center;">
-<em>Fractal Layering for Water Texture</em>
-</p>
-<div
-style="display: flex; justify-content: center; gap: 0px; align-items: center;">
-<p><img src="videos/water.gif" height="300px" alt="Water Texture"></p>
-</div>
-<p style="text-align: center;">
-<em>Water Texture in Scene</em>
-</p>
 <h3 id="screen-space-reflections-ssr">Screen-Space Reflections
 (SSR)</h3>
-<h4 id="implementation-2">Implementation</h4>
+<h4 id="implementation-1">Implementation</h4>
 <p>For a more in-depth explanation, please refer to the <a
 href="#references">SSR Guide by David Lettier</a>, which served as the
 primary inspiration for this feature’s implementation.</p>
@@ -579,7 +587,7 @@ output by blending the base image with both the original and blurred
 reflection textures, using weighting factors for a smooth and realistic
 result.</li>
 </ol>
-<h4 id="validation-2">Validation</h4>
+<h4 id="validation-1">Validation</h4>
 <div
 style="display: flex; justify-content: space-around; align-items: center;">
 <div>
