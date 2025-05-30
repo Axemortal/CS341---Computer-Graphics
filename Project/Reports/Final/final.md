@@ -13,7 +13,7 @@ title: Final Project Report CS-341 2025
 
 This project presents an immersive, ever-evolving cyberpunk city. Key features include stylised 3D buildings via Wave Function Collapse (WFC), realistic water reflections using Screen-Space Reflections (SSR), and animated billboards with dynamic textures and bloom effects. These components combine to create a vibrant, self-evolving urban landscape that draws users into a futuristic cyberpunk world.
 
-<i> **NOTE**: While the WFC-based building generation runs smoothly across systems, we recommend using a Mac (e.g., MacBook Air with Apple Silicon) for testing the full project. On Nvidia-equipped laptops like the Swift X, applying procedural textures may cause driver instability or GPU overload. This issue does not affect standard WFC generation but may impact performance during procedural texture rendering. Other GPU-equipped Windows laptops have not been tested. </i>
+<i> **NOTE**: While WFC-based building generation runs smoothly across platforms, we recommend using a Mac (e.g., MacBook Air with Apple Silicon) for testing the full project. On Windows laptops—including those with high-end GPUs like the RTX 4080 (e.g., Acer Swift X)—the full pipeline with procedural texture rendering does work but may lead to GPU driver instability or occasional crashes after prolonged usage. This issue does not affect the core WFC layout generation but can interfere with the dynamic rendering of animated textures. Other Windows GPU configurations have not been tested. </i>
 
 ## Overview
 
@@ -73,7 +73,7 @@ In addition to procedural generation, one of the visual cornerstones of the proj
 
 #### Implementation
 
-The Wave Function Collapse (WFC) solver presented here is a fully asynchronous, three-dimensional procedural generation system implemented designed to generate diverse, constraint-satisfying city layouts in real time within a WebGL environment. Our primary goals were modularity (to ensure new tiles and rules can be added via JSON without touching core code) and performance, targeting sub-second generation on modern hardware. To validate cross-platform consistency, we measured Largest Contentful Paint (LCP) and per-frame interaction latencies on both an RTX 4080–equipped Swift X 14 laptop and an M1 MacBook Air; the Mac’s timings deviated by less than 20% from the RTX 4080.
+The Wave Function Collapse (WFC) solver presented here is a fully asynchronous, three-dimensional procedural generation system implemented designed to generate diverse, constraint-satisfying city layouts in real time within a WebGL environment. Our primary goals were modularity (to ensure new tiles and rules can be added via JSON without touching core code) and performance, targeting sub-second generation on modern hardware. To validate cross-platform consistency, we measured Largest Contentful Paint (LCP) and per-frame interaction latencies on both an RTX 4080–equipped Swift X 14 laptop and an M2 MacBook Air; the Mac’s timings deviated by less than 20% from the RTX 4080.
 
 Our approach is as follows:
 
@@ -82,14 +82,20 @@ Our approach is as follows:
 </div>
 <p style="text-align: center;"><em>A comparison of the 3D assets used for procedural city generation: city_block1.obj (left), city_block2.obj (top-right), and city_block3.obj (bottom-right)</em></p>
 
-1. **Asset Preparation**: The modular city blocks were designed in Blender ([design inspired by Youtube video](#references)) and exported as separate `.obj` files, with careful attention paid to origin alignment and attachment compatibility. For `city_block2`, we introduced an external plane, `city_block4.obj`, as a secondary model to serve as a billboard surface. While `city_block2` provides the main building mass, `city_block4 `is positioned flush against its front face. Both were exported separately but positioned with precise relative offsets, allowing us to instance them together in-scene while applying dynamic billboard shaders (e.g., Worley or Zippy) to the plane only. This approach gave us fine-grained control over animated textures without modifying the building geometry.
+1. **Asset Preparation**: Each modular city block was modeled in Blender and exported as individual .obj files, with precise alignment to ensure they could be procedurally placed and tiled. For city_block2, a separate flat plane—city_block4—was introduced as a dedicated surface for animated billboard textures. This plane was positioned snugly against the front of city_block2 and exported as a separate model. By loading both into the scene with their relative positions preserved, we were able to apply animated shaders such as Worley or Zippy only to the billboard surface, allowing for flexible visual effects without altering the core building geometry.
 
-   To ensure correct placement during Wave Function Collapse, `city_block2`'s rules.json entry defines both front and back as "outside", ensuring these exposed billboard faces remain unobstructed. The other faces are marked "connectable" to allow seamless tiling with adjacent blocks. This design decision helped maximise visibility of animated billboards in the final city layout while maintaining structural coherence. Similar rules were applied to `city_block1`, which features a rooftop chimney aligned to always face up via "top": "outside". For `city_block3`, we ensured faces with portruding parts face the outside.
+   To ensure these visual elements remained visible during procedural generation, we marked both the front and back of city_block2 as “outside” in our tile configuration. This guaranteed that the billboard-facing sides would remain unobstructed. The remaining sides were marked as “connectable” to allow seamless tiling with adjacent buildings. A similar design was used for city_block1, where a rooftop chimney was always exposed by specifying its top face as “outside.” For city_block3, the faces with protrusions were also marked to face outward for better visibility and variation.
 
-2. **Rule Loading & Variant Preparation**: We begin by fetching a `rules.json` file that defines each tile’s model, face-type identifiers, allowed rotations, and a global compatibility map. For each tile entry, we generate up to four rotated “variants” by computing a quaternion (`quatFromAxisAngle`) and permuting the tile’s `faces` via `rotateFaces()`. By baking face and rotation data into each variant upfront, the grid solver avoids on-the-fly transformations and simplifies both constraint checks and instanced rendering.
-3. **Grid Initialization & Constraint Propagation**: The world is represented as a 3D array `grid[x][y][z]` of cells, each holding `{ collapsed: false, options: Variant[] }`. We repeatedly execute a `while (changed)` loop over all uncollapsed cells: for each candidate variant, we check its six cardinal faces against neighbors by looking up `compatibility[currentFace]` and ensuring at least one neighbor option has the matching opposite face. Any failing variant is pruned, and the loop continues until no more removals occur.
-4. **Entropy-Driven Collapse**: After convergence, we identify all uncollapsed cells with the minimum option count (>1)—the “lowest entropy” cells—select one at random, and collapse it by drawing a weighted random choice from its `options` (weights are given by our `BLOCK_WEIGHTS` map). We then propagate constraints again. This cycle of propagate → collapse → propagate repeats until every cell is collapsed or a deadlock is detected.
-5. **Concentric-Ring Layout & Instancing**: Rather than placing tiles in a dense 3D block, we flatten each collapsed grid into a tile list and distribute them in three concentric circles around the origin: each tile is placed at (`cos θ × radius, sin θ × radius, z`). This layout emphasises the central area and cuts GPU overdraw. Identical mesh references are grouped into `scene.instancedObjects`, reducing draw calls by over 90%. Distance-based culling in `updateInstancedObjectsVisibility()` further limits per-frame instance counts to under 20% of total.
+
+2. **Rule Loading & Variant Preparation**: We begin by loading a JSON configuration that specifies each tile’s model file, face‐type labels, allowed rotations, and a global compatibility map of which face types can neighbor each other. For every tile definition, we produce up to four rotated variants by calculating its new orientation and adjusting the associated face labels accordingly. By embedding both the geometric rotation and updated face metadata into each variant ahead of time, the solver can later perform compatibility checks quickly and drive instanced rendering without costly runtime transformations.
+
+3. **Grid Initialization & Constraint Propagation**: The city is built on a 3D grid where each cell initially holds the full set of tile variants. We then iteratively prune invalid options by comparing each cell’s faces against those of its six neighbors—consulting the compatibility map to eliminate any variant whose face labels cannot match at least one neighbor. This pruning process continues until no further eliminations occur, ensuring that every remaining option in each cell is mutually compatible with its surroundings.
+
+4. **Entropy-Driven Collapse**: Once constraint propagation stabilizes, we identify the cell with the fewest remaining variant options (i.e., lowest entropy) and randomly select one of those options, with selection probabilities weighted by predefined tile importance. Fixing that choice triggers another round of compatibility pruning for neighboring cells. We repeat this cycle of collapse and propagation until every cell is resolved or a conflict arises, yielding a complete, coherent layout that balances randomness with structural rules.
+
+5. **Concentric-Ring Layout & Instancing**: Instead of arranging tiles in a solid 3D block, we convert the final grid into a flat list of instances and place them in three concentric circles around a central point. Each building retains its vertical position, but its horizontal coordinates follow a circular distribution. This design highlights the city center and minimizes overdraw.
+ 
+6. **Performance**: For performance, identical building meshes are batched into GPU instanced draws, cutting draw calls by over 90%, and a distance-based visibility test ensures that only nearby instances are rendered each frame.
 
 #### Validation
 
@@ -120,12 +126,15 @@ WFC-Generated Layout (12×10×10) Featuring Variant 2 with Billboards — Zippy 
 
 <p align="center">
   <img src="images/wfc_variant2_side.jpg" height="300px" alt="Variant 2 Side View">
+  <br><br>
   <img src="images/wfc_variant2.jpg" height="300px" alt="Variant 2 Front View">
 </p>
+
 <p align="center"><em>WFC-Generated Layout (15×15×8) — Variant 3 with billboard surfaces enabled.</em></p>
 
 <p align="center">
   <img src="images/wfc_sideview_no_chimney.jpg" width="500px" height="400px" alt="Side View No Chimney">
+  <br><br>
   <img src="images/wfc_topview_no_chimney.jpg" width="500px" height="400px" alt="Top View No Chimney">
 </p>
 <p align="center"><em>Chimney is not visible as the top face of <code>city_block1</code> is not exposed to the outside.</em></p>
