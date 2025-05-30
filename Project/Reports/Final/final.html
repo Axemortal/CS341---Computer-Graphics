@@ -91,7 +91,7 @@ result.
 </figcaption>
 <h2 id="abstract">Abstract</h2>
 <p>This project presents an immersive, ever-evolving cyberpunk city. Key
-features include stylized 3D buildings via Wave Function Collapse (WFC),
+features include stylised 3D buildings via Wave Function Collapse (WFC),
 realistic water reflections using Screen-Space Reflections (SSR), and
 animated billboards with dynamic textures and bloom effects. These
 components combine to create a vibrant, self-evolving urban landscape
@@ -219,7 +219,7 @@ hardware. To validate cross-platform consistency, we measured Largest
 Contentful Paint (LCP) and per-frame interaction latencies on both an
 RTX 4080–equipped Swift X 14 laptop and an M1 MacBook Air; the Mac’s
 timings deviated by less than 20% from the RTX 4080.</p>
-Our approach is as follows:
+<p>Our approach is as follows:</p>
 <div
 style="display: flex; justify-content: center; gap: 20px; align-items: center;">
 <p><img src="images/wfc_assets.png" height="300px" alt="WFC Assets"></p>
@@ -247,7 +247,7 @@ without modifying the building geometry.</p>
 <code>city_block2</code>’s rules.json entry defines both front and back
 as “outside”, ensuring these exposed billboard faces remain
 unobstructed. The other faces are marked “connectable” to allow seamless
-tiling with adjacent blocks. This design decision helped maximize
+tiling with adjacent blocks. This design decision helped maximise
 visibility of animated billboards in the final city layout while
 maintaining structural coherence. Similar rules were applied to
 <code>city_block1</code>, which features a rooftop chimney aligned to
@@ -284,7 +284,7 @@ detected.</p></li>
 than placing tiles in a dense 3D block, we flatten each collapsed grid
 into a tile list and distribute them in three concentric circles around
 the origin: each tile is placed at
-(<code>cos θ × radius, sin θ × radius, z</code>). This layout emphasizes
+(<code>cos θ × radius, sin θ × radius, z</code>). This layout emphasises
 the central area and cuts GPU overdraw. Identical mesh references are
 grouped into <code>scene.instancedObjects</code>, reducing draw calls by
 over 90%. Distance-based culling in
@@ -365,7 +365,7 @@ minimum squared distance from each fragment to these points. Multiple
 layers of this noise—scaled and offset differently—are composed and
 non-linearly combined using nested sqrt functions to add complexity and
 richness to the pattern.</p>
-<p>To stylize the output, the shader applies UV distortions (based on
+<p>To stylise the output, the shader applies UV distortions (based on
 sine waves and time) and blends two base colors (a pink and a blue)
 based on the Worley value. Additionally, glitchy RGB bands and fast
 vertical stripes modulate the final look, creating a techno-organic,
@@ -432,7 +432,7 @@ GPU resources for use elsewhere in the application. The class supports
 dynamic resizing of textures based on the viewer’s zoom level, allowing
 for level-of-detail (LOD) adjustments that balance visual quality and
 performance.</p>
-<p>Performance is optimized through several strategies: first, dynamic
+<p>Performance is optimised through several strategies: first, dynamic
 resolution scaling reduces the texture size when the viewer is zoomed
 out, cutting GPU load without sacrificing visible detail; second,
 framebuffer ping-ponging allows bloom effects to be applied efficiently
@@ -458,10 +458,22 @@ balanced blur that is visually pleasing but not too expensive. This
 modular design with separate shader stages for bright-pass, blur, and
 combine allows flexible reuse and tuning, making it a performant and
 visually effective bloom solution for real-time rendering in
-WebGL applications.</p></li>
+WebGL applications.</p>
+<p>The visual outcome of the bloom effect varies significantly depending
+on the underlying texture. On Worley textures, bloom emphasises the
+existing high-contrast cells and ridges, adding an extra layer of
+dimensionality and artistic flair. In contrast, Zippy textures—which
+flicker between red and blue without bloom—transform into bright white
+flickers when bloom is applied, and at full strength, even the black
+background is gently illuminated, giving a glowing ambiance. For Square
+textures, bloom doesn’t drastically change the structure but does boost
+color intensity, making everything appear more vibrant. These
+differences highlight how bloom can be used creatively, not just as a
+lighting enhancement, but as a stylistic tool to shape the mood and
+character of each procedural material.</p></li>
 </ol>
 <h4 id="validation-1">Validation</h4>
-<strong>Results</strong>:
+<p><strong>Results</strong>:</p>
 <div
 style="display: flex; justify-content: center; align-items: center; gap: 0px;">
 <p><video src="videos/worleyfullbloom.mp4" width="200" autoplay loop muted></video>
@@ -567,16 +579,70 @@ reflection textures, using weighting factors for a smooth and realistic
 result.</li>
 </ol>
 <h4 id="validation-2">Validation</h4>
-<strong>Results</strong>:
 <div
 style="display: flex; justify-content: space-around; align-items: center;">
 <div>
-<p><img src="images/ssr_reflection_uv.png" height="210px" style="vertical-align: middle;"></p>
+<p><img src="images/texture_position_validation.png" height="210px" style="vertical-align: middle;"></p>
+</div>
+</div>
+<figcaption style="text-align: center;">
+Visualised position coordinates texture
+</figcaption>
+<div
+style="display: flex; justify-content: space-around; align-items: center;">
+<div>
+<p><img src="images/texture_normal_validation.png" height="210px" style="vertical-align: middle;"></p>
+</div>
+</div>
+<figcaption style="text-align: center;">
+Visualised normal texture
+</figcaption>
+<div
+style="display: flex; justify-content: space-around; align-items: center;">
+<div>
+<p><img src="images/texture_base_validation.png" height="210px" style="vertical-align: middle;"></p>
+</div>
+</div>
+<figcaption style="text-align: center;">
+Base Image
+</figcaption>
+<div
+style="display: flex; justify-content: space-around; align-items: center;">
+<div>
+<p><img src="images/texture_reflection_uv_validation.png" height="210px" style="vertical-align: middle;"></p>
 </div>
 </div>
 <figcaption style="text-align: center;">
 Visualised UV coordinates sampled for SSR
 </figcaption>
+<div
+style="display: flex; justify-content: space-around; align-items: center;">
+<div>
+<p><img src="images/texture_reflection_color_validation.png" height="210px" style="vertical-align: middle;"></p>
+</div>
+</div>
+<figcaption style="text-align: center;">
+Reflection color
+</figcaption>
+<div
+style="display: flex; justify-content: space-around; align-items: center;">
+<div>
+<p><img src="images/texture_reflection_blur_validation.png" height="210px" style="vertical-align: middle;"></p>
+</div>
+</div>
+<figcaption style="text-align: center;">
+Reflection color blurred
+</figcaption>
+<div
+style="display: flex; justify-content: space-around; align-items: center;">
+<div>
+<p><img src="images/texture_shadow_validation.png" height="210px" style="vertical-align: middle;"></p>
+</div>
+</div>
+<figcaption style="text-align: center;">
+Shadow texture
+</figcaption>
+<p><strong>Results</strong>:</p>
 <div
 style="display: flex; justify-content: space-around; align-items: center;">
 <div>
@@ -604,7 +670,7 @@ Final integration of SSR into the complete project scene
 central/small grid dimensions, toggle small-grid rings, and reassign
 per-block materials (Worley, Zippy, Square) on the fly.</p>
 <p><strong>Scene Reloading</strong>: <code>reloadScene</code> and
-<code>reloadCityScene</code> clear and reinitialize objects, ensuring
+<code>reloadCityScene</code> clear and reinitialise objects, ensuring
 that parameter changes apply immediately without full page reloads.</p>
 <h3 id="failed-experiments">Failed Experiments</h3>
 <p>Initially, we attempted to dynamically attach planes at runtime to
@@ -644,7 +710,7 @@ the correct animated shader output per frame.</p></li>
 <li><p><strong>Codebase Complexity &amp; Shader Refactor</strong>: At
 the project’s start, navigating the inherited codebase was a significant
 barrier. To streamline development, we initiated a full codebase
-refactor: enforcing standardized naming conventions, extracting reusable
+refactor: enforcing standardised naming conventions, extracting reusable
 components, and unifying shader handling logic. For instance, we
 consolidated multiple vertex shaders into a single generic
 pass_through.vert.glsl, reducing redundancy and simplifying pipeline
