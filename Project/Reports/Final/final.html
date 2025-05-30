@@ -160,8 +160,6 @@ Status
 </th>
 </tr>
 </thead>
-<!-- <td style="background-color: #cce5ff;">Missing</td> -->
-<!-- <td style="background-color: #e8ebca;">Partially Completed</td> -->
 <tbody>
 <tr>
 <td>
@@ -329,7 +327,7 @@ style="display: flex; justify-content: center; gap: 20px; align-items: center;">
 — Zippy noise is applied exclusively to <code>city_block4</code>, the
 plane used for billboard attachments. This confirms our successful
 experiment of using planes as dynamic procedural surfaces in this WFC
-setup. </em>
+setup </em>
 </p>
 <p align="center">
 <img src="images/wfc_variant2_side.jpg" height="300px" alt="Variant 2 Side View">
@@ -338,7 +336,7 @@ setup. </em>
 </p>
 <p align="center">
 <em>WFC-Generated Layout (15×15×8) — Variant 3 with billboard surfaces
-enabled.</em>
+enabled</em>
 </p>
 <p align="center">
 <img src="images/wfc_sideview_no_chimney.jpg" width="500px" height="400px" alt="Side View No Chimney">
@@ -346,15 +344,15 @@ enabled.</em>
 <img src="images/wfc_topview_no_chimney.jpg" width="500px" height="400px" alt="Top View No Chimney">
 </p>
 <p align="center">
-<em>Chimney is not visible as the top face of <code>city_block1</code>
-is not exposed to the outside.</em>
+<em>Disabling the rule that the top face of</em>
+<code>city_block1</code> <em>hides the chimneys.</em>
 </p>
 <p align="center">
 <img src="images/wfc_sideview_no_plane.png" height="300px" alt="No Billboard Variant">
 </p>
 <p align="center">
-<em>WFC variant without billboard planes — confirms clean geometry when
-billboard layers are omitted.</em>
+<em>WFC variant with billboard planes disabled to check for proper
+alignment</em>
 </p>
 <h3
 id="dynamic-billboard-texture-generation-with-noise-and-bloom-effects">Dynamic
@@ -412,21 +410,22 @@ style="display: flex; justify-content: center; align-items: center; gap: 0px;">
 0%)</em>
 </p>
 <ol start="2" type="1">
-<li><strong>Zippy</strong>: This procedural texture generates animated
-glimmering flow lines, resembling headlights moving along a dark road or
-illuminated windows flickering across a cityscape, using a 2D Worley
-noise function. The fragment shader transforms screen coordinates into
-UV space and applies a vertical time-based offset to simulate movement,
-evoking the feel of continuous traffic flow. The Worley noise function
-places pseudo-random feature points within a grid and calculates the
-minimum distance from each fragment to these points, creating a cellular
-pattern. This distance is inverted and sharpened using smoothstep to
-isolate small, bright spots that represent glimmering lights. A
-flickering effect is introduced using a deterministic pseudo-random
+<li><p><strong>Zippy</strong>: This procedural texture generates
+animated glimmering flow lines, resembling headlights moving along a
+dark road or illuminated windows flickering across a cityscape, using a
+2D Worley noise function. The fragment shader transforms screen
+coordinates into UV space and applies a vertical time-based offset to
+simulate movement, evoking the feel of continuous traffic flow. The
+Worley noise function places pseudo-random feature points within a grid
+and calculates the minimum distance from each fragment to these points,
+creating a cellular pattern. This distance is inverted and sharpened
+using smoothstep to isolate small, bright spots that represent
+glimmering lights.</p>
+<p>A flickering effect is introduced using a deterministic pseudo-random
 function modulated by time, ensuring that only some of the lights blink
 on and off to create a dynamic feel. The result is a visually engaging,
 animated texture ideal for simulating vehicle lights or ambient
-illumination in a cyberpunk environment.</li>
+illumination in a cyberpunk environment.</p></li>
 </ol>
 <div
 style="display: flex; justify-content: center; align-items: center; gap: 0px;">
@@ -461,8 +460,8 @@ style="display: flex; justify-content: center; align-items: center; gap: 0px;">
 <video src="videos/water.mp4" width="300" alt="Worley Texture" autoplay loop muted ></video></p>
 </div>
 <p style="text-align: center;">
-<em>Comparison between Water Textures (Left to Right: Flat Noise &amp;
-Bumped Noise [Used in Scene])</em>
+<em>Comparison between Water Textures (Left: Flat Noise, Right: Bumped
+Noise [Used in Scene])</em>
 </p>
 <div
 style="display: flex; justify-content: center; gap: 0px; align-items: center;">

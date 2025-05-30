@@ -42,8 +42,6 @@ In addition to procedural generation, one of the visual cornerstones of the proj
 			<th>Status</th>
 		</tr>
 	</thead>
-	<!-- <td style="background-color: #cce5ff;">Missing</td> -->
-	<!-- <td style="background-color: #e8ebca;">Partially Completed</td> -->
     <tbody>
     	<tr>
     		<td>Wave Function Collapse (WFC)</td>
@@ -86,7 +84,6 @@ Our approach is as follows:
 
    To ensure these visual elements remained visible during procedural generation, we marked both the front and back of `city_block2` as “outside” in our tile configuration. This guaranteed that the billboard-facing sides would remain unobstructed. The remaining sides were marked as “connectable” to allow seamless tiling with adjacent buildings. A similar design was used for `city_block1`, where a rooftop chimney was always exposed by specifying its top face as “outside.” For `city_block3`, the faces with protrusions were also marked to face outward for better visibility and variation.
 
-
 2. **Rule Loading & Variant Preparation**: We begin by loading a JSON configuration that specifies each tile’s model file, face‐type labels, allowed rotations, and a global compatibility map of which face types can neighbor each other. For every tile definition, we produce up to four rotated variants by calculating its new orientation and adjusting the associated face labels accordingly. By embedding both the geometric rotation and updated face metadata into each variant ahead of time, the solver can later perform compatibility checks quickly and drive instanced rendering without costly runtime transformations.
 
 3. **Grid Initialization & Constraint Propagation**: The city is built on a 3D grid where each cell initially holds the full set of tile variants. We then iteratively prune invalid options by comparing each cell’s faces against those of its six neighbors—consulting the compatibility map to eliminate any variant whose face labels cannot match at least one neighbor. This pruning process continues until no further eliminations occur, ensuring that every remaining option in each cell is mutually compatible with its surroundings.
@@ -94,7 +91,7 @@ Our approach is as follows:
 4. **Entropy-Driven Collapse**: Once constraint propagation stabilizes, we identify the cell with the fewest remaining variant options (i.e., lowest entropy) and randomly select one of those options, with selection probabilities weighted by predefined tile importance. Fixing that choice triggers another round of compatibility pruning for neighboring cells. We repeat this cycle of collapse and propagation until every cell is resolved or a conflict arises, yielding a complete, coherent layout that balances randomness with structural rules.
 
 5. **Concentric-Ring Layout & Instancing**: Instead of arranging tiles in a solid 3D block, we convert the final grid into a flat list of instances and place them in three concentric circles around a central point. Each building retains its vertical position, but its horizontal coordinates follow a circular distribution. This design highlights the city center and minimizes overdraw.
- 
+
 6. **Performance**: For performance, identical building meshes are batched into GPU instanced draws, cutting draw calls by over 90%, and a distance-based visibility test ensures that only nearby instances are rendered each frame.
 
 #### Validation
@@ -121,7 +118,7 @@ Our approach is as follows:
 </div>
 
 <p style="text-align: center;"><em>
-WFC-Generated Layout (12×10×10) Featuring Variant 2 with Billboards — Zippy noise is applied exclusively to <code>city_block4</code>, the plane used for billboard attachments. This confirms our successful experiment of using planes as dynamic procedural surfaces in this WFC setup.
+WFC-Generated Layout (12×10×10) Featuring Variant 2 with Billboards — Zippy noise is applied exclusively to <code>city_block4</code>, the plane used for billboard attachments. This confirms our successful experiment of using planes as dynamic procedural surfaces in this WFC setup
 </em></p>
 
 <p align="center">
@@ -130,19 +127,19 @@ WFC-Generated Layout (12×10×10) Featuring Variant 2 with Billboards — Zippy 
   <img src="images/wfc_variant2.jpg" height="300px" alt="Variant 2 Front View">
 </p>
 
-<p align="center"><em>WFC-Generated Layout (15×15×8) — Variant 3 with billboard surfaces enabled.</em></p>
+<p align="center"><em>WFC-Generated Layout (15×15×8) — Variant 3 with billboard surfaces enabled</em></p>
 
 <p align="center">
   <img src="images/wfc_sideview_no_chimney.jpg" width="500px" height="400px" alt="Side View No Chimney">
   <br><br>
   <img src="images/wfc_topview_no_chimney.jpg" width="500px" height="400px" alt="Top View No Chimney">
 </p>
-<p align="center"><em>Chimney is not visible as the top face of <code>city_block1</code> is not exposed to the outside.</em></p>
+<p align="center"><em>Disabling the rule that the top face of</em> <code>city_block1</code> <em>hides the chimneys.</em></p>
 
 <p align="center">
   <img src="images/wfc_sideview_no_plane.png" height="300px" alt="No Billboard Variant">
 </p>
-<p align="center"><em>WFC variant without billboard planes — confirms clean geometry when billboard layers are omitted.</em></p>
+<p align="center"><em>WFC variant with billboard planes disabled to check for proper alignment</em></p>
 
 ### Dynamic billboard texture generation with noise and bloom effects
 
@@ -177,6 +174,7 @@ Our approach to implementing procedural textures is as follows:
 <p style="text-align: center;"><em>Bloom on Zippy Texture (Left to Right: 100%, 25% [Used in Scene], 0%)</em></p>
 
 2. **Zippy**: This procedural texture generates animated glimmering flow lines, resembling headlights moving along a dark road or illuminated windows flickering across a cityscape, using a 2D Worley noise function. The fragment shader transforms screen coordinates into UV space and applies a vertical time-based offset to simulate movement, evoking the feel of continuous traffic flow. The Worley noise function places pseudo-random feature points within a grid and calculates the minimum distance from each fragment to these points, creating a cellular pattern. This distance is inverted and sharpened using smoothstep to isolate small, bright spots that represent glimmering lights.
+
    A flickering effect is introduced using a deterministic pseudo-random function modulated by time, ensuring that only some of the lights blink on and off to create a dynamic feel. The result is a visually engaging, animated texture ideal for simulating vehicle lights or ambient illumination in a cyberpunk environment.
 
 <div style="display: flex; justify-content: center; align-items: center; gap: 0px;">
@@ -190,12 +188,11 @@ Our approach to implementing procedural textures is as follows:
 
    Additionally, subtle vertical drifting and horizontal scanline shimmer are applied to mimic the imperfect movement and refresh artifacts of real electronic panels. Finally, the colors are boosted with a glow effect and gamma correction to enhance brightness and contrast, resulting in a richly animated, colorful texture that can evoke the look of a bustling cyberpunk cityscape or futuristic neon signage.
 
-
 <div style="display: flex; justify-content: center; align-items: center; gap: 0px;">
   <video src="videos/flat_water.mp4" width="300" autoplay loop muted ></video>
   <video src="videos/water.mp4" width="300" alt="Worley Texture" autoplay loop muted ></video>
 </div>
-<p style="text-align: center;"><em>Comparison between Water Textures (Left to Right: Flat Noise & Bumped Noise [Used in Scene])</em></p>
+<p style="text-align: center;"><em>Comparison between Water Textures (Left: Flat Noise, Right: Bumped Noise [Used in Scene])</em></p>
 
 <div style="display: flex; justify-content: center; gap: 0px; align-items: center;">
   <video src="videos/layered_water.mp4" width="300" autoplay loop muted ></video>
