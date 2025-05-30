@@ -704,8 +704,10 @@ coherence. Crafting rules.json involved encoding spatial
 constraints—like forcing chimneys or billboard mounts to face
 outward—while avoiding overconstraining the generation space. Balancing
 logic and aesthetics was especially tricky when defining how tiles could
-rotate and connect across different layers and rings of the
-city.</p></li>
+rotate and connect across different layers and rings of the city. Thus,
+we resolved layout constraints by rotating face labels per variant in
+rules.json, ensuring key features like chimneys and billboard mounts
+always faced outward without overconstraining tile placement.</p></li>
 <li><p><strong>Runtime Texture Integration</strong>: Another major
 challenge was coupling the WFC-generated layout with our real-time
 procedural texture system. Textures such as Worley, Zippy, and Square
@@ -714,7 +716,10 @@ surfaces without breaking the instancing system used for performance.
 Since multiple tile variants could share the same geometry but differ in
 texture depending on face exposure, we needed precise control over
 material mappings, ensuring that billboard planes consistently displayed
-the correct animated shader output per frame.</p></li>
+the correct animated shader output per frame. Thus, we separated
+billboard planes as independent models and assigned them dynamic shaders
+at runtime, enabling animated procedural textures without disrupting
+instancing or affecting base building geometry.</p></li>
 <li><p><strong>Codebase Complexity &amp; Shader Refactor</strong>: At
 the project’s start, navigating the inherited codebase was a significant
 barrier. To streamline development, we initiated a full codebase
